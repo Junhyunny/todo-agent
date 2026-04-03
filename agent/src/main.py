@@ -2,7 +2,6 @@ import asyncio
 import json
 from typing import Any, Dict
 
-import nest_asyncio
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_aws import ChatBedrockConverse
@@ -13,15 +12,14 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 
-nest_asyncio.apply()
 load_dotenv()
 
 console = Console(soft_wrap=True)
-
 llm = ChatBedrockConverse(
-  model="jp.anthropic.claude-sonnet-4-6",
+  # model="jp.anthropic.claude-sonnet-4-6",
+  # model="global.anthropic.claude-haiku-4-5-20251001-v1:0",
+  model="apac.amazon.nova-pro-v1:0",
   region_name="ap-northeast-1",
-  temperature=0.5,
 )
 
 
