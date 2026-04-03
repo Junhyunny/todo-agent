@@ -34,8 +34,11 @@ mcp__tracker__get_story
 
 ### 일반적인 호출 방법
 
+`project_id`와 `id`(또는 `story_id`)를 반드시 함께 전달합니다.
+
 ```json
 {
+  "project_id": "99887766",
   "id": "12345678"
 }
 ```
@@ -44,6 +47,7 @@ mcp__tracker__get_story
 
 ```json
 {
+  "project_id": "99887766",
   "story_id": "12345678"
 }
 ```

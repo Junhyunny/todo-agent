@@ -19,16 +19,52 @@ triggers:
 ## Invocation
 
 ```
-/tdd-plan [story-id | "full story content"]
+/tdd-plan <project-id> <story-id>
+/tdd-plan <project-id> "full story content"
 ```
 
-- **TrackerBoot 스토리 ID** (숫자형, 예: `12345678` 또는 `#12345678`) → MCP를 통해 가져오기
-- **붙여넣은 스토리 텍스트** → 직접 사용
-- **인수 없음** → 오류를 표시하고 중지: "스토리가 필요합니다. TrackerBoot 스토리 ID를 제공하거나 스토리 내용을 붙여넣으세요."
+- **`project-id`** — TrackerBoot 프로젝트 ID **(필수)**
+- **`story-id`** — TrackerBoot 스토리 ID (숫자형, 예: `12345678` 또는 `#12345678`) → MCP를 통해 가져오기
+- **`"full story content"`** — 스토리 텍스트를 직접 붙여넣기 → 직접 사용
+- **project-id 없음** → 오류를 표시하고 중지: "프로젝트 ID가 필요합니다. TrackerBoot 프로젝트 ID를 첫 번째 인수로 제공하세요."
+- **story-id/content 없음** → 오류를 표시하고 중지: "스토리가 필요합니다. TrackerBoot 스토리 ID를 제공하거나 스토리 내용을 붙여넣으세요."
 
 ---
 
 ## Step 1: 스토리 불러오기
+
+### 인수 검증
+
+호출 시 `project-id`와 `story-id` (또는 스토리 텍스트)가 모두 제공되었는지 확인한다.
+
+**`project-id`가 없으면 즉시 중단:**
+
+```
+❌ TrackerBoot 프로젝트 ID가 필요합니다.
+
+프로젝트 ID 없이 실행하면 권한이 있는 임의의 프로젝트에서 스토리를 조회할 수 있습니다.
+
+사용법: /tdd-plan <project-id> <story-id>
+        /tdd-plan <project-id> "스토리 내용"
+예시:   /tdd-plan 99887766 12345678
+```
+
+STOP.
+
+**`story-id` 또는 스토리 텍스트가 없으면 즉시 중단:**
+
+```
+❌ 스토리가 필요합니다.
+
+TrackerBoot 스토리 ID를 제공하거나 스토리 내용을 붙여넣으세요.
+
+사용법: /tdd-plan <project-id> <story-id>
+        /tdd-plan <project-id> "스토리 내용"
+```
+
+STOP.
+
+**모두 제공되었으면:** `project-id`를 세션 전체에서 사용할 값으로 저장한다.
 
 ### 스토리 ID가 제공된 경우
 
@@ -42,6 +78,7 @@ mcp__tracker__get_story
 ```
 
 호출 전 앞에 있는 `#`을 제거합니다 (`#12345678` → `12345678`).
+`project_id` 파라미터를 반드시 함께 전달합니다.
 
 응답에서 추출:
 - **제목:** `name` 필드
