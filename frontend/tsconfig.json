@@ -7,13 +7,20 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "outDir": "dist",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "allowArbitraryExtensions": true
+    "allowArbitraryExtensions": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "src",
