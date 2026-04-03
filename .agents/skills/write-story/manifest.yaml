@@ -1,0 +1,18 @@
+name: write-story
+version: 1.0.0
+description: >
+  XP 프랙티스에 맞는 사용자 스토리를 AI와 대화 형식으로 함께 작성하고
+  TrackerBoot(MCP)에 자동 등록하는 스킬.
+  페르소나 정의(persona.md)가 필수이며, 레이블 기반으로 기존 스토리를 참조해
+  중복 없이 일관성 있게 스토리를 작성한다.
+category: engineering
+tags: [xp, story, agile, trackerboot, user-story]
+invocation: /write-story
+preconditions:
+  - TrackerBoot 프로젝트 ID를 인수로 제공 (없으면 실행 불가)
+  - .agents/skills/write-story/references/persona.md 존재 (없으면 실행 불가)
+  - TrackerBoot MCP 서버 구성 (스토리 등록 및 조회에 필요)
+effects:
+  - TrackerBoot에 새 스토리 등록 (제목, 설명, 인수 기준, 레이블)
+next_steps:
+  - /tdd-plan [story-id] 으로 TDD 세션 시작
