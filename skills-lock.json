@@ -4,22 +4,22 @@
     "tdd-commit": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "264f8a03b234945ffe210cd407d0a4f20bf53970876433d607ca05cc52215b66"
+      "computedHash": "a8f4d94f26a26e1f25a5f92ed237010e0df76dc88cc06b4982a097f55fe8b914"
     },
     "tdd-plan": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "f21acbf1feb9db42c5ec6d1a9c252cc4d61809bfa66759de15a0607109799854"
+      "computedHash": "d6115007f407ec0cf54fee7628a224015320c9adfaadc97f9903664eb82c31c0"
     },
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "eeb4e72870aa1e242872924c2c5e9ea29610e02d256799df3b2cff614c70b995"
+      "computedHash": "442b770a1a61e5e324529023901ca53e3d9fd3df3e8243ed8783db352112e82c"
     },
     "write-story": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "42afb93df5995a4198860a5ff9f551afb06a79fe88cb91af55465879af518f71"
+      "computedHash": "e850a55a7ead4e3475bc5f631904c5aa5f438ad5a7b497f6d85513c0ae3f0249"
     }
   }
 }

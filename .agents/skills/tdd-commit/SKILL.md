@@ -1,11 +1,10 @@
 ---
 name: tdd-commit
 description: >
-  ping-pong TDD 세션의 마지막 단계입니다. .tdd-sessions/에서 활성 세션 파일을 읽어
-  완료된 태스크를 요약하고, Conventional Commits 메시지를 제안하며,
-  커밋을 실행하고 세션 파일을 정리합니다.
-  모든 /tdd-task 호출이 완료된 후 실행합니다.
-disable-model-invocation: true
+  Use this skill when the user says "tdd commit", "commit tdd", "finish tdd session",
+  "TDD 커밋", "세션 커밋", or wants to commit after a TDD session.
+  Reads the active .tdd-sessions/ file, summarizes completed tasks,
+  proposes a Conventional Commits message, executes the commit, and cleans up the session file.
 ---
 
 # TDD Commit

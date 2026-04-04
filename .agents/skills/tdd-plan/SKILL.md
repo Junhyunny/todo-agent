@@ -1,11 +1,10 @@
 ---
 name: tdd-plan
 description: >
-  Ping-pong TDD 세션의 첫 번째 단계. TrackerBoot MCP에서 스토리를 가져오거나
-  직접 붙여넣은 스토리 내용을 받아들이고, 프로젝트 스택과 컨벤션을 감지하며,
-  협력하여 태스크 분해를 계획하고, /tdd-task와 /tdd-commit이 사용할
-  .tdd-session.md 파일을 작성합니다.
-disable-model-invocation: true
+  Use this skill when the user says "tdd plan", "plan tdd", "start tdd session",
+  "TDD 플랜", "TDD 세션 시작", or wants to plan a TDD session for a story.
+  Fetches a story from TrackerBoot MCP or accepts pasted content, detects the tech stack
+  and conventions, plans task decomposition, and writes the .tdd-sessions/ file.
 ---
 
 # TDD Plan

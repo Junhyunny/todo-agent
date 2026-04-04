@@ -1,9 +1,10 @@
 ---
 name: write-story
 description: >
-  XP 프랙티스에 맞는 사용자 스토리를 AI와 대화 형식으로 함께 작성하고
-  TrackerBoot(MCP)에 자동 등록하는 스킬.
-disable-model-invocation: true
+  Use this skill when the user says "write story", "create story", "new story",
+  "스토리 작성", "스토리 만들어", "스토리 써줘", or wants to create user stories.
+  Collaboratively writes XP-style user stories with acceptance criteria
+  and registers them to TrackerBoot via MCP.
 ---
 
 # Write Story
