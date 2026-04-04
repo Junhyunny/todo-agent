@@ -10,7 +10,7 @@ tags: [xp, story, agile, trackerboot, user-story, invest]
 invocation: /write-story
 preconditions:
   - TrackerBoot 프로젝트 ID를 인수로 제공 (없으면 실행 불가)
-  - .agents/skills/write-story/references/persona.md 존재 (없으면 실행 불가)
+  - .agents/skills/write-story/references/persona.md 존재 (없으면 실행 불가, 직접 작성 필요)
   - TrackerBoot MCP 서버 구성 (스토리 등록 및 조회에 필요)
 effects:
   - 시나리오를 INVEST 원칙에 따라 여러 스토리로 분리
