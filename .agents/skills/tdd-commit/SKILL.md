@@ -66,7 +66,7 @@ description: >
 Conventional Commits 형식 사용:
 
 ```
-feat(<scope>): <short description under 72 chars>
+[#STORY-ID] feat(<scope>): <short description under 72 chars>
 
 Implements [STORY-ID]: [story title]
 

@@ -7,7 +7,7 @@ Ping-pong TDD 세션은 구조화되고 읽기 쉬운 히스토리를 위해 Con
 ## 형식
 
 ```
-<type>(<scope>): <short description>
+[#<story-id>] <type>(<scope>): <short description>
 
 <body>
 
@@ -69,7 +69,7 @@ TDD: ping-pong pair programming session
 ### 버그 수정 세션
 
 ```
-fix(payment): handle currency rounding in order total calculation
+[#PROJ-456] fix(payment): handle currency rounding in order total calculation
 
 Fixes PROJ-456: Payment amount mismatch due to decimal rounding error
 
@@ -146,7 +146,7 @@ feat(user-profile): add profile delete and E2E tests (session 3/3)
 
 **Commit message:**
 ```
-feat(user-profile): add profile update functionality
+[#PROJ-123] feat(user-profile): add profile update functionality
 
 Implements PROJ-123: User Profile Update
 

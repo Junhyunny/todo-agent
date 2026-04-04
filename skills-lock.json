@@ -4,7 +4,7 @@
     "tdd-commit": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "a8f4d94f26a26e1f25a5f92ed237010e0df76dc88cc06b4982a097f55fe8b914"
+      "computedHash": "e01045b97033600e65781c8f3b48b42fa6ec1231d36d398e5dcba5a20b191c4b"
     },
     "tdd-plan": {
       "source": "junhyunny/skills",
@@ -14,12 +14,12 @@
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "442b770a1a61e5e324529023901ca53e3d9fd3df3e8243ed8783db352112e82c"
+      "computedHash": "d8343f524267836d801a5141db93107f01522c4a7673346b683d64a269ecdd8f"
     },
     "write-story": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "e850a55a7ead4e3475bc5f631904c5aa5f438ad5a7b497f6d85513c0ae3f0249"
+      "computedHash": "0ba72aa26e840026f9b742856c02011c15d78a5db81b6b833ff38020d44eed41"
     }
   }
 }
