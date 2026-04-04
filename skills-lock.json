@@ -9,7 +9,7 @@
     "tdd-plan": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "0265847a5b36bd5311ec2a8362bc6cbde6cb7ac42e7f48c163d94f9eeb46d21c"
+      "computedHash": "4c5e57e5813ca6ac5bceae913bdcc46a61755f63de195d8c1b35bac67249b72d"
     },
     "tdd-task": {
       "source": "junhyunny/skills",
@@ -19,7 +19,7 @@
     "write-story": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "56bd4927aa17e75933631f1ee3cac5b24b5bb01bfa9d8dd994fc8b11019f3610"
+      "computedHash": "92eba4aa3cbe451b3074a0885d362920660629998b7af34c67c2da78887f3bae"
     }
   }
 }

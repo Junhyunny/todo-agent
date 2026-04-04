@@ -22,33 +22,19 @@
 
 ## TrackerBoot MCP 패턴
 
-### 도구 이름 변형 (순서대로 시도)
+### 도구 이름
 
 ```
-mcp__trackerboot__get_story
-mcp__trackerboot__fetch_story
-mcp__trackerboot__story
-mcp__pivotal__get_story
-mcp__tracker__get_story
+tracker-boot-mcp-tb_get_story
 ```
 
-### 일반적인 호출 방법
+### 호출 방법
 
-`project_id`와 `id`(또는 `story_id`)를 반드시 함께 전달합니다.
+`storyId`를 전달합니다.
 
 ```json
 {
-  "project_id": "99887766",
-  "id": "12345678"
-}
-```
-
-또는
-
-```json
-{
-  "project_id": "99887766",
-  "story_id": "12345678"
+  "storyId": 12345678
 }
 ```
 

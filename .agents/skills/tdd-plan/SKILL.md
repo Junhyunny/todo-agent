@@ -68,17 +68,15 @@ STOP.
 
 ### 스토리 ID가 제공된 경우
 
-TrackerBoot 패턴을 찾기 위해 사용 가능한 MCP 도구를 검색합니다:
-```
-mcp__trackerboot__get_story
-mcp__trackerboot__fetch_story
-mcp__trackerboot__story
-mcp__pivotal__get_story
-mcp__tracker__get_story
+`tracker-boot-mcp-tb_get_story` 도구를 사용하여 스토리를 페치합니다:
+
+```json
+{
+  "storyId": 12345678
+}
 ```
 
 호출 전 앞에 있는 `#`을 제거합니다 (`#12345678` → `12345678`).
-`project_id` 파라미터를 반드시 함께 전달합니다.
 
 응답에서 추출:
 - **제목:** `name` 필드
