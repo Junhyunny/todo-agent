@@ -3,14 +3,7 @@ name: write-story
 description: >
   XP 프랙티스에 맞는 사용자 스토리를 AI와 대화 형식으로 함께 작성하고
   TrackerBoot(MCP)에 자동 등록하는 스킬.
-version: 2.0.0
-category: engineering
-tags: [xp, story, agile, trackerboot, user-story]
-triggers:
-  - write story
-  - create story
-  - new story
-  - 스토리 작성
+disable-model-invocation: true
 ---
 
 # Write Story

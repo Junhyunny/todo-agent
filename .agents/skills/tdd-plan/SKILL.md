@@ -5,13 +5,7 @@ description: >
   직접 붙여넣은 스토리 내용을 받아들이고, 프로젝트 스택과 컨벤션을 감지하며,
   협력하여 태스크 분해를 계획하고, /tdd-task와 /tdd-commit이 사용할
   .tdd-session.md 파일을 작성합니다.
-version: 1.0.0
-category: engineering
-tags: [tdd, pair-programming, planning, ping-pong, agile]
-triggers:
-  - tdd plan
-  - plan tdd
-  - start tdd session
+disable-model-invocation: true
 ---
 
 # TDD Plan

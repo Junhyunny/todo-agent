@@ -6,13 +6,7 @@ description: >
   개발자와 함께 전체 사이클을 진행하며 (테스트 작성과 구현을 번갈아가며),
   완료 시 세션 파일을 업데이트합니다.
   세션 파일을 생성하려면 먼저 /tdd-plan을 실행하세요.
-version: 1.0.0
-category: engineering
-tags: [tdd, pair-programming, ping-pong, red-green-refactor, testing]
-triggers:
-  - tdd task
-  - next tdd task
-  - run tdd
+disable-model-invocation: true
 ---
 
 # TDD Task

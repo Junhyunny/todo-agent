@@ -5,13 +5,7 @@ description: >
   완료된 태스크를 요약하고, Conventional Commits 메시지를 제안하며,
   커밋을 실행하고 세션 파일을 정리합니다.
   모든 /tdd-task 호출이 완료된 후 실행합니다.
-version: 1.0.0
-category: engineering
-tags: [tdd, pair-programming, ping-pong, commit, git]
-triggers:
-  - tdd commit
-  - commit tdd
-  - finish tdd session
+disable-model-invocation: true
 ---
 
 # TDD Commit
