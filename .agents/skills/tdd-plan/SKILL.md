@@ -3,8 +3,9 @@ name: tdd-plan
 description: >
   Use this skill when the user says "tdd plan", "plan tdd", "start tdd session",
   "TDD 플랜", "TDD 세션 시작", or wants to plan a TDD session for a story.
-  Fetches a story from TrackerBoot MCP or accepts pasted content, detects the tech stack
-  and conventions, plans task decomposition, and writes the .tdd-sessions/ file.
+  Fetches a story from TrackerBoot MCP or accepts pasted content, syncs the shared
+  tech-stack file and conventions, plans task decomposition, and writes the
+  .tdd-sessions/ file.
 ---
 
 # TDD Plan
@@ -111,32 +112,41 @@ or paste the story content directly."
 Does this look correct? Type "ok" to continue, or let me know what to fix.
 ```
 
-"ok" / "yes" / "looks good"를 기다립니다. 수정 사항이 있으면 적용하고 다시 표시합니다.
+"ok" / "yes" / "looks good"를 기다립니다.
+
+- 승인 입력이면 전체 스토리를 다시 출력하지 않고 `✅ 스토리 확인됨. 기술 스택 확인으로 진행합니다.`처럼 **짧게 전환만 표시**합니다.
+- 수정 요청이면 **수정된 항목만 다시 표시**합니다.
+- 전체 내용을 다시 보여주는 것은 개발자가 명시적으로 요청한 경우에만 합니다.
 
 ---
 
 ## Step 2: 기술 스택 감지
 
-프로젝트 루트 파일을 읽고 다음 규칙을 순서대로 적용합니다:
+이 단계에서는 직접 프로젝트 전체를 다시 해석하지 말고, 먼저 **`/sync-tech-stack` 스킬을 호출**해
+프로젝트 루트의 `.agents/tech-stack.md`를 최신 상태로 만든다.
 
-| 파일 존재 | 스택 |
-|-------------|-------|
-| 의존성에 `"react"`가 있는 `package.json` | TypeScript + React |
-| kotlin 플러그인이 있는 `build.gradle.kts` | Kotlin + Spring |
-| `build.gradle` (.kts 아님) + `src/main/java/` | Java + Spring |
-| `pom.xml` + `src/main/java/` | Java + Spring (Maven) |
-| `fastapi`가 있는 `pyproject.toml` 또는 `requirements.txt` | Python + FastAPI |
+### 수행 순서
 
-TypeScript의 경우, devDependencies도 확인:
-- `"vitest"` → 단위 테스트 FW: Vitest
-- `"jest"` → 단위 테스트 FW: Jest
-- `"@playwright/test"` 또는 `playwright.config.*` → E2E: Playwright
-- `"cypress"` → E2E: Cypress
+1. `/sync-tech-stack`를 호출한다
+2. 생성 또는 갱신된 `.agents/tech-stack.md`를 읽는다
+3. 이 파일의 `## 스택 요약`과 필요한 영역 섹션에서 다음 값을 추출한다:
+   - **Stack**
+   - **Unit test framework**
+   - **E2E framework**
+   - **작업 대상 경로/영역**
+4. 모노레포라면 현재 스토리와 가장 관련된 영역을 선택한다
 
-모호한 경우: "감지된 후보: [목록]. 어떤 스택으로 작업하고 있나요?"
-감지되지 않은 경우: "스택을 감지할 수 없습니다. 다음 중 하나를 지정하세요: typescript-react / kotlin-spring / java-spring / python-fastapi"
+### 파일이 없거나 읽을 수 없는 경우
 
-전체 감지 규칙은 `.agents/skills/tdd-plan/references/tech-stack-detection.md`를 참조하세요.
+`/sync-tech-stack` 실행 후에도 `.agents/tech-stack.md`가 없으면 중단한다:
+
+```
+❌ 기술 스택 파일을 준비하지 못했습니다.
+
+먼저 /sync-tech-stack 으로 `.agents/tech-stack.md`를 생성한 뒤 다시 시도해주세요.
+```
+
+전체 연결 규칙은 `.agents/skills/tdd-plan/references/tech-stack-detection.md`를 참조하세요.
 
 ---
 
@@ -144,7 +154,7 @@ TypeScript의 경우, devDependencies도 확인:
 
 **기존 테스트 또는 소스 파일이 없는 경우(새 프로젝트) 이 단계를 건너뜁니다.**
 
-스토리와 같은 영역에서 테스트 파일 2~3개와 소스 파일 1~2개를 읽습니다. 최근 수정된 파일을 선호합니다.
+`.agents/tech-stack.md`에서 선택된 영역을 기준으로, 스토리와 같은 영역의 테스트 파일 2~3개와 소스 파일 1~2개를 읽습니다. 최근 수정된 파일을 선호합니다.
 
 추출:
 - 테스트 파일 위치 (동일 위치 vs `test/` 디렉토리)
@@ -231,7 +241,15 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 
 ### 피드백 후
 
-태스크 목록을 업데이트하고 다시 표시합니다. 트리거 문구를 받을 때까지 반복합니다:
+태스크 목록을 업데이트할 때는 다음 규칙을 따릅니다:
+
+- **최초 1회만 전체 초안**을 표시합니다.
+- 이후 피드백 반영 시에는 **변경된 태스크/질문만 다시 표시**합니다.
+- `ready` / `go` / `approved` / `looks good`가 들어오면 전체 계획을 반복 출력하지 않고
+  `✅ 태스크 계획 확정. 세션 파일을 작성합니다.`처럼 **짧게 전환만 표시**합니다.
+- 전체 초안을 다시 보여주는 것은 개발자가 `show full plan`처럼 요청한 경우에만 합니다.
+
+트리거 문구를 받을 때까지 반복합니다:
 `ready` / `go` / `approved` / `looks good`
 
 ---

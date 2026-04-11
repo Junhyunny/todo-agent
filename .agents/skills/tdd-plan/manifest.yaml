@@ -1,9 +1,9 @@
 name: tdd-plan
-version: 1.0.0
+version: 1.1.0
 description: >
   Step 1 of ping-pong TDD. Fetches a story from TrackerBoot MCP or accepts
-  pasted content, detects stack and conventions, plans tasks collaboratively,
-  and writes .tdd-session.md for the session.
+  pasted content, syncs the shared tech-stack file and conventions, plans tasks
+  collaboratively, and writes .tdd-session.md for the session.
 category: engineering
 tags: [tdd, pair-programming, planning, ping-pong, agile]
 invocation: /tdd-plan <project-id> <story-id>

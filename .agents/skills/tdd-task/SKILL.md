@@ -52,6 +52,40 @@ description: >
 
 ---
 
+## 기술 스택 파일 준비
+
+세션 파일을 찾은 직후, 기술 스택 파일을 로드 또는 생성합니다.
+기술 스택 파일은 팀 전체가 공유할 수 있도록 `.agents/tech-stack.md`에 저장합니다.
+
+### 기존 기술 스택 파일이 있는 경우
+
+`.agents/tech-stack.md`가 존재하면:
+- 파일을 읽어 현재 컨텍스트에 로드합니다
+- 표시: `🧭 기술 스택 로드됨 (.agents/tech-stack.md)`
+- 세션 내내 스택/프레임워크 판단의 기준으로 사용합니다
+
+### 기술 스택 파일이 없는 경우
+
+`.agents/tech-stack.md`가 없으면:
+- **`/sync-tech-stack` 스킬을 호출해 파일을 생성합니다**
+- 생성 후 파일을 읽어 현재 컨텍스트에 로드합니다
+- 생성에 실패하면 중단합니다
+
+표시:
+```
+🧭 기술 스택 파일 준비 완료 → .agents/tech-stack.md
+```
+
+### 기술 스택이 바뀌었을 때
+
+개발자가 `update stack` 또는 `refresh stack`을 입력하면:
+1. `/sync-tech-stack`를 다시 호출합니다
+2. `.agents/tech-stack.md`를 다시 읽습니다
+3. 표시: `✅ 기술 스택 파일 갱신됨 (.agents/tech-stack.md)`
+4. 이어서 필요하면 컨벤션 파일도 갱신합니다
+
+---
+
 ## 코딩 컨벤션 준비
 
 세션 파일을 찾은 직후, 코딩 컨벤션을 로드 또는 생성합니다.
@@ -66,13 +100,13 @@ description: >
 
 ### 기존 컨벤션 파일이 없는 경우 (최초 실행)
 
-**프로젝트 전체**를 스캔하여 기술 스택과 팀 컨벤션을 파악합니다.
+`.agents/tech-stack.md`를 기준으로 팀 컨벤션을 파악합니다.
 상세 절차는 `references/coding-conventions-template.md`의 "생성 규칙"을 따릅니다.
 
 **① 기존 코드가 있는 경우** (소스/테스트 파일 발견):
 
-1. 프로젝트 루트 전체를 탐색해 모든 기술 스택을 감지합니다 (`package.json`, `build.gradle.kts`, `pom.xml`, `pyproject.toml` 등)
-2. 감지된 각 스택별로 소스/테스트 파일을 스캔하여 팀 컨벤션을 추출합니다
+1. `.agents/tech-stack.md`의 스택 요약에서 감지된 각 영역을 읽습니다
+2. 각 스택 영역별로 소스/테스트 파일을 스캔하여 팀 컨벤션을 추출합니다
    - 각 스택 영역에서 최근 수정된 테스트 파일 5~10개, 소스 파일 3~5개를 읽습니다
    - 코드 스타일 설정 파일 (`.eslintrc`, `detekt.yml`, `pyproject.toml` 등)도 함께 참조합니다
 3. 추출 결과를 스택별 섹션으로 분리하여 `.agents/coding-conventions.md`로 저장합니다
@@ -81,7 +115,7 @@ description: >
 ```
 📋 프로젝트 컨벤션 분석 완료 → .agents/coding-conventions.md 생성
 
-감지된 기술 스택:
+참조한 기술 스택:
 - [예: Frontend] TypeScript + React (frontend/)
 - [예: Backend] Kotlin + Spring (backend/)
 
@@ -91,14 +125,14 @@ description: >
 
 **② 새 프로젝트인 경우** (소스/테스트 파일 없음):
 
-빌드/설정 파일에서 스택을 감지하고, `references/coding-conventions-template.md`의 파일 구조 템플릿에 정의된 **모든 섹션을 채워** 초기 컨벤션 파일을 생성합니다.
+`.agents/tech-stack.md`에 기록된 스택을 기준으로, `references/coding-conventions-template.md`의 파일 구조 템플릿에 정의된 **모든 섹션을 채워** 초기 컨벤션 파일을 생성합니다.
 각 스택의 일반적인 베스트 프랙티스와 안티패턴을 기반으로 하되, 모든 항목에 `[기본값]` 태그를 붙여 실제 코드 분석값과 구분합니다.
 
 표시:
 ```
 📋 새 프로젝트 감지 — 기본 컨벤션 가이드 생성 → .agents/coding-conventions.md
 
-감지된 스택의 일반적인 베스트 프랙티스와 안티패턴을 초기값으로 설정했습니다.
+기술 스택 파일에 기록된 스택의 일반적인 베스트 프랙티스와 안티패턴을 초기값으로 설정했습니다.
 세션 진행 중 "add rule [내용]"으로 프로젝트에 맞게 업데이트할 수 있습니다.
 ```
 
@@ -106,7 +140,15 @@ description: >
 
 ## 세션 상태 블록
 
-모든 AI 작업 전에 렌더링합니다. `.tdd-session.md`에서 모든 값을 읽습니다.
+필요한 시점에만 렌더링합니다. `.tdd-session.md`에서 값을 읽습니다.
+
+### 출력 최적화 규칙
+
+- **현재 태스크 시작 시** 전체 세션 상태 블록을 표시합니다
+- **Phase Owner가 바뀌는 시점**에는 필요한 경우에만 전체 블록 대신 `Phase / Owner / Current Task / Next Action`만 짧게 표시합니다
+- `yes`, `ok`, `confirm`, `red confirmed`, `green confirmed`, `skip` 같은 짧은 응답 뒤에는 **이전 요약 전체를 다시 출력하지 않습니다**
+- 확인 후에는 `✅ RED 확인됨. GREEN 담당을 선택해주세요.`처럼 **짧은 전환 메시지**만 표시합니다
+- 전체 상태 블록이나 긴 요약은 개발자가 `show status`, `show task`, `show full`처럼 요청한 경우에만 다시 표시합니다
 
 ```markdown
 ---
@@ -117,6 +159,7 @@ description: >
 | Stack        | [stack] |
 | Test FW      | [framework] |
 | E2E FW       | [framework] |
+| Stack File   | 🧭 .agents/tech-stack.md |
 | Conventions  | 📋 .agents/coding-conventions.md |
 | Phase        | RED / GREEN / REFACTOR |
 | Current Task | [N] of [total]: [task title] |
@@ -175,8 +218,9 @@ description: >
 
 3. 선택이 결정되면:
    - 해당 기술의 설치 명령어와 기본 설정 스니펫을 제공합니다
-   - `.agents/coding-conventions.md`의 해당 스택 섹션에 새 기술을 추가합니다
-   - RED 단계로 진행합니다
+   - `/sync-tech-stack`를 다시 호출해 `.agents/tech-stack.md`를 갱신합니다
+   - `.agents/coding-conventions.md`의 해당 스택 섹션도 함께 갱신합니다
+   - `✅ 스택 결정됨. RED 담당 확인으로 진행합니다.`처럼 짧게 표시한 뒤 RED 단계로 진행합니다
 
 ### 기존 기술로 충분한 경우
 
@@ -221,8 +265,9 @@ Who handles RED for this cycle?
 | `abort` | 세션 중지, 완료된 내용을 커밋하려면 /tdd-commit 실행 |
 | `restart task` | 현재 태스크 초기화, RED부터 다시 시작 |
 | `add rule [내용]` | `.agents/coding-conventions.md`의 Custom Rules에 즉시 추가 후 이후 코드에 반영 |
+| `update stack` | `/sync-tech-stack`를 다시 호출해 `.agents/tech-stack.md`를 갱신 |
 | `update conventions` | 지금까지 작성된 코드를 기반으로 컨벤션 파일 재스캔 및 갱신 |
-| `add stack [기술명]` | 프로젝트에 새 기술 스택 추가 — AI가 설치 명령과 설정 스니펫 제공 후 컨벤션에 등록 |
+| `add stack [기술명]` | 프로젝트에 새 기술 스택 추가 — AI가 설치 명령과 설정 스니펫 제공 후 스택 파일과 컨벤션 파일을 갱신 |
 
 ### `add rule` 처리 방법
 
@@ -231,13 +276,22 @@ Who handles RED for this cycle?
 2. 표시: `✅ 규칙 추가됨: "[내용]" — 이후 모든 코드에 적용됩니다`
 3. 중단 없이 현재 단계를 계속 진행합니다
 
+### `update stack` 처리 방법
+
+개발자가 `update stack`을 입력하면:
+1. `/sync-tech-stack`를 호출합니다
+2. `.agents/tech-stack.md`를 다시 읽습니다
+3. 표시: `✅ 기술 스택 파일 갱신됨 (.agents/tech-stack.md)`
+4. 중단 없이 현재 단계를 계속 진행합니다
+
 ### `update conventions` 처리 방법
 
 개발자가 `update conventions`를 입력하면:
-1. 지금까지 이번 세션에서 작성된 소스/테스트 파일을 다시 읽습니다
-2. 기존 컨벤션 파일과 비교해 새로운 패턴이 있으면 업데이트합니다
-3. 표시: `✅ 컨벤션 파일 갱신됨 (.agents/coding-conventions.md)`
-4. 중단 없이 현재 단계를 계속 진행합니다
+1. `.agents/tech-stack.md`에서 현재 스택 영역 목록을 다시 읽습니다
+2. 지금까지 이번 세션에서 작성된 소스/테스트 파일을 다시 읽습니다
+3. 기존 컨벤션 파일과 비교해 새로운 패턴이 있으면 업데이트합니다
+4. 표시: `✅ 컨벤션 파일 갱신됨 (.agents/coding-conventions.md)`
+5. 중단 없이 현재 단계를 계속 진행합니다
 
 ---
 
@@ -303,9 +357,11 @@ MockKException: no answer found             ClassNotFoundException
 
 실패 이유가 잘못된 경우: 컴파일/import 오류를 해결하기 위해 빈 스텁(동작 없음)을 생성하고, 다시 실행한 후 RED를 확인합니다.
 
-RED가 확인되면, GREEN으로 넘어가기 전에 반드시 다음을 묻습니다:
+RED가 확인되면, 이전 RED 요약을 다시 출력하지 말고 짧게 전환한 뒤 GREEN으로 넘어가기 전에 반드시 다음을 묻습니다:
 
 ```
+✅ RED 확인됨.
+
 Who handles GREEN for this cycle?
 → **"me"** — I'll write the minimum implementation
 → **"you"** — AI writes the minimum implementation
@@ -377,9 +433,11 @@ async getUser(id: string) {
 
 캐싱, 오류 처리 등은 테스트에서 요구할 때만 추가합니다.
 
-GREEN이 확인되면, REFACTOR로 넘어가기 전에 반드시 다음을 묻습니다:
+GREEN이 확인되면, 이전 GREEN 요약을 다시 출력하지 말고 짧게 전환한 뒤 REFACTOR로 넘어가기 전에 반드시 다음을 묻습니다:
 
 ```
+✅ GREEN 확인됨.
+
 Who handles REFACTOR for this cycle?
 → **"me"** — I'll refactor
 → **"you"** — AI proposes and applies refactors
@@ -419,8 +477,8 @@ Who handles REFACTOR for this cycle?
 
    Apply this refactor? (yes / no / modify)
    ```
-5. 개발자가 **yes**를 입력하면: 파일 수정 도구로 **직접 변경 사항을 적용합니다**
-6. 개발자가 **modify**를 입력하면: 수정 방향을 받아 반영한 후 직접 적용합니다
+5. 개발자가 **yes**를 입력하면: 파일 수정 도구로 **직접 변경 사항을 적용하고**, 전체 제안을 다시 반복하지 말고 `✅ Refactor applied.`처럼 짧게 표시합니다
+6. 개발자가 **modify**를 입력하면: 수정 방향을 받아 반영한 후 직접 적용하고, 다시 필요한 변경점만 표시합니다
 7. 리팩토링할 것이 없는 경우: "코드가 깔끔합니다. 이번 사이클에는 리팩토링이 필요하지 않습니다."
 8. 모든 제안이 해결된 후:
    ```
@@ -492,6 +550,8 @@ REFACTOR 후:
 - 동일한 태스크에서 다음 테스트를 계속 작성할지 확인합니다
 - 계속한다면 다음 RED에 들어가기 전에 다시 묻습니다:
   ```
+  ✅ 다음 사이클로 진행합니다.
+
   Who handles RED for the next cycle?
   → "me"
   → "you"
@@ -509,7 +569,10 @@ REFACTOR 후:
 
 2. **코딩 규칙 업데이트 여부 확인:**
 
-   이번 태스크에서 새롭게 확립된 패턴이나 발견된 규칙을 요약한 뒤 질문합니다:
+   이번 태스크에서 새롭게 확립된 패턴이나 발견된 규칙이 있을 때만 요약한 뒤 질문합니다.
+   패턴이 없으면 이 단계를 길게 출력하지 않고 `✅ Task [N] complete.`만 표시한 뒤 바로 다음 단계로 진행합니다.
+
+   질문이 필요한 경우에만:
 
    ```
    ✅ Task [N] complete: [task title]
@@ -540,12 +603,10 @@ REFACTOR 후:
    일시 정지하고 기다립니다.
 
    - `commit` 입력 시: `/tdd-commit` 스킬을 실행합니다
-   - `next` 입력 시:
-     ```
-     Tasks remaining: [list of pending tasks]
-
-     → Run **/tdd-task** to continue with Task [N+1]: [title]
-     ```
+    - `next` 입력 시:
+      ```
+      → 다음 태스크로 이동합니다: Task [N+1] [title]
+      ```
    - `done` 입력 시:
      ```
      세션을 종료합니다.
@@ -558,6 +619,8 @@ REFACTOR 후:
 
 | 파일 | 읽는 시점 |
 |------|-------------|
+| `.agents/tech-stack.md` | 세션 시작 시, `update stack` 실행 시, 새 기술 추가 직후 |
 | `.agents/coding-conventions.md` | **RED/GREEN/REFACTOR 매 단계마다** — 항상 최신 규칙 적용 |
+| `.agents/skills/sync-tech-stack/SKILL.md` | 기술 스택 파일 생성/갱신이 필요할 때 |
 | `.agents/skills/tdd-task/references/red-green-refactor-guide.md` | 각 단계 완료 기준 판단 시 |
 | `.agents/skills/tdd-task/references/coding-conventions-template.md` | 컨벤션 파일 생성/갱신 시 — 파일 구조 및 생성 규칙 |

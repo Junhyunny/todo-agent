@@ -5,6 +5,8 @@
 또한 각 RED, GREEN, REFACTOR 단계에 들어가기 전에는 반드시 이번 단계의 작업 주체(AI 또는 개발자)를 확인합니다.
 AI는 자신이 담당자로 선택된 단계에서만 파일을 수정합니다.
 
+짧은 확인 응답(`yes`, `ok`, `red confirmed`, `green`) 뒤에는 이전 상태표나 전체 제안을 다시 반복하지 않고, 다음 단계로 넘어가는 짧은 전환 메시지만 표시합니다.
+
 ---
 
 ## RED 단계 — 완료 기준
@@ -168,6 +170,9 @@ Apply this change?
 → **no** — skip
 → **modify** — suggest a different approach
 ```
+
+`yes` 또는 `no` 이후에는 같은 제안의 Before/After를 다시 전부 출력하지 않습니다.
+필요하면 다음 제안 또는 결과만 짧게 이어갑니다.
 
 ### 리팩토링 건너뛰기
 

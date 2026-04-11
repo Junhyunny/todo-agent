@@ -1,0 +1,15 @@
+name: sync-tech-stack
+version: 1.0.0
+description: >
+  Detects project tech stacks and test frameworks, writes the shared
+  .agents/tech-stack.md file, and refreshes it when the project stack changes.
+category: engineering
+tags: [stack, tech-stack, detection, project, tdd]
+invocation: /sync-tech-stack
+preconditions:
+  - Project root is available
+effects:
+  - Creates or updates .agents/tech-stack.md in the project root
+  - Records detected stack areas, frameworks, and key signals for other skills
+next_steps:
+  - Run /tdd-plan or /tdd-task to consume the shared stack file

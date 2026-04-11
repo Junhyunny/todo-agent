@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "sync-tech-stack": {
+      "source": "junhyunny/skills",
+      "sourceType": "github",
+      "computedHash": "46a38c0a69f21f7987a1af645c098d3ff917d260c905ff04248577e1bbaab8a0"
+    },
     "tdd-commit": {
       "source": "junhyunny/skills",
       "sourceType": "github",
@@ -9,12 +14,12 @@
     "tdd-plan": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "d6115007f407ec0cf54fee7628a224015320c9adfaadc97f9903664eb82c31c0"
+      "computedHash": "b90537cc1c321452dfe31c1a4fb1f52853cee0a8c27e4f98f845290c2cbd324c"
     },
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "00df7171ecc6639938a0a8b7b31a9fdd3cb6a3cfaf0cccb381dee4ca5cbb104c"
+      "computedHash": "c0ab53b08ec21cd4e0a57adf5a653fe76ad5f23ad8682bdd57602c871ad4c632"
     },
     "write-story": {
       "source": "junhyunny/skills",

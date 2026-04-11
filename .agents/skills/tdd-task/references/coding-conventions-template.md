@@ -24,16 +24,7 @@
 
 > **출처:** 코드 분석 (기존 프로젝트) / 기본값 (새 프로젝트)
 > **생성:** [YYYY-MM-DD] | **마지막 업데이트:** [YYYY-MM-DD]
-
----
-
-## 기술 스택 현황
-
-| 영역 | 스택 | 주요 디렉토리 |
-|------|------|-------------|
-| [예: Frontend] | TypeScript + React | `frontend/` |
-| [예: Backend] | Kotlin + Spring | `backend/` |
-| [예: Infrastructure] | Python | `scripts/` |
+> **기술 스택 참조:** `.agents/tech-stack.md`
 
 ---
 
@@ -142,25 +133,17 @@
 
 ## 생성 규칙
 
-### Step 1: 프로젝트 전체 스택 감지
+### Step 1: 기술 스택 파일 로드
 
-프로젝트 루트에서 다음 파일들을 탐색하여 모든 기술 스택을 파악합니다:
+먼저 프로젝트 루트의 `.agents/tech-stack.md`를 읽습니다.
 
-| 파일 | 감지되는 스택 |
-|------|-------------|
-| `package.json` (react 의존성 포함) | TypeScript + React |
-| `package.json` (react 없음) | Node.js |
-| `build.gradle.kts` (kotlin 플러그인) | Kotlin + Spring |
-| `build.gradle` + `src/main/java/` | Java + Spring |
-| `pom.xml` + `src/main/java/` | Java + Spring (Maven) |
-| `pyproject.toml` / `requirements.txt` (fastapi 포함) | Python + FastAPI |
-| `pyproject.toml` / `requirements.txt` (fastapi 없음) | Python |
+파일이 없으면 먼저 `/sync-tech-stack`를 호출해 생성한 뒤 다시 읽습니다.
 
-모노레포 구조(단일 저장소에 복수 서비스)인 경우 각 서브 디렉토리를 별도 스택으로 처리합니다.
+이 파일의 `## 스택 요약`에 기록된 영역 목록을 컨벤션 생성의 기준으로 사용합니다.
 
 ### Step 2: 기존 코드 스캔 (기존 프로젝트)
 
-감지된 각 스택 영역에서 독립적으로 스캔합니다.
+`.agents/tech-stack.md`에 기록된 각 스택 영역에서 독립적으로 스캔합니다.
 
 **스캔 대상 파일 수:**
 - 코드가 풍부한 프로젝트 (파일 50개 이상): 스택별로 최근 수정 테스트 파일 5~10개, 소스 파일 3~5개
@@ -178,7 +161,7 @@
 
 ### Step 3: 새 프로젝트 기본값 적용
 
-감지된 각 스택에 대해 위 파일 구조 템플릿의 **모든 섹션**을 채웁니다.
+`.agents/tech-stack.md`에 기록된 각 스택에 대해 위 파일 구조 템플릿의 **모든 섹션**을 채웁니다.
 각 항목은 해당 스택의 일반적인 베스트 프랙티스를 기반으로 하며, `[기본값]` 태그를 붙여 실제 코드 분석값과 구분합니다.
 
 **채워야 할 섹션 (스택별로 반복):**
