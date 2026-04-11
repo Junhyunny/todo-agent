@@ -11,7 +11,7 @@
 | 영역 | 경로 | 스택 | 언어 | 빌드 도구 | Unit Test | E2E |
 |------|------|------|------|----------|-----------|-----|
 | Frontend | `frontend/` | TypeScript + React + Electron | TypeScript | npm (electron-forge) | Vitest + React Testing Library | — |
-| Agent | `agent/` | Python + LangChain/LangGraph | Python | pip | — | Playwright |
+| Backend | `backend/` | Python + FastAPI + SQLAlchemy + SQLite + LangChain/LangGraph | Python | pip | pytest + pytest-asyncio + httpx | Playwright |
 
 ---
 
@@ -30,18 +30,23 @@
 
 ---
 
-## Agent
+## Backend
 
-- **Path:** `agent/`
-- **Stack:** Python + LangChain/LangGraph
+- **Path:** `backend/`
+- **Stack:** Python + FastAPI + SQLAlchemy + SQLite + LangChain/LangGraph
 - **Language:** Python
 - **Build tool:** pip
-- **Unit test framework:** —
+- **Unit test framework:** pytest + pytest-asyncio + httpx (AsyncClient)
 - **E2E framework:** Playwright
-- **Source roots:** `agent/src/`
-- **Test roots:** —
-- **Detection signals:** `agent/requirements.txt` — langchain, langgraph, playwright, pydantic
-- **Status:** detected
+- **Source roots:** `backend/src/`
+- **Test roots:** TBD (co-located 예정)
+- **Detection signals:** `backend/requirements.txt` — SQLAlchemy 2.0, langchain, langgraph, playwright, pydantic
+- **Pending dependencies:** fastapi, uvicorn[standard], aiosqlite, alembic, pytest, pytest-asyncio
+- **Notes:**
+  - FastAPI HTTP API + LangChain/LangGraph AI 에이전트 코드를 동일 디렉토리에서 관리
+  - 에이전트 실행 API는 향후 BackgroundTasks / asyncio.Queue로 비동기 처리 필요
+  - Electron main process가 앱 시작 시 uvicorn을 child_process로 자동 실행
+- **Status:** detected (FastAPI 구성 예정)
 
 ---
 
