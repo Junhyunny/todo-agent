@@ -14,12 +14,12 @@
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "d8343f524267836d801a5141db93107f01522c4a7673346b683d64a269ecdd8f"
+      "computedHash": "00df7171ecc6639938a0a8b7b31a9fdd3cb6a3cfaf0cccb381dee4ca5cbb104c"
     },
     "write-story": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "0ba72aa26e840026f9b742856c02011c15d78a5db81b6b833ff38020d44eed41"
+      "computedHash": "2a4ef7e50c21903a6441cb4a28857e01b5be404159a671466e4676cc8ce7d0ca"
     }
   }
 }

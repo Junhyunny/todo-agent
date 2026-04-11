@@ -120,7 +120,7 @@ description: >
 | Conventions  | 📋 .agents/coding-conventions.md |
 | Phase        | RED / GREEN / REFACTOR |
 | Current Task | [N] of [total]: [task title] |
-| Turn         | DEV / AI |
+| Phase Owner  | DEV / AI |
 | Next Action  | [one-line description] |
 ---
 
@@ -180,20 +180,30 @@ description: >
 
 ### 기존 기술로 충분한 경우
 
-별도 안내 없이 바로 턴 설정으로 진행합니다.
+별도 안내 없이 바로 RED 담당 확인으로 진행합니다.
 
 ---
 
 
 
-현재 태스크 세부 사항을 표시한 후 질문합니다:
+현재 태스크 세부 사항을 표시한 후, **각 페이즈에 들어가기 직전에 그 페이즈의 작업 주체를 다시 확인합니다.**
+
+### 페이즈 담당 확인 규칙
+
+- RED에 들어가기 전: 누가 실패하는 테스트를 작성할지 묻습니다
+- GREEN에 들어가기 전: 누가 최소 구현을 작성할지 묻습니다
+- REFACTOR에 들어가기 전: 누가 리팩토링을 수행할지 묻습니다
+- **AI는 해당 페이즈에서 명시적으로 선택된 경우에만 파일을 수정합니다**
+- 특히 **GREEN에서는 "you"를 받은 경우에만 AI가 구현 파일을 작성합니다**
+
+처음에는 RED 담당만 확인합니다:
 
 ```
 Task [N]: [title]
 Type: [unit/integration/e2e]
 The first test will assert: [assertion description]
 
-Who writes the first failing test?
+Who handles RED for this cycle?
 → **"me"** — I'll write it
 → **"you"** — AI writes it
 ```
@@ -206,7 +216,7 @@ Who writes the first failing test?
 
 | 개발자 입력 | 효과 |
 |----------------|--------|
-| `skip` | AI가 현재 턴을 대신 진행 |
+| `skip` | 현재 페이즈를 AI가 대신 진행하거나, REFACTOR를 건너뜀 |
 | `next task` | 현재 태스크를 완료로 표시하고 다음으로 이동 |
 | `abort` | 세션 중지, 완료된 내용을 커밋하려면 /tdd-commit 실행 |
 | `restart task` | 현재 태스크 초기화, RED부터 다시 시작 |
@@ -235,7 +245,9 @@ Who writes the first failing test?
 
 ### AI의 턴인 경우
 
-1. 세션 상태 블록 렌더링 (Phase: RED, Turn: AI)
+이 섹션은 **RED 담당이 AI로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: RED, Phase Owner: AI)
 2. **작성 전, `.agents/coding-conventions.md`를 읽어 최신 컨벤션을 확인합니다:**
    - 테스트 파일 위치 및 명명 패턴
    - describe/test/it 구조 및 중첩 깊이
@@ -258,13 +270,14 @@ Who writes the first failing test?
 
    테스트를 실행하고 RED 상태(올바른 이유로 실패)를 확인해주세요.
    Type **"red confirmed"** or **"failing"** to continue.
-   (Or type "skip" to have AI write the implementation instead)
    ```
 6. 일시 정지하고 기다립니다
 
 ### 개발자의 턴인 경우
 
-1. 세션 상태 블록 렌더링 (Phase: RED, Turn: DEV)
+이 섹션은 **RED 담당이 DEV로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: RED, Phase Owner: DEV)
 2. 표시:
    ```
    ## 🔴 RED — Your Turn
@@ -276,7 +289,7 @@ Who writes the first failing test?
    (Or type "skip" to have AI write it instead)
    ```
 3. 일시 정지하고 기다립니다
-4. 개발자가 코드를 붙여넣으면: 확인하고, 파일 경로를 기록하고, GREEN으로 진행합니다
+4. 개발자가 코드를 붙여넣으면: 확인하고, 파일 경로를 기록하고, RED 확인 후 GREEN 담당 확인으로 진행합니다
 
 ### "올바른 이유"의 의미
 
@@ -290,13 +303,25 @@ MockKException: no answer found             ClassNotFoundException
 
 실패 이유가 잘못된 경우: 컴파일/import 오류를 해결하기 위해 빈 스텁(동작 없음)을 생성하고, 다시 실행한 후 RED를 확인합니다.
 
+RED가 확인되면, GREEN으로 넘어가기 전에 반드시 다음을 묻습니다:
+
+```
+Who handles GREEN for this cycle?
+→ **"me"** — I'll write the minimum implementation
+→ **"you"** — AI writes the minimum implementation
+```
+
+일시 정지하고 기다립니다.
+
 ---
 
 ## GREEN 단계
 
 ### AI의 턴인 경우
 
-1. 세션 상태 블록 렌더링 (Phase: GREEN, Turn: AI)
+이 섹션은 **GREEN 담당이 AI로 명시적으로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: GREEN, Phase Owner: AI)
 2. **작성 전, `.agents/coding-conventions.md`를 읽어 최신 컨벤션을 확인합니다:**
    - 디렉토리 구조 (기능 기반 vs 레이어 기반)
    - 클래스/함수 명명 컨벤션
@@ -319,7 +344,9 @@ MockKException: no answer found             ClassNotFoundException
 
 ### 개발자의 턴인 경우
 
-1. 세션 상태 블록 렌더링 (Phase: GREEN, Turn: DEV)
+이 섹션은 **GREEN 담당이 DEV로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: GREEN, Phase Owner: DEV)
 2. 표시:
    ```
    ## 🟢 GREEN — Your Turn
@@ -350,11 +377,26 @@ async getUser(id: string) {
 
 캐싱, 오류 처리 등은 테스트에서 요구할 때만 추가합니다.
 
+GREEN이 확인되면, REFACTOR로 넘어가기 전에 반드시 다음을 묻습니다:
+
+```
+Who handles REFACTOR for this cycle?
+→ **"me"** — I'll refactor
+→ **"you"** — AI proposes and applies refactors
+→ **"skip"** — no refactor for this cycle
+```
+
+일시 정지하고 기다립니다.
+
 ---
 
 ## REFACTOR 단계
 
-1. 세션 상태 블록 렌더링 (Phase: REFACTOR)
+### AI의 턴인 경우
+
+이 섹션은 **REFACTOR 담당이 AI로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: REFACTOR, Phase Owner: AI)
 2. **`.agents/coding-conventions.md`를 읽어 리팩토링 기준과 안티패턴을 확인합니다**
 3. 테스트와 구현을 다음 사항에 대해 검토합니다:
    - **중복** — 테스트와 구현에 동일한 로직이 있나요?
@@ -363,7 +405,7 @@ async getUser(id: string) {
    - **메서드 길이** — 10줄 이상인가요? 추출을 고려하세요.
    - **프레임워크 관용구** — Spring beans, React hooks, pytest fixtures
    - **컨벤션 일관성** — 세션 파일에서 감지된 패턴과 일치하나요?
-3. 각 제안에 대해 표시하고 일시 정지합니다:
+4. 각 제안에 대해 표시하고 일시 정지합니다:
    ```
    **Refactoring suggestion [N]:** [one-line title]
 
@@ -377,15 +419,41 @@ async getUser(id: string) {
 
    Apply this refactor? (yes / no / modify)
    ```
-4. 개발자가 **yes**를 입력하면: 파일 수정 도구로 **직접 변경 사항을 적용합니다**
-5. 개발자가 **modify**를 입력하면: 수정 방향을 받아 반영한 후 직접 적용합니다
-6. 리팩토링할 것이 없는 경우: "코드가 깔끔합니다. 이번 사이클에는 리팩토링이 필요하지 않습니다."
-7. 모든 제안이 해결된 후:
+5. 개발자가 **yes**를 입력하면: 파일 수정 도구로 **직접 변경 사항을 적용합니다**
+6. 개발자가 **modify**를 입력하면: 수정 방향을 받아 반영한 후 직접 적용합니다
+7. 리팩토링할 것이 없는 경우: "코드가 깔끔합니다. 이번 사이클에는 리팩토링이 필요하지 않습니다."
+8. 모든 제안이 해결된 후:
    ```
    REFACTOR complete. Are all tests still GREEN?
    Type **"green"** to continue to the next test.
    ```
-8. 일시 정지하고 기다립니다
+9. 일시 정지하고 기다립니다
+
+### 개발자의 턴인 경우
+
+이 섹션은 **REFACTOR 담당이 DEV로 선택된 경우에만** 실행합니다.
+
+1. 세션 상태 블록 렌더링 (Phase: REFACTOR, Phase Owner: DEV)
+2. 표시:
+   ```
+   ## 🔵 REFACTOR — Your Turn
+
+   Review the implementation and tests for duplication, naming, magic values,
+   method length, framework idioms, and convention alignment.
+
+   Refactor only if it improves clarity without changing behavior.
+   Run the tests after refactoring.
+
+   Type **"green"** when refactoring is done and tests are still passing.
+   (Or type "skip" to leave this cycle without refactoring)
+   ```
+3. 일시 정지하고 기다립니다
+
+### 건너뛰는 경우
+
+REFACTOR 담당 확인에서 `skip`이 선택되면:
+- "이번 사이클은 REFACTOR를 건너뜁니다."를 표시합니다
+- 별도 제안이나 파일 수정 없이 다음 단계로 진행합니다
 
 ### REFACTOR 중 컨벤션 업데이트
 
@@ -418,11 +486,17 @@ async getUser(id: string) {
 
 ---
 
-## 사이클 완료 → 역할 교체
+## 사이클 완료 → 다음 RED 담당 확인
 
 REFACTOR 후:
-- 동일한 태스크의 다음 테스트를 위해 역할을 교체합니다 (AI ↔ DEV)
-- 교체된 역할로 RED로 돌아갑니다
+- 동일한 태스크에서 다음 테스트를 계속 작성할지 확인합니다
+- 계속한다면 다음 RED에 들어가기 전에 다시 묻습니다:
+  ```
+  Who handles RED for the next cycle?
+  → "me"
+  → "you"
+  ```
+- 자동으로 역할을 교체하지 않습니다
 
 ---
 
