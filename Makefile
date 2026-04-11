@@ -25,6 +25,7 @@ start-claude:
 		--allowed-tools='shell(find:*)' \
 		--allowed-tools='shell(grep:*)' \
 		--allowed-tools='shell(xargs:*)' \
+		--allowed-tools='Write Update' \
 		--allowed-tools='mcp__tracker-boot-server__tb_get_projects:' \
 		--allowed-tools='mcp__tracker-boot-server__tb_get_story' \
 		--allowed-tools='mcp__tracker-boot-server__tb_get_story_tasks' \
