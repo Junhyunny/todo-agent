@@ -321,8 +321,6 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 ## ✅ Session Ready
 
 `.tdd-sessions/[filename]` created with [N] tasks.
-
-Run **/tdd-task** to start Task 1.
 ```
 
 세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 먼저:
@@ -333,7 +331,11 @@ Run **/tdd-task** to start Task 1.
 /context
 ```
 
-를 순서대로 실행해 계획 단계에서 쌓인 컨텍스트 사용량을 확인하고 압축합니다.
+를 **반드시 순서대로 실행**해 계획 단계에서 쌓인 컨텍스트 사용량을 확인하고 압축합니다.
+
+- 이 단계는 선택 사항이 아닙니다.
+- **압축 후 `/context` 결과를 보여주기 전에는** `Run **/tdd-task** to start Task 1.` 안내로 넘어가지 않습니다.
+- 계획 결과를 출력한 직후 곧바로 종료하지 말고, 위 순서를 마친 뒤 마무리합니다.
 
 표시는 짧게 유지합니다:
 
