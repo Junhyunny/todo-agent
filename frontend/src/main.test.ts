@@ -89,5 +89,7 @@ test("에이전트 등록 윈도우 열기 요청을 처리하면 새 창을 만
       }),
     }),
   );
-  expect(mockLoadURL).toHaveBeenCalledWith("http://localhost:5173");
+  expect(mockLoadURL).toHaveBeenCalledWith(
+    "http://localhost:5173#/agent-registration",
+  );
 });

@@ -1,15 +1,14 @@
-import { Bot } from "lucide-react";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
-import { Button } from "@/components/ui/button.tsx";
+import { HashRouter, Route, Routes } from "react-router";
+import { AgentRegistrationWindow } from "@/windows/AgentRegistrationWindow.tsx";
+import { MainWindow } from "@/windows/MainWindow.tsx";
 
 export const App = () => (
-  <div>
-    <div className="flex items-center justify-end">
-      <Button onClick={() => void window.agentRegistration.open()}>+</Button>
-      <Button aria-label="agent" variant="ghost" size="icon">
-        <Bot role="img" aria-label="agent-icon" />
-      </Button>
-    </div>
-  </div>
+  <HashRouter>
+    <Routes>
+      <Route path="/" element={<MainWindow />} />
+      <Route path="/agent-registration" element={<AgentRegistrationWindow />} />
+    </Routes>
+  </HashRouter>
 );

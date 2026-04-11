@@ -6,31 +6,41 @@ if (started) {
   app.quit();
 }
 
-const loadRendererWindow = (targetWindow: BrowserWindow) => {
+type HashRoute = {
+  hash: string;
+};
+
+const loadRendererWindow = (
+  targetWindow: BrowserWindow,
+  url: string,
+  hashRoute: HashRoute,
+) => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    targetWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    targetWindow.loadURL(url);
   } else {
     targetWindow.loadFile(
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+      hashRoute,
     );
   }
 };
 
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  const window = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
-
-  loadRendererWindow(mainWindow);
-  mainWindow.webContents.openDevTools();
+  loadRendererWindow(window, MAIN_WINDOW_VITE_DEV_SERVER_URL, {
+    hash: "",
+  });
+  window.webContents.openDevTools();
 };
 
 const createAgentRegistrationWindow = () => {
-  const agentRegistrationWindow = new BrowserWindow({
+  const window = new BrowserWindow({
     width: 500,
     height: 600,
     title: "에이전트 등록",
@@ -38,8 +48,13 @@ const createAgentRegistrationWindow = () => {
       preload: path.join(__dirname, "preload.js"),
     },
   });
-
-  loadRendererWindow(agentRegistrationWindow);
+  loadRendererWindow(
+    window,
+    `${MAIN_WINDOW_VITE_DEV_SERVER_URL}#/agent-registration`,
+    {
+      hash: "agent-registration",
+    },
+  );
 };
 
 ipcMain.handle("agent-registration:open", async () => {
