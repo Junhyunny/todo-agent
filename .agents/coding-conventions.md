@@ -24,8 +24,8 @@
 - co-located — 컴포넌트/모듈 옆에 `*.test.tsx` 파일을 둔다
 
 **테스트 구조**
-- top-level `test(...)`를 사용한다
-- `describe(...)` 중첩은 아직 관찰되지 않았다
+- 컴포넌트 테스트는 `describe(ComponentName, ...)` 블록으로 감싼다
+- 블록 안에서 top-level `test(...)`를 사용한다
 - React Testing Library로 렌더링 후 role 기반 쿼리를 사용한다
 
 **Mock 패턴**
