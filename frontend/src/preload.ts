@@ -2,4 +2,5 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("agentRegistration", {
   open: () => ipcRenderer.invoke("agent-registration:open"),
+  close: () => ipcRenderer.invoke("agent-registration:close"),
 });

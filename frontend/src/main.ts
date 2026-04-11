@@ -61,6 +61,10 @@ ipcMain.handle("agent-registration:open", async () => {
   createAgentRegistrationWindow();
 });
 
+ipcMain.handle("agent-registration:close", async ({ sender }) => {
+  BrowserWindow.fromWebContents(sender)?.close();
+});
+
 app.on("ready", createWindow);
 
 app.on("window-all-closed", () => {
