@@ -4,7 +4,8 @@ description: >
   Use this skill when the user says "tdd commit", "commit tdd", "finish tdd session",
   "TDD 커밋", "세션 커밋", or wants to commit after a TDD session.
   Reads the active .tdd-sessions/ file, summarizes completed tasks,
-  proposes a Conventional Commits message, executes the commit, and cleans up the session file.
+  proposes a Conventional Commits message, runs /compact, executes the commit,
+  and cleans up the session file.
 ---
 
 # TDD Commit
@@ -122,7 +123,25 @@ Ready to commit?
 
 ---
 
-## 5단계: 커밋 실행
+## 5단계: `/compact` 실행
+
+개발자가 `commit` 또는 `ship it`을 입력하면, 실제 git 명령을 실행하기 전에 먼저:
+
+```
+/compact
+```
+
+를 실행해 현재 컨텍스트 윈도우 사용량을 압축합니다.
+
+표시:
+
+```
+🧹 Context compacted. Proceeding with git commit...
+```
+
+---
+
+## 6단계: 커밋 실행
 
 개발자가 확인하면:
 
@@ -135,7 +154,7 @@ Ready to commit?
 
 ---
 
-## 6단계: 세션 파일 정리
+## 7단계: 세션 파일 정리
 
 ```
 Delete `.tdd-sessions/[filename]`? (yes / no)
