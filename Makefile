@@ -20,16 +20,17 @@ start-copilot:
 .PHONY: start-claude
 start-claude:
 	claude \
-  		--allowTools='shell(git:*)' \
-		--allowTools='shell(cat:*)' \
-		--allowTools='shell(find:*)' \
-		--allowTools='shell(grep:*)' \
-		--allowTools='shell(xargs:*)' \
-		--allowTools='tracker-boot(tb_get_story)' \
-		--allowTools='tracker-boot(tb_get_story_tasks)' \
-		--allowTools='tracker-boot(tb_get_story_comments)' \
-		--allowTools='tracker-boot(tb_batch_create_tasks)' \
-		--allowTools='tracker-boot(tb_update_story_status)' \
-		--allowTools='tracker-boot(tb_update_task)' \
-		--deniedTools='shell(git push)' \
+  		--allowed-tools='shell(git:*)' \
+		--allowed-tools='shell(cat:*)' \
+		--allowed-tools='shell(find:*)' \
+		--allowed-tools='shell(grep:*)' \
+		--allowed-tools='shell(xargs:*)' \
+		--allowed-tools='mcp__tracker-boot-server__tb_get_projects:' \
+		--allowed-tools='mcp__tracker-boot-server__tb_get_story' \
+		--allowed-tools='mcp__tracker-boot-server__tb_get_story_tasks' \
+		--allowed-tools='mcp__tracker-boot-server__tb_get_story_comments' \
+		--allowed-tools='mcp__tracker-boot-server__tb_batch_create_tasks' \
+		--allowed-tools='mcp__tracker-boot-server__tb_update_story_status' \
+		--allowed-tools='mcp__tracker-boot-server__tb_update_task' \
+		--disallowed-tools='shell(git push)' \
 		$(RESUME_OPT)
