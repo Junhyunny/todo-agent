@@ -128,15 +128,19 @@ Ready to commit?
 개발자가 `commit` 또는 `ship it`을 입력하면, 실제 git 명령을 실행하기 전에 먼저:
 
 ```
+/context
 /compact
+/context
 ```
 
-를 실행해 현재 컨텍스트 윈도우 사용량을 압축합니다.
+를 순서대로 실행해 현재 컨텍스트 윈도우 사용량을 확인하고 압축합니다.
 
 표시:
 
 ```
+📊 Context before compact shown.
 🧹 Context compacted. Proceeding with git commit...
+📊 Context after compact shown.
 ```
 
 ---

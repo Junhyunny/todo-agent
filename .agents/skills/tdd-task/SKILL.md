@@ -152,8 +152,8 @@ description: >
 
 ### 컨텍스트 압축 규칙
 
-- **초기 분석/준비(스택 파일, 컨벤션 파일, 현재 태스크 파악) 완료 후** RED에 들어가기 전에 `/compact`를 실행합니다
-- **현재 태스크가 `✅ done`으로 끝난 뒤** 다음 태스크 또는 `/tdd-commit`으로 넘어가기 전에 `/compact`를 실행합니다
+- **초기 분석/준비(스택 파일, 컨벤션 파일, 현재 태스크 파악) 완료 후** RED에 들어가기 전에 `/context → /compact → /context` 순서로 실행합니다
+- **현재 태스크가 `✅ done`으로 끝난 뒤** 다음 태스크 또는 `/tdd-commit`으로 넘어가기 전에 `/context → /compact → /context` 순서로 실행합니다
 - 같은 태스크의 RED/GREEN/REFACTOR 사이클 중간에는 `/compact`를 남발하지 않습니다
 - 압축 후에는 전체 상태를 다시 길게 출력하지 않고 짧은 전환만 표시합니다
 
@@ -262,15 +262,19 @@ Who handles RED for this cycle?
 이 RED 진입 직전에 먼저:
 
 ```text
+/context
 /compact
+/context
 ```
 
-를 실행합니다.
+를 순서대로 실행합니다.
 
 표시는 짧게 유지합니다:
 
 ```markdown
+📊 Context before compact shown.
 🧹 Task context compacted.
+📊 Context after compact shown.
 Who handles RED for this cycle?
 ```
 
@@ -618,15 +622,19 @@ REFACTOR 후:
    현재 태스크가 끝났으므로, 다음 작업으로 넘어가기 전에 먼저:
 
    ```text
+   /context
    /compact
+   /context
    ```
 
-   를 실행해 이번 태스크 대화를 압축합니다.
+   를 순서대로 실행해 이번 태스크 대화를 압축합니다.
 
    이후 짧게 표시:
 
    ```markdown
+   📊 Context before compact shown.
    🧹 Task context compacted.
+   📊 Context after compact shown.
    ```
 
    ```

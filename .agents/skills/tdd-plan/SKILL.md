@@ -328,14 +328,18 @@ Run **/tdd-task** to start Task 1.
 세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 먼저:
 
 ```text
+/context
 /compact
+/context
 ```
 
-를 실행해 계획 단계에서 쌓인 컨텍스트를 압축합니다.
+를 순서대로 실행해 계획 단계에서 쌓인 컨텍스트 사용량을 확인하고 압축합니다.
 
 표시는 짧게 유지합니다:
 
 ```markdown
+📊 Context before compact shown.
 🧹 Planning context compacted.
+📊 Context after compact shown.
 Run **/tdd-task** to start Task 1.
 ```
