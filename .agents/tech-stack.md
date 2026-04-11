@@ -2,7 +2,7 @@
 
 > **관리 스킬:** /sync-tech-stack
 > **생성:** 2026-04-12
-> **마지막 업데이트:** 2026-04-12
+> **마지막 업데이트:** 2026-04-12 (sync)
 
 ---
 
@@ -23,9 +23,9 @@
 - **Build tool:** npm (electron-forge)
 - **Unit test framework:** Vitest + React Testing Library
 - **E2E framework:** —
-- **Source roots:** `frontend/src/`
-- **Test roots:** `frontend/src/` (co-located)
-- **Detection signals:** `frontend/package.json` — react ^19, typescript ^6, vitest ^4, @testing-library/react ^16, electron ^41, react-router ^7
+- **Source roots:** `frontend/src/`, `frontend/src/windows/`, `frontend/src/components/`
+- **Test roots:** `frontend/src/` (co-located), `frontend/src/windows/` (co-located)
+- **Detection signals:** `frontend/package.json` — react ^19, typescript ^6, vitest ^4, @testing-library/react ^16, electron ^41, react-router ^7 (HashRouter 사용 중)
 - **Status:** detected
 
 ---
