@@ -150,6 +150,13 @@ description: >
 - 확인 후에는 `✅ RED 확인됨. GREEN 담당을 선택해주세요.`처럼 **짧은 전환 메시지**만 표시합니다
 - 전체 상태 블록이나 긴 요약은 개발자가 `show status`, `show task`, `show full`처럼 요청한 경우에만 다시 표시합니다
 
+### 컨텍스트 압축 규칙
+
+- **초기 분석/준비(스택 파일, 컨벤션 파일, 현재 태스크 파악) 완료 후** RED에 들어가기 전에 `/compact`를 실행합니다
+- **현재 태스크가 `✅ done`으로 끝난 뒤** 다음 태스크 또는 `/tdd-commit`으로 넘어가기 전에 `/compact`를 실행합니다
+- 같은 태스크의 RED/GREEN/REFACTOR 사이클 중간에는 `/compact`를 남발하지 않습니다
+- 압축 후에는 전체 상태를 다시 길게 출력하지 않고 짧은 전환만 표시합니다
+
 ```markdown
 ---
 ## 🏓 Session State
@@ -250,6 +257,21 @@ The first test will assert: [assertion description]
 Who handles RED for this cycle?
 → **"me"** — I'll write it
 → **"you"** — AI writes it
+```
+
+이 RED 진입 직전에 먼저:
+
+```text
+/compact
+```
+
+를 실행합니다.
+
+표시는 짧게 유지합니다:
+
+```markdown
+🧹 Task context compacted.
+Who handles RED for this cycle?
 ```
 
 일시 정지하고 기다립니다.
@@ -593,6 +615,20 @@ REFACTOR 후:
 
 3. **커밋 여부 확인:**
 
+   현재 태스크가 끝났으므로, 다음 작업으로 넘어가기 전에 먼저:
+
+   ```text
+   /compact
+   ```
+
+   를 실행해 이번 태스크 대화를 압축합니다.
+
+   이후 짧게 표시:
+
+   ```markdown
+   🧹 Task context compacted.
+   ```
+
    ```
    지금까지 작업한 내용을 커밋할까요?
    → "commit" — /tdd-commit 실행
@@ -603,10 +639,10 @@ REFACTOR 후:
    일시 정지하고 기다립니다.
 
    - `commit` 입력 시: `/tdd-commit` 스킬을 실행합니다
-    - `next` 입력 시:
-      ```
-      → 다음 태스크로 이동합니다: Task [N+1] [title]
-      ```
+   - `next` 입력 시:
+     ```
+     → 다음 태스크로 이동합니다: Task [N+1] [title]
+     ```
    - `done` 입력 시:
      ```
      세션을 종료합니다.

@@ -168,6 +168,25 @@ Delete `.tdd-sessions/[filename]`? (yes / no)
 
 ---
 
+## 8단계: 세션 종료 후 새 대화 권장
+
+`/tdd-commit`까지 끝나서 **이번 작업이 완전히 끝났다면**, 추가로 `/compact`를 실행하지 말고
+기존 대화를 끊어 새 세션으로 넘어가는 것을 우선합니다.
+
+표시:
+
+```markdown
+✅ TDD commit flow complete.
+
+If this work is fully finished:
+→ run **/new** to start a fresh conversation
+→ run **/clear** if you want to discard this session history entirely
+```
+
+같은 작업을 바로 이어갈 특별한 이유가 없다면 `/new`를 기본으로 권장합니다.
+
+---
+
 ## 레퍼런스 파일
 
 | 파일 | 읽는 시점 |
