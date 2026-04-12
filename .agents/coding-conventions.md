@@ -128,4 +128,5 @@
 > `add rule [내용]` 명령으로 추가됩니다. 모든 단계에서 최우선으로 적용됩니다.
 
 - 윈도우 컴포넌트는 `frontend/src/windows/` 디렉토리에 둔다
+- **persistence layer test**: FastAPI + SQLAlchemy 통합 테스트는 `backend/src/conftest.py`에 `autouse=True` 픽스처를 두고 in-memory SQLite(`sqlite+aiosqlite:///:memory:`)로 모든 테스트 DB를 격리한다. `app.dependency_overrides[get_session]`으로 프로덕션 세션을 테스트 세션으로 교체하고, 각 테스트 후 `app.dependency_overrides.clear()`와 `engine.dispose()`로 정리한다.
 
