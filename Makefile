@@ -20,11 +20,11 @@ start-copilot:
 .PHONY: start-claude
 start-claude:
 	claude \
-  		--allowed-tools='shell(git:*)' \
-		--allowed-tools='shell(cat:*)' \
-		--allowed-tools='shell(find:*)' \
-		--allowed-tools='shell(grep:*)' \
-		--allowed-tools='shell(xargs:*)' \
+  		--allowed-tools='Bash(git:*)' \
+		--allowed-tools='Bash(cat:*)' \
+		--allowed-tools='Bash(find:*)' \
+		--allowed-tools='Bash(grep:*)' \
+		--allowed-tools='Bash(xargs:*)' \
 		--allowed-tools='Write Update' \
 		--allowed-tools='mcp__tracker-boot-server__tb_get_projects:' \
 		--allowed-tools='mcp__tracker-boot-server__tb_get_story' \
@@ -33,5 +33,5 @@ start-claude:
 		--allowed-tools='mcp__tracker-boot-server__tb_batch_create_tasks' \
 		--allowed-tools='mcp__tracker-boot-server__tb_update_story_status' \
 		--allowed-tools='mcp__tracker-boot-server__tb_update_task' \
-		--disallowed-tools='shell(git push)' \
+		--disallowed-tools='Bash(git push)' \
 		$(RESUME_OPT)
