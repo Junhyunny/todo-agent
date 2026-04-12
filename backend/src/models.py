@@ -6,7 +6,7 @@ from database import Base
 
 
 class AgentModel(Base):
-  __tablename__ = "agents"
+  __tablename__ = "todo_agent_db"
 
   id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
   name: Mapped[str]
