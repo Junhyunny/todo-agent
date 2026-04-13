@@ -331,17 +331,15 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 /context
 ```
 
-를 **반드시 순서대로 실행**해 계획 단계에서 쌓인 컨텍스트 사용량을 확인하고 압축합니다.
+를 **개발자가 CLI에서 직접 순서대로 실행하도록 안내**합니다.
 
 - 이 단계는 선택 사항이 아닙니다.
-- **압축 후 `/context` 결과를 보여주기 전에는** `Run **/tdd-task** to start Task 1.` 안내로 넘어가지 않습니다.
-- 계획 결과를 출력한 직후 곧바로 종료하지 말고, 위 순서를 마친 뒤 마무리합니다.
+- 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
+- 대신 아래처럼 짧게 안내만 남기고 마무리합니다.
 
 표시는 짧게 유지합니다:
 
 ```markdown
-📊 Context before compact shown.
-🧹 Planning context compacted.
-📊 Context after compact shown.
-Run **/tdd-task** to start Task 1.
+Before starting **/tdd-task**, run `/context`, `/compact`, `/context` in the CLI.
+Then run **/tdd-task** to start Task 1.
 ```
