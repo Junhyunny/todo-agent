@@ -6,14 +6,18 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { MainWindow } from "./MainWindow.tsx";
 
 const mockGetAgents = vi.hoisted(() => vi.fn());
+const mockCreateAgent = vi.hoisted(() => vi.fn());
 vi.mock("../repository/agent-repository", () => ({
   getAgents: mockGetAgents,
+  createAgent: mockCreateAgent,
 }));
 
 describe("MainWindow", () => {
   beforeEach(() => {
     mockGetAgents.mockClear();
     mockGetAgents.mockResolvedValue([]);
+    mockCreateAgent.mockClear();
+    mockCreateAgent.mockResolvedValue({});
   });
 
   test("메인 화면에서 + 버튼이 렌더링된다", () => {
@@ -46,6 +50,26 @@ describe("MainWindow", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
+  });
+
+  test("저장 후 onClose 콜백에서 getAgents가 재호출되어 새 에이전트가 목록에 표시된다", async () => {
+    mockGetAgents
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", name: "새 에이전트", system_prompt: "" },
+      ]);
+
+    render(<MainWindow />);
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "새 에이전트",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "저장" }));
+
+    expect(await screen.findByText("새 에이전트")).toBeInTheDocument();
+    expect(mockGetAgents).toHaveBeenCalledTimes(2);
   });
 
   test("마운트 시 에이전트 목록을 불러와 화면에 렌더링한다", async () => {

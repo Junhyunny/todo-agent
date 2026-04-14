@@ -7,12 +7,16 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { createAgent } from "@/repository/agent-repository.ts";
 
-export const AgentRegistrationWindow = () => {
+type Props = {
+  onClose: () => void;
+};
+
+export const AgentRegistrationDialog = ({ onClose }: Props) => {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
 
   const closeWindow = () => {
-    window.agentRegistration?.close();
+    onClose();
   };
 
   const handleCreate = async () => {
@@ -37,8 +41,8 @@ export const AgentRegistrationWindow = () => {
         </button>
         <button
           type="button"
-          onClick={() => {
-            void handleCreate();
+          onClick={async () => {
+            await handleCreate();
             closeWindow();
           }}
         >
