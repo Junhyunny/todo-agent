@@ -323,15 +323,7 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 `.tdd-sessions/[filename]` created with [N] tasks.
 ```
 
-세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 먼저:
-
-```text
-/context
-/compact
-/context
-```
-
-를 **개발자가 CLI에서 직접 순서대로 실행하도록 안내**합니다.
+세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
 
 - 이 단계는 선택 사항이 아닙니다.
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
@@ -340,6 +332,6 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 표시는 짧게 유지합니다:
 
 ```markdown
-Before starting **/tdd-task**, run `/context`, `/compact`, `/context` in the CLI.
+Before starting **/tdd-task**, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
 Then run **/tdd-task** to start Task 1.
 ```

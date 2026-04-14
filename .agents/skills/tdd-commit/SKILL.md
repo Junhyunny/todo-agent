@@ -4,8 +4,8 @@ description: >
   Use this skill when the user says "tdd commit", "commit tdd", "finish tdd session",
   "TDD 커밋", "세션 커밋", or wants to commit after a TDD session.
   Reads the active .tdd-sessions/ file, summarizes completed tasks,
-  proposes a Conventional Commits message, asks the developer to run /compact,
-  executes the commit,
+  proposes a Conventional Commits message, asks the developer to review context
+  usage with /context and compress it with /compact, executes the commit,
   and cleans up the session file.
 ---
 
@@ -124,17 +124,9 @@ Ready to commit?
 
 ---
 
-## 5단계: `/compact` 안내
+## 5단계: `/context` 확인 및 `/compact` 안내
 
-개발자가 `commit` 또는 `ship it`을 입력하면, 실제 git 명령을 실행하기 전에 먼저:
-
-```
-/context
-/compact
-/context
-```
-
-를 **개발자가 CLI에서 직접 순서대로 실행하도록 안내**합니다.
+개발자가 `commit` 또는 `ship it`을 입력하면, 실제 git 명령을 실행하기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
 
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
 - 대신 아래처럼 짧게 안내하고, 개발자가 완료를 알리면 다음 단계로 진행합니다.
@@ -142,7 +134,7 @@ Ready to commit?
 표시:
 
 ```
-Before commit, run `/context`, `/compact`, `/context` in the CLI.
+Before commit, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
 When finished, reply `done`.
 ```
 

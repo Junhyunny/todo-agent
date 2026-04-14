@@ -144,16 +144,18 @@ description: >
 
 ### 출력 최적화 규칙
 
-- **현재 태스크 시작 시** 전체 세션 상태 블록을 표시합니다
+- **세션 시작 시 첫 태스크에 진입할 때만** 전체 세션 상태 블록을 표시합니다
+- **Task [N] 완료 후 Task [N+1]로 넘어갈 때는** 전체 세션 상태 블록을 다시 출력하지 않고, `Current Task / Phase / Next Action`과 필요한 경우 `Task Progress`의 현재/다음 항목만 짧게 표시합니다
 - **Phase Owner가 바뀌는 시점**에는 필요한 경우에만 전체 블록 대신 `Phase / Owner / Current Task / Next Action`만 짧게 표시합니다
 - `yes`, `ok`, `confirm`, `red confirmed`, `green confirmed`, `skip` 같은 짧은 응답 뒤에는 **이전 요약 전체를 다시 출력하지 않습니다**
 - 확인 후에는 `✅ RED 확인됨. GREEN 담당을 선택해주세요.`처럼 **짧은 전환 메시지**만 표시합니다
 - 전체 상태 블록이나 긴 요약은 개발자가 `show status`, `show task`, `show full`처럼 요청한 경우에만 다시 표시합니다
+- Story, Stack, Test FW 같은 상단 메타데이터는 **첫 태스크 진입 시** 또는 개발자가 명시적으로 요청한 경우에만 다시 표시합니다
 
 ### 컨텍스트 압축 규칙
 
-- **초기 분석/준비(스택 파일, 컨벤션 파일, 현재 태스크 파악) 완료 후** RED에 들어가기 전에 `/context → /compact → /context` 순서를 **개발자가 직접 실행하도록 안내**합니다
-- **현재 태스크가 `✅ done`으로 끝난 뒤** 다음 태스크 또는 `/tdd-commit`으로 넘어가기 전에 `/context → /compact → /context` 순서를 **개발자가 직접 실행하도록 안내**합니다
+- **초기 분석/준비(스택 파일, 컨벤션 파일, 현재 태스크 파악) 완료 후** RED에 들어가기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 직접 실행하도록 안내**합니다
+- **현재 태스크가 `✅ done`으로 끝난 뒤** 다음 태스크 또는 `/tdd-commit`으로 넘어가기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 직접 실행하도록 안내**합니다
 - 같은 태스크의 RED/GREEN/REFACTOR 사이클 중간에는 `/compact`를 남발하지 않습니다
 - 압축 후에는 전체 상태를 다시 길게 출력하지 않고 짧은 전환만 표시합니다
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않고 안내 메시지만 남깁니다
@@ -180,6 +182,17 @@ description: >
 |---|-------|------|--------|
 | 1 | [title] | unit | ✅ done / 🔄 active / ⏳ pending |
 ...
+```
+
+다음 태스크로 넘어갈 때는 아래처럼 축약형만 사용합니다:
+
+```markdown
+→ Task [N+1]으로 이동합니다.
+
+Current Task: [N+1] of [total]: [task title]
+Phase: RED
+Next Action: RED 담당 선택
+Progress: [N] ✅ done / [N+1] 🔄 active / 나머지 ⏳ pending
 ```
 
 ---
@@ -260,22 +273,14 @@ Who handles RED for this cycle?
 → **"you"** — AI writes it
 ```
 
-이 RED 진입 직전에 먼저:
-
-```text
-/context
-/compact
-/context
-```
-
-를 **개발자가 CLI에서 직접 순서대로 실행하도록 안내**합니다.
+이 RED 진입 직전에 먼저 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
 
 - 에이전트는 명령 실행 대신 아래처럼 짧게 안내하고 기다립니다.
 
 표시는 짧게 유지합니다:
 
 ```markdown
-Before RED, run `/context`, `/compact`, `/context` in the CLI.
+Before RED, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
 When finished, reply `done` and then choose who handles RED.
 ```
 
@@ -544,6 +549,10 @@ REFACTOR 담당 확인에서 `skip`이 선택되면:
 
 리팩토링을 진행하면서 AI는 기존 컨벤션에 없는 새로운 패턴이 확립되었는지 능동적으로 판단합니다.
 
+- **이번 REFACTOR 페이즈에서 실제 코드 변경이 있었다면**, 다음 사이클로 넘어가기 전에 그 변경에서 재사용 가능한 규칙이 생겼는지 반드시 확인합니다
+- 변경은 있었지만 규칙으로 남길 패턴이 없으면, 이 단계를 길게 출력하지 않고 `리팩터링 변경 사항에는 새 컨벤션 후보가 없습니다.`처럼 짧게 표시하고 넘어갑니다
+- REFACTOR를 건너뛰었거나 실제 코드 변경이 없었다면 이 확인 단계는 생략합니다
+
 **AI가 제안하는 경우** — 다음 중 하나가 감지될 때:
 - 이번 태스크에서 처음 쓴 패턴이 재사용할 만한 규칙이 될 가능성이 있음
 - 기존 컨벤션에 정의되지 않은 새로운 영역(에러 처리, 특정 어노테이션, 네이밍 등)이 등장함
@@ -563,6 +572,16 @@ REFACTOR 담당 확인에서 `skip`이 선택되면:
 
 일시 정지하고 기다립니다.
 
+REFACTOR 변경이 있었을 때는 필요하면 아래처럼 짧게 확인합니다:
+
+```
+💡 REFACTOR에서 새 패턴 후보가 보였습니다: [패턴 요약]
+
+이 변경 내용을 코딩 컨벤션에 추가할까요?
+→ "add rule [내용]" — .agents/coding-conventions.md에 추가
+→ "skip" — 이번에는 추가하지 않음
+```
+
 **개발자가 직접 요청하는 경우:**
 - `add rule [내용]` 입력 시 즉시 `.agents/coding-conventions.md`에 추가
 - 컨벤션 파일과 충돌하는 기존 코드가 발견되면 제안: "기존 코드가 현재 컨벤션(`[규칙]`)과 다릅니다. 컨벤션을 업데이트할까요, 아니면 이 코드를 맞출까요?"
@@ -574,6 +593,7 @@ REFACTOR 담당 확인에서 `skip`이 선택되면:
 ## 사이클 완료 → 다음 RED 담당 확인
 
 REFACTOR 후:
+- **이번 REFACTOR에서 변경이 있었다면**, 먼저 코딩 컨벤션에 추가할 규칙이 있는지 확인합니다
 - 동일한 태스크에서 다음 테스트를 계속 작성할지 확인합니다
 - 계속한다면 다음 RED에 들어가기 전에 다시 묻습니다:
   ```
@@ -620,22 +640,14 @@ REFACTOR 후:
 
 3. **커밋 여부 확인:**
 
-   현재 태스크가 끝났으므로, 다음 작업으로 넘어가기 전에 먼저:
-
-   ```text
-   /context
-   /compact
-   /context
-   ```
-
-   를 **개발자가 CLI에서 직접 순서대로 실행하도록 안내**합니다.
+   현재 태스크가 끝났으므로, 다음 작업으로 넘어가기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
 
    - 에이전트는 명령 실행 대신 아래처럼 짧게 안내하고 기다립니다.
 
    이후 짧게 표시:
 
    ```markdown
-   Before moving on, run `/context`, `/compact`, `/context` in the CLI.
+   Before moving on, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
    When finished, reply `done`.
    ```
 
@@ -651,7 +663,12 @@ REFACTOR 후:
    - `commit` 입력 시: `/tdd-commit` 스킬을 실행합니다
    - `next` 입력 시:
      ```
-     → 다음 태스크로 이동합니다: Task [N+1] [title]
+     → Task [N+1]으로 이동합니다.
+
+     Current Task: [N+1] of [total]: [title]
+     Phase: RED
+     Next Action: RED 담당 선택
+     Progress: [N] ✅ done / [N+1] 🔄 active / 나머지 ⏳ pending
      ```
    - `done` 입력 시:
      ```
