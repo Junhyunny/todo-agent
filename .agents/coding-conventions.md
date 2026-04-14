@@ -1,7 +1,7 @@
 # 프로젝트 코딩 컨벤션
 
 > **출처:** 코드 분석 (기존 프로젝트)
-> **생성:** 2026-04-11 | **마지막 업데이트:** 2026-04-11
+> **생성:** 2026-04-11 | **마지막 업데이트:** 2026-04-14 (2회차)
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## [TypeScript + React + Electron] 컨벤션
 
-> 출처: `frontend/package.json`, `frontend/biome.json`, `frontend/src/App.tsx`, `frontend/src/App.test.tsx`, `frontend/src/components/ui/button.tsx`
+> 출처: `frontend/package.json`, `frontend/biome.json`, `frontend/src/App.tsx`, `frontend/src/App.test.tsx`, `frontend/src/components/ui/button.tsx`, `frontend/src/components/AgentListDialog.test.tsx`, `frontend/src/components/AgentRegistrationDialog.test.tsx`
 
 ### 테스트 컨벤션
 
@@ -28,13 +28,17 @@
 - 블록 안에서 top-level `test(...)`를 사용한다
 - React Testing Library로 렌더링 후 role 기반 쿼리를 사용한다
 
-**Mock 패턴**
-- 아직 프로젝트 고유 mock 패턴은 충분히 관찰되지 않았다
-- [기본값] Vitest의 `vi.fn()`, `vi.stubGlobal()` 같은 기본 mock 도구를 우선 사용한다
+**Mock 패턴** _(업데이트: 2026-04-14)_
+- repository 모듈을 mock할 때 `vi.hoisted(() => vi.fn())`으로 mock 함수를 선언하고, `vi.mock("../repository/모듈명", () => ({ 함수명: mockFn }))` 으로 모듈을 대체한다
+- `beforeEach`에서 `mockFn.mockClear()`로 상태를 초기화하고, `mockFn.mockResolvedValue(...)` 또는 `mockFn.mockRejectedValue(...)`로 시나리오별 응답을 설정한다
+- `vi.hoisted`를 사용하는 이유: `vi.mock` 호출이 호이스팅되므로, 블록 바깥 변수를 참조하려면 `vi.hoisted`로 감싸야 한다
 
-**Assertion 패턴**
+**Assertion 패턴** _(업데이트: 2026-04-14)_
 - `expect(element).toBeInTheDocument()`
-- `within(element).getByRole(...)`
+- 리스트 항목처럼 같은 role/name을 가진 요소가 여러 개 있을 때는 `within()` 스코핑을 사용한다
+  1. 먼저 `within(container).findByLabelText("item-id")`로 레이블된 컨테이너를 찾는다
+  2. 그 안에서 `within(item).getByRole(...)` 또는 `within(item).getByText(...)`로 요소를 검증한다
+- 비동기 상태가 포함된 경우 `findBy*`를 사용하고, 이후 동기 검증은 `getBy*`를 사용한다
 
 **테스트 명명 규칙**
 - 한국어 문장형 테스트명을 사용한다
@@ -48,6 +52,11 @@
 **클래스/함수 패턴**
 - 함수형 React 컴포넌트를 선호한다
 - named export를 사용한다
+
+**접근성 / 시맨틱 마크업** _(업데이트: 2026-04-14)_
+- 내부에 인터랙티브 요소(버튼 등)를 포함하는 리스트 항목은 `<section aria-label="item-{id}">` 로 감싼다
+- `aria-label` 값은 항목을 고유하게 식별할 수 있어야 한다 (예: `agent-1`, `agent-{agent.id}`)
+- 이 패턴은 테스트에서 `within(container).findByLabelText("item-id")` 스코핑과 함께 사용된다
 
 **의존성 주입**
 - React props와 Electron preload 전역 API를 통해 의존성을 연결한다

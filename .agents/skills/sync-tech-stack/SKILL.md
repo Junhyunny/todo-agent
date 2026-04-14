@@ -3,7 +3,6 @@ name: sync-tech-stack
 description: >
   Use this skill when the user says "sync tech stack", "detect stack",
   "update stack", "refresh stack", "스택 감지", "기술 스택 업데이트",
-  or when another skill needs a shared project stack file.
   Detects project tech stacks and frameworks, writes `.agents/tech-stack.md`,
   and updates it when the stack changes.
 ---
@@ -27,7 +26,7 @@ description: >
 - 파일이 있으면 현재 내용을 읽어 기존 요약과 `## Manual Notes` 섹션을 확인한다
 - 파일이 없으면 새로 생성할 준비를 한다
 
-이 파일은 다른 스킬이 기술 스택을 참조하는 **단일 진실 공급원(source of truth)** 이다.
+이 파일은 프로젝트의 기술 스택 요약을 담는 **단일 진실 공급원(source of truth)** 이다.
 
 ---
 
@@ -89,7 +88,7 @@ PAUSE. 확인 후 계속한다.
 - 기존 `## Manual Notes` 섹션이 있으면 유지한다
 - 날짜 메타데이터(`생성`, `마지막 업데이트`)를 갱신한다
 
-이 파일은 **간결하게 유지**한다. 장황한 설명보다 다른 스킬이 바로 사용할 수 있는 구조화된 요약을 우선한다.
+이 파일은 **간결하게 유지**한다. 장황한 설명보다 프로젝트에서 바로 참고할 수 있는 구조화된 요약을 우선한다.
 
 ---
 
@@ -114,14 +113,6 @@ PAUSE. 확인 후 계속한다.
 ```markdown
 ✅ `.agents/tech-stack.md`가 이미 최신입니다.
 ```
-
----
-
-## 다른 스킬과의 연결 규칙
-
-- `tdd-plan`은 Step 2에서 이 스킬을 호출해 `.agents/tech-stack.md`를 최신 상태로 만든 뒤 그 파일을 읽는다
-- `tdd-task`는 세션 시작 시 `.agents/tech-stack.md`를 우선 로드하고, 파일이 없거나 개발자가 `update stack`을 요청하면 이 스킬을 호출한다
-- 기술 스택이 바뀌는 작업(새 빌드 파일, 새 프레임워크 도입, 모듈 추가)이 있은 뒤에는 이 스킬을 다시 실행한다
 
 ---
 

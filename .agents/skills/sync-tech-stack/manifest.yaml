@@ -10,6 +10,6 @@ preconditions:
   - Project root is available
 effects:
   - Creates or updates .agents/tech-stack.md in the project root
-  - Records detected stack areas, frameworks, and key signals for other skills
+  - Records detected stack areas, frameworks, and key signals for the project
 next_steps:
-  - Run /tdd-plan or /tdd-task to consume the shared stack file
+  - Re-run when the project stack changes
