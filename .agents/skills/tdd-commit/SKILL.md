@@ -154,34 +154,50 @@ Optional: after commit, review the relevant context usage with `/context` and co
 
 ## 7단계: 세션 파일 정리
 
+- **모든 태스크가 ✅ 완료된 경우에만** 세션 파일 삭제 여부를 묻습니다.
+- **미완료 태스크가 하나라도 남아 있으면** 세션 파일은 자동으로 유지합니다. 이 경우 삭제 여부를 묻지 않습니다.
+
+모든 태스크가 완료된 경우에만 표시:
+
 ```
 Delete `.tdd-sessions/[filename]`? (yes / no)
 → "yes" — delete the file
-→ "no" — keep it (useful if the story spans multiple sessions)
+→ "no" — keep it
 ```
 
-일시 중지하고 기다림. 응답에 따라 실행.
+미완료 태스크가 남아 있는 경우 표시:
+
+```markdown
+Session file kept: `.tdd-sessions/[filename]`
+
+Pending tasks remain. Continue with **/tdd-task** when you're ready.
+```
 
 삭제 후 `.tdd-sessions/`가 비어 있어도 그대로 두면 됩니다 — 이미 gitignore에 등록되어 있습니다.
 
 ---
 
-## 8단계: 세션 종료 후 새 대화 권장
+## 8단계: 커밋 완료 안내
 
-`/tdd-commit`까지 끝나서 **이번 작업이 완전히 끝났다면**, 추가로 `/compact`를 실행하지 말고
-기존 대화를 끊어 새 세션으로 넘어가는 것을 우선합니다.
+- **모든 태스크가 완료된 경우**에만 작업 종료 안내를 짧게 표시합니다.
+- **미완료 태스크가 남아 있는 경우**에는 새 대화를 권장하지 않고, 같은 작업을 `/tdd-task`로 이어가도록 안내합니다.
 
-표시:
+모든 태스크가 완료된 경우 표시:
 
 ```markdown
 ✅ TDD commit flow complete.
 
-If this work is fully finished:
-→ run **/new** to start a fresh conversation
-→ run **/clear** if you want to discard this session history entirely
+All tasks are complete.
 ```
 
-같은 작업을 바로 이어갈 특별한 이유가 없다면 `/new`를 기본으로 권장합니다.
+미완료 태스크가 남아 있는 경우 표시:
+
+```markdown
+✅ TDD commit flow complete.
+
+Pending tasks remain.
+Continue with **/tdd-task** in this conversation when you're ready.
+```
 
 ---
 

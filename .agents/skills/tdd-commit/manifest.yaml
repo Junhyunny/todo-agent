@@ -11,6 +11,6 @@ preconditions:
   - .tdd-session.md exists with at least one completed task
 effects:
   - Creates a git commit with all session changes staged
-  - Optionally deletes .tdd-session.md
+  - Deletes .tdd-session.md only when all tasks are complete and the developer confirms
 next_steps:
-  - Run /tdd-plan to start a new session
+  - Run /tdd-task to continue pending tasks, or /tdd-plan when starting a new session
