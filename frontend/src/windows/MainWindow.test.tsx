@@ -2,10 +2,20 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { MainWindow } from "./MainWindow.tsx";
 
+const mockGetAgents = vi.hoisted(() => vi.fn());
+vi.mock("../repository/agent-repository", () => ({
+  getAgents: mockGetAgents,
+}));
+
 describe("MainWindow", () => {
+  beforeEach(() => {
+    mockGetAgents.mockClear();
+    mockGetAgents.mockResolvedValue([]);
+  });
+
   test("메인 화면에서 + 버튼이 렌더링된다", () => {
     render(<MainWindow />);
     expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
@@ -28,5 +38,18 @@ describe("MainWindow", () => {
     render(<MainWindow />);
     await userEvent.click(screen.getByRole("button", { name: "+" }));
     expect(open).toHaveBeenCalledTimes(1);
+  });
+
+  test("마운트 시 에이전트 목록을 불러와 화면에 렌더링한다", async () => {
+    mockGetAgents.mockResolvedValue([
+      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
+      { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
+    ]);
+
+    render(<MainWindow />);
+
+    expect(await screen.findByText("에이전트A")).toBeInTheDocument();
+    expect(screen.getByText("에이전트B")).toBeInTheDocument();
+    expect(mockGetAgents).toHaveBeenCalledTimes(1);
   });
 });

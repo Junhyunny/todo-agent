@@ -4,12 +4,9 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
-import axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
+
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 
 export interface AgentResponse {
   id: string;
@@ -37,29 +34,26 @@ export interface PostAgentRequest {
 }
 
 export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
-/**
- * @summary Get Agents
- */
-const getAgentsAgentsGet = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AgentResponse[]>> => {
-    return axiosInstance.get(
-      `/agents`,options
-    );
-  }
+  /**
+   * @summary Get Agents
+   */
+  const getAgentsAgentsGet = (
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<AgentResponse[]>> => {
+    return axiosInstance.get(`/agents`, options);
+  };
 
-/**
- * @summary Create Agent
- */
-const createAgentAgentsPost = (
-    postAgentRequest: PostAgentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.post(
-      `/agents`,
-      postAgentRequest,options
-    );
-  }
+  /**
+   * @summary Create Agent
+   */
+  const createAgentAgentsPost = (
+    postAgentRequest: PostAgentRequest,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<AgentResponse>> => {
+    return axiosInstance.post(`/agents`, postAgentRequest, options);
+  };
 
-return {getAgentsAgentsGet,createAgentAgentsPost}};
-export type GetAgentsAgentsGetResult = AxiosResponse<AgentResponse[]>
-export type CreateAgentAgentsPostResult = AxiosResponse<AgentResponse>
+  return { getAgentsAgentsGet, createAgentAgentsPost };
+};
+export type GetAgentsAgentsGetResult = AxiosResponse<AgentResponse[]>;
+export type CreateAgentAgentsPostResult = AxiosResponse<AgentResponse>;

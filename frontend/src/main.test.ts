@@ -9,6 +9,7 @@ const {
   mockLoadFile,
   mockLoadURL,
   mockOpenDevTools,
+  mockSpawn,
 } = vi.hoisted(() => {
   const mockAppOn = vi.fn();
   const mockHandle = vi.fn();
@@ -29,6 +30,7 @@ const {
     ),
     { fromWebContents: mockFromWebContents },
   );
+  const mockSpawn = vi.fn();
 
   return {
     mockAppOn,
@@ -39,6 +41,7 @@ const {
     mockLoadFile,
     mockLoadURL,
     mockOpenDevTools,
+    mockSpawn,
   };
 });
 
@@ -56,6 +59,10 @@ vi.mock("electron-squirrel-startup", () => ({
   default: false,
 }));
 
+vi.mock("node:child_process", () => ({
+  spawn: mockSpawn,
+}));
+
 describe("main process", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -64,6 +71,7 @@ describe("main process", () => {
     mockLoadURL.mockClear();
     mockLoadFile.mockClear();
     mockOpenDevTools.mockClear();
+    mockSpawn.mockClear();
   });
 
   test("에이전트 등록 윈도우 열기 요청을 처리하면 새 창을 만들고 화면을 로드한다", async () => {
@@ -97,6 +105,17 @@ describe("main process", () => {
     expect(mockLoadURL).toHaveBeenCalledWith(
       "http://localhost:5173#/agent-registration",
     );
+  });
+
+  test("앱이 준비되면 uvicorn 서버를 실행한다", async () => {
+    await import("./main.ts");
+
+    const readyCall = mockAppOn.mock.calls.find(([event]) => event === "ready");
+    const [, readyHandler] = readyCall!;
+
+    readyHandler();
+
+    expect(mockSpawn).toHaveBeenCalledWith("uvicorn", expect.any(Array));
   });
 
   test("에이전트 등록 윈도우 닫기 요청을 처리하면 요청을 보낸 창을 닫는다", async () => {
