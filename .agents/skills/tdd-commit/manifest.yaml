@@ -2,9 +2,8 @@ name: tdd-commit
 version: 1.1.0
 description: >
   Final step of ping-pong TDD. Reads .tdd-session.md, summarizes completed
-  tasks, proposes a Conventional Commits message, asks the developer to review
-  context usage with /context and compress it with /compact, executes the
-  commit, and cleans up the session file.
+  tasks, proposes a Conventional Commits message, executes the commit, gives a
+  brief optional /context and /compact reminder, and cleans up the session file.
 category: engineering
 tags: [tdd, pair-programming, ping-pong, commit, git]
 invocation: /tdd-commit

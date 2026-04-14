@@ -239,6 +239,30 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 3. API/컨트롤러 레이어 세 번째 (HTTP 인터페이스)
 4. E2E 마지막 (전체 흐름 검증)
 
+### 프론트엔드-백엔드 경계 태스크 규칙
+
+스토리에 **프론트엔드와 백엔드가 모두 등장**하고, UI 동작이 서버 데이터에 의존하면, 엔드포인트 구현과 별도로 **실제 API 호출 연결 태스크**가 반드시 포함되어야 합니다.
+
+- 백엔드 엔드포인트 구현 태스크만 만들고 끝내지 않습니다
+- 프론트 UI 렌더링 태스크만 만들고, API 호출 연결을 암묵적으로 포함시키지 않습니다
+- 다음 항목 중 하나 이상이 **명시적인 태스크 제목/범위**로 보여야 합니다:
+  - OpenAPI 스펙 export / 클라이언트 재생성
+  - generated client(orval/axios 등) 사용 또는 갱신
+  - frontend service/repository/hook/preload bridge에서 실제 API 호출 연결
+  - 저장 후 목록 재조회, invalidation, refresh 같은 서버 동기화 흐름
+
+예를 들어, "저장하면 리스트에 반영된다" 유형의 스토리는 보통 아래 경계 태스크를 포함합니다:
+
+1. 백엔드 write endpoint
+2. 백엔드 read endpoint
+3. 프론트에서 create API 호출 연결
+4. 프론트에서 list API 호출 연결
+5. 필요하면 preload/electron bridge 또는 API client generation
+
+**계획 검증 체크:**
+- 프론트와 백엔드가 모두 필요한 스토리라면, 초안 확정 전에 "브라우저/UI 코드가 실제로 어떤 클라이언트/서비스를 통해 서버와 통신하는지"를 태스크 목록에서 한 번 더 확인합니다
+- 이 연결 태스크가 빠졌다면 초안을 확정하지 말고 보완합니다
+
 ### 피드백 후
 
 태스크 목록을 업데이트할 때는 다음 규칙을 따릅니다:
@@ -293,6 +317,8 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 - **Test FW:** [framework]
 - **E2E FW:** [framework]
 - **Conventions:** [summary line]
+- **API Client:** [client or "—"]
+- **Spec path:** [path or "—"]
 
 ## Tasks
 | # | Title | Type | Status |
@@ -323,15 +349,14 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 `.tdd-sessions/[filename]` created with [N] tasks.
 ```
 
-세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
+세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 필요하면 `/context`로 사용량을 확인하고 `/compact`로 압축할 수 있다고 **짧게 안내만 남깁니다**.
 
-- 이 단계는 선택 사항이 아닙니다.
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
-- 대신 아래처럼 짧게 안내만 남기고 마무리합니다.
+- 이 안내 때문에 다음 작업 진행을 멈추지 않습니다.
 
 표시는 짧게 유지합니다:
 
 ```markdown
-Before starting **/tdd-task**, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
+Optional: before starting **/tdd-task**, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
 Then run **/tdd-task** to start Task 1.
 ```

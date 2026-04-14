@@ -124,25 +124,24 @@ Ready to commit?
 
 ---
 
-## 5단계: `/context` 확인 및 `/compact` 안내
+## 5단계: 선택적 `/context` / `/compact` 안내
 
-개발자가 `commit` 또는 `ship it`을 입력하면, 실제 git 명령을 실행하기 전에 관련된 내용은 모두 `/context`로 사용량을 확인하고 `/compact`로 압축하도록 **개발자가 CLI에서 직접 실행하도록 안내**합니다.
+개발자가 `commit` 또는 `ship it`을 입력하면, **바로 커밋을 진행**합니다. `/context`, `/compact`는 커밋 후 필요하면 실행하라고 **짧게 안내만 남깁니다**.
 
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
-- 대신 아래처럼 짧게 안내하고, 개발자가 완료를 알리면 다음 단계로 진행합니다.
+- 이 안내 때문에 커밋을 지연하거나, 개발자의 완료 응답을 기다리지 않습니다.
 
 표시:
 
 ```
-Before commit, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
-When finished, reply `done`.
+Optional: after commit, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
 ```
 
 ---
 
 ## 6단계: 커밋 실행
 
-개발자가 확인하면:
+개발자가 확인하면 바로:
 
 1. 세션의 모든 소스 및 테스트 파일을 스테이징 (스테이징 금지: `.env`, `.env.*`, `target/`, `build/`, `dist/`, `__pycache__/`, `.gradle/` 등 빌드 아티팩트)
 2. `git add [files]` 후 `git commit -m "[message]"` 실행
