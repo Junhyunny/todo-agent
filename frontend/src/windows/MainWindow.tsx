@@ -20,7 +20,6 @@ export const MainWindow = () => {
       {agents.map((agent) => (
         <div key={agent.id}>
           <h2>{agent.name}</h2>
-          <p>{agent.system_prompt}</p>
         </div>
       ))}
     </div>
