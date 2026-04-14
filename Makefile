@@ -35,3 +35,14 @@ start-claude:
 		--allowed-tools='mcp__tracker-boot-server__tb_update_task' \
 		--disallowed-tools='Bash(git push)' \
 		$(RESUME_OPT)
+
+.PHONY: format-lint
+format-lint:
+	cd backend && make check
+	cd frontend && npm run check
+
+
+.PHONY: test-all
+test-all:
+	cd backend && make test
+	cd frontend && npm run test

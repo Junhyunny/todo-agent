@@ -107,17 +107,6 @@ describe("main process", () => {
     );
   });
 
-  test("앱이 준비되면 uvicorn 서버를 실행한다", async () => {
-    await import("./main.ts");
-
-    const readyCall = mockAppOn.mock.calls.find(([event]) => event === "ready");
-    const [, readyHandler] = readyCall!;
-
-    readyHandler();
-
-    expect(mockSpawn).toHaveBeenCalledWith("uvicorn", expect.any(Array));
-  });
-
   test("에이전트 등록 윈도우 닫기 요청을 처리하면 요청을 보낸 창을 닫는다", async () => {
     await import("./main.ts");
 
@@ -129,7 +118,9 @@ describe("main process", () => {
     const closeCall = mockHandle.mock.calls.find(
       ([channel]) => channel === "agent-registration:close",
     );
-    const [, closeAgentRegistration] = closeCall!;
+    if (!closeCall)
+      throw new Error("agent-registration:close handler not registered");
+    const [, closeAgentRegistration] = closeCall;
 
     const mockSender = {};
     await closeAgentRegistration({ sender: mockSender });

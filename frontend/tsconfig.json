@@ -9,9 +9,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "outDir": "dist",
     "moduleResolution": "nodenext",
@@ -22,8 +20,5 @@
     "allowArbitraryExtensions": true,
     "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "src",
-    "./*.ts"
-  ]
+  "include": ["src", "./*.ts"]
 }
