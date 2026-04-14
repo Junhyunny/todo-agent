@@ -1,9 +1,10 @@
-import { Bot } from "lucide-react";
+import { Bot, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
@@ -29,12 +30,28 @@ export const AgentListDialog = () => {
           </Button>
         }
       />
-      <DialogContent>
+      <DialogContent showCloseButton={false}>
         {agents.map((agent) => (
-          <div key={agent.id}>
-            <h2>{agent.name}</h2>
-          </div>
+          <section
+            key={agent.id}
+            aria-label={`agent-${agent.id}`}
+            className="flex items-center justify-between"
+          >
+            <div>
+              <h2>{agent.name}</h2>
+              <p>{agent.system_prompt}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button aria-label="수정" variant="ghost" size="icon">
+                <Pencil />
+              </Button>
+              <Button aria-label="삭제" variant="ghost" size="icon">
+                <Trash2 />
+              </Button>
+            </div>
+          </section>
         ))}
+        <DialogClose render={<Button variant="outline" />}>이전</DialogClose>
       </DialogContent>
     </Dialog>
   );
