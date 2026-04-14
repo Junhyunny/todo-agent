@@ -2,7 +2,7 @@
 
 > **관리 스킬:** /sync-tech-stack
 > **생성:** 2026-04-12
-> **마지막 업데이트:** 2026-04-12 (sync)
+> **마지막 업데이트:** 2026-04-14 (sync)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | 영역 | 경로 | 스택 | 언어 | 빌드 도구 | Unit Test | E2E |
 |------|------|------|------|----------|-----------|-----|
-| Frontend | `frontend/` | TypeScript + React + Electron | TypeScript | npm (electron-forge) | Vitest + React Testing Library | — |
+| Frontend | `frontend/` | TypeScript + React + Electron + Tailwind v4 + shadcn/ui | TypeScript | npm (electron-forge) | Vitest + React Testing Library | — |
 | Backend | `backend/` | Python + FastAPI + SQLAlchemy + SQLite + LangChain/LangGraph | Python | pip | pytest + pytest-asyncio + httpx | Playwright |
 
 ---
@@ -18,14 +18,15 @@
 ## Frontend
 
 - **Path:** `frontend/`
-- **Stack:** TypeScript + React + Electron
+- **Stack:** TypeScript + React + Electron + Tailwind v4 + shadcn/ui
 - **Language:** TypeScript
 - **Build tool:** npm (electron-forge)
 - **Unit test framework:** Vitest + React Testing Library
 - **E2E framework:** —
-- **Source roots:** `frontend/src/`, `frontend/src/windows/`, `frontend/src/components/`
+- **Source roots:** `frontend/src/`, `frontend/src/windows/`, `frontend/src/components/ui/`
 - **Test roots:** `frontend/src/` (co-located), `frontend/src/windows/` (co-located)
-- **Detection signals:** `frontend/package.json` — react ^19, typescript ^6, vitest ^4, @testing-library/react ^16, electron ^41, react-router ^7 (HashRouter 사용 중)
+- **Detection signals:** `frontend/package.json` — react ^19, typescript ^6, vitest ^4, @testing-library/react ^16, electron ^41, tailwindcss ^4.2.2, shadcn ^4.1.2, tailwind-merge ^3.5.0, clsx ^2.1.1
+- **UI components:** `src/components/ui/button.tsx` (shadcn/ui 기반)
 - **Status:** detected
 
 ---
