@@ -1,5 +1,6 @@
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
   DialogClose,
@@ -23,7 +24,7 @@ export const AgentRegistrationDialog = ({ onClose }: Props) => {
 
   return (
     <Dialog>
-      <DialogTrigger>+</DialogTrigger>
+      <DialogTrigger render={<Button>+</Button>} />
       <DialogContent aria-label="agent-registration-dialog">
         <input
           type="text"
@@ -34,13 +35,8 @@ export const AgentRegistrationDialog = ({ onClose }: Props) => {
           aria-label="시스템 프롬프트"
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
-        <DialogClose render={<button type="button" />}>취소</DialogClose>
-        <DialogClose
-          render={<button type="button" />}
-          onClick={() => {
-            void handleSave();
-          }}
-        >
+        <DialogClose render={<Button />}>취소</DialogClose>
+        <DialogClose render={<Button />} onClick={() => void handleSave()}>
           저장
         </DialogClose>
       </DialogContent>
