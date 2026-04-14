@@ -60,6 +60,36 @@ describe("AgentRegistrationDialog", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
+  test("취소 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
+    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    expect(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+
+    expect(
+      screen.queryByRole("textbox", { name: "에이전트 이름" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("저장 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
+    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    expect(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "저장" }));
+
+    expect(
+      screen.queryByRole("textbox", { name: "에이전트 이름" }),
+    ).not.toBeInTheDocument();
+  });
+
   test("createAgent가 완료된 후에 onClose 콜백이 호출된다", async () => {
     let resolveCreate!: () => void;
     mockCreateAgent.mockReturnValue(

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow } from "electron";
 import started from "electron-squirrel-startup";
 
 if (started) {
@@ -38,32 +38,6 @@ const createWindow = () => {
   });
   window.webContents.openDevTools();
 };
-
-const createAgentRegistrationWindow = () => {
-  const window = new BrowserWindow({
-    width: 500,
-    height: 600,
-    title: "에이전트 등록",
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
-  });
-  loadRendererWindow(
-    window,
-    `${MAIN_WINDOW_VITE_DEV_SERVER_URL}#/agent-registration`,
-    {
-      hash: "agent-registration",
-    },
-  );
-};
-
-ipcMain.handle("agent-registration:open", async () => {
-  createAgentRegistrationWindow();
-});
-
-ipcMain.handle("agent-registration:close", async ({ sender }) => {
-  BrowserWindow.fromWebContents(sender)?.close();
-});
 
 app.on("ready", () => {
   createWindow();

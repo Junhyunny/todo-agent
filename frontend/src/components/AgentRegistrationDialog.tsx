@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
@@ -15,12 +16,9 @@ export const AgentRegistrationDialog = ({ onClose }: Props) => {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
 
-  const closeWindow = () => {
-    onClose();
-  };
-
-  const handleCreate = async () => {
+  const handleSave = async () => {
     await createAgent({ name, system_prompt: systemPrompt });
+    onClose();
   };
 
   return (
@@ -36,18 +34,15 @@ export const AgentRegistrationDialog = ({ onClose }: Props) => {
           aria-label="시스템 프롬프트"
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
-        <button type="button" onClick={closeWindow}>
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={async () => {
-            await handleCreate();
-            closeWindow();
+        <DialogClose render={<button type="button" />}>취소</DialogClose>
+        <DialogClose
+          render={<button type="button" />}
+          onClick={() => {
+            void handleSave();
           }}
         >
           저장
-        </button>
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );
