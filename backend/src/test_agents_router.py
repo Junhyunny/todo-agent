@@ -10,7 +10,7 @@ async def test_POST_agents_에이전트를_저장하고_반환한다():
     transport=ASGITransport(app=app), base_url="http://test"
   ) as client:
     response = await client.post(
-      "/agents",
+      "/api/agents",
       json={"name": "테스트 에이전트", "system_prompt": "너는 AI야"},
     )
 
@@ -27,11 +27,11 @@ async def test_POST_agents_여러번_호출하면_서로_다른_ID를_반환한�
     transport=ASGITransport(app=app), base_url="http://test"
   ) as client:
     first_response = await client.post(
-      "/agents",
+      "/api/agents",
       json={"name": "에이전트1", "system_prompt": "프롬프트1"},
     )
     second_response = await client.post(
-      "/agents",
+      "/api/agents",
       json={"name": "에이전트2", "system_prompt": "프롬프트2"},
     )
 
@@ -52,7 +52,7 @@ async def test_GET_agents_저장된_에이전트_목록을_반환한다(setup_te
   async with AsyncClient(
     transport=ASGITransport(app=app), base_url="http://test"
   ) as client:
-    response = await client.get("/agents")
+    response = await client.get("/api/agents")
 
   assert response.status_code == 200
   body = response.json()
@@ -71,7 +71,7 @@ async def test_GET_agents_에이전트가_없으면_빈_배열을_반환한다()
   async with AsyncClient(
     transport=ASGITransport(app=app), base_url="http://test"
   ) as client:
-    response = await client.get("/agents")
+    response = await client.get("/api/agents")
 
   assert response.status_code == 200
   assert response.json() == []
@@ -89,7 +89,7 @@ async def test_POST_agents_DB에_에이전트가_저장된다(setup_test_db):
     transport=ASGITransport(app=app), base_url="http://test"
   ) as client:
     response = await client.post(
-      "/agents",
+      "/api/agents",
       json={"name": "DB저장 에이전트", "system_prompt": "저장 테스트"},
     )
 

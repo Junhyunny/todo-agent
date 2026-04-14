@@ -3,10 +3,10 @@ info:
   title: FastAPI
   version: 0.1.0
 paths:
-  /agents:
+  /api/agents:
     get:
       summary: Get Agents
-      operationId: get_agents_agents_get
+      operationId: get_agents_api_agents_get
       responses:
         '200':
           description: Successful Response
@@ -16,10 +16,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/AgentResponse'
                 type: array
-                title: Response Get Agents Agents Get
+                title: Response Get Agents Api Agents Get
     post:
       summary: Create Agent
-      operationId: create_agent_agents_post
+      operationId: create_agent_api_agents_post
       requestBody:
         content:
           application/json:

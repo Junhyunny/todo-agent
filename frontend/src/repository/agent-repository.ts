@@ -1,15 +1,19 @@
-import { type AgentResponse, type PostAgentRequest, getFastAPI } from "../api/generated/agents";
+import {
+  type AgentResponse,
+  getFastAPI,
+  type PostAgentRequest,
+} from "../api/generated/agents";
 
-const { getAgentsAgentsGet, createAgentAgentsPost } = getFastAPI();
+const { getAgentsApiAgentsGet, createAgentApiAgentsPost } = getFastAPI();
 
 export const createAgent = async (
   request: PostAgentRequest,
 ): Promise<AgentResponse> => {
-  const response = await createAgentAgentsPost(request);
+  const response = await createAgentApiAgentsPost(request);
   return response.data;
 };
 
 export const getAgents = async (): Promise<AgentResponse[]> => {
-  const response = await getAgentsAgentsGet();
+  const response = await getAgentsApiAgentsGet();
   return response.data;
 };

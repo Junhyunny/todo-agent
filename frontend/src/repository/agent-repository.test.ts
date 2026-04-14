@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 import { createAgent, getAgents } from "./agent-repository";
 
-const mockGetAgentsAgentsGet = vi.hoisted(() => vi.fn());
-const mockCreateAgentAgentsPost = vi.hoisted(() => vi.fn());
+const mockGetAgentsApiAgentsGet = vi.hoisted(() => vi.fn());
+const mockCreateAgentApiAgentsPost = vi.hoisted(() => vi.fn());
 vi.mock("../api/generated/agents", () => ({
   getFastAPI: () => ({
-    getAgentsAgentsGet: mockGetAgentsAgentsGet,
-    createAgentAgentsPost: mockCreateAgentAgentsPost,
+    getAgentsApiAgentsGet: mockGetAgentsApiAgentsGet,
+    createAgentApiAgentsPost: mockCreateAgentApiAgentsPost,
   }),
 }));
 
@@ -16,22 +16,26 @@ describe("agent-repository", () => {
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
       { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
     ];
-    mockGetAgentsAgentsGet.mockResolvedValue({ data: agents });
+    mockGetAgentsApiAgentsGet.mockResolvedValue({ data: agents });
 
     const result = await getAgents();
 
     expect(result).toEqual(agents);
-    expect(mockGetAgentsAgentsGet).toHaveBeenCalledTimes(1);
+    expect(mockGetAgentsApiAgentsGet).toHaveBeenCalledTimes(1);
   });
 
   test("createAgent는 POST /agents를 호출하고 생성된 에이전트를 반환한다", async () => {
     const request = { name: "새 에이전트", system_prompt: "너는 AI야" };
-    const created = { id: "1", name: "새 에이전트", system_prompt: "너는 AI야" };
-    mockCreateAgentAgentsPost.mockResolvedValue({ data: created });
+    const created = {
+      id: "1",
+      name: "새 에이전트",
+      system_prompt: "너는 AI야",
+    };
+    mockCreateAgentApiAgentsPost.mockResolvedValue({ data: created });
 
     const result = await createAgent(request);
 
     expect(result).toEqual(created);
-    expect(mockCreateAgentAgentsPost).toHaveBeenCalledWith(request);
+    expect(mockCreateAgentApiAgentsPost).toHaveBeenCalledWith(request);
   });
 });

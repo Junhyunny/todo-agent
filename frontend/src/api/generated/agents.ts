@@ -37,23 +37,23 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
   /**
    * @summary Get Agents
    */
-  const getAgentsAgentsGet = (
+  const getAgentsApiAgentsGet = (
     options?: AxiosRequestConfig,
   ): Promise<AxiosResponse<AgentResponse[]>> => {
-    return axiosInstance.get(`/agents`, options);
+    return axiosInstance.get(`/api/agents`, options);
   };
 
   /**
    * @summary Create Agent
    */
-  const createAgentAgentsPost = (
+  const createAgentApiAgentsPost = (
     postAgentRequest: PostAgentRequest,
     options?: AxiosRequestConfig,
   ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.post(`/agents`, postAgentRequest, options);
+    return axiosInstance.post(`/api/agents`, postAgentRequest, options);
   };
 
-  return { getAgentsAgentsGet, createAgentAgentsPost };
+  return { getAgentsApiAgentsGet, createAgentApiAgentsPost };
 };
-export type GetAgentsAgentsGetResult = AxiosResponse<AgentResponse[]>;
-export type CreateAgentAgentsPostResult = AxiosResponse<AgentResponse>;
+export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
+export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>;

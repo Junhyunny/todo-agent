@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import path from "node:path";
 import { app, BrowserWindow, ipcMain } from "electron";
 import started from "electron-squirrel-startup";
@@ -67,7 +66,6 @@ ipcMain.handle("agent-registration:close", async ({ sender }) => {
 });
 
 app.on("ready", () => {
-  spawn("uvicorn", ["backend.src.app:app", "--host", "127.0.0.1", "--port", "8000"]);
   createWindow();
 });
 
