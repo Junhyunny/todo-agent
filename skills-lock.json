@@ -9,27 +9,27 @@
     "sync-tech-stack": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "e9c89878d638c170cc54c20f9c5ee4004be1c97fc0d803fd310464cde2272ad0"
+      "computedHash": "0d3ca0718a68b91dd481a00da7aa8fb99ee5a3f6b62b7b81e7a1e0d4c0f8c608"
     },
     "tdd-commit": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "abd5b3e57db4d8a20ec573d6d06c05e8cd6f3c6f022ecc673cc71154fbdd3e96"
+      "computedHash": "74223c78df1a74f9355e11fd8b347d66e4d7caef036266191a7dee828abf22cf"
     },
     "tdd-plan": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "2a954c4757b5652689de1fec98636a296f1857358822dd75834f78b69c64e38a"
+      "computedHash": "44281f6f7367aa84c0f19e6d2b00b34a2413e12a39c4cb5f38387783914ad61c"
     },
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "172a4398d80430ba76b16304a620073087e925ad574609d8539194ed1c70cc97"
+      "computedHash": "034c11f9f18cbf78ad3b1130a8a127dfe44da5f9133f4fcf370ac576dfeac00a"
     },
     "write-story": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "2a4ef7e50c21903a6441cb4a28857e01b5be404159a671466e4676cc8ce7d0ca"
+      "computedHash": "f2e94392a8bad28e65fab67af786cbbf37ef600609b4762002338c7022d64881"
     }
   }
 }

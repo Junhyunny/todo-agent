@@ -16,4 +16,4 @@ effects:
   - 각 스토리의 인수 기준(GIVEN/WHEN/THEN) 작성
   - TrackerBoot에 여러 스토리 일괄 등록 (제목, 설명, 인수 기준, 레이블)
 next_steps:
-  - /tdd-plan <project-id> <story-id> 으로 각 스토리의 TDD 세션 시작
+  - Continue each created story with the workflow you prefer

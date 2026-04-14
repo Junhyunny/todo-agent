@@ -13,4 +13,4 @@ effects:
   - Creates a git commit with all session changes staged
   - Deletes .tdd-session.md only when all tasks are complete and the developer confirms
 next_steps:
-  - Run /tdd-task to continue pending tasks, or /tdd-plan when starting a new session
+  - Continue pending work from the existing session, or start a new workflow separately

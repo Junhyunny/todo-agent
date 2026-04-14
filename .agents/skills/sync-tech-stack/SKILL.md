@@ -120,5 +120,5 @@ PAUSE. 확인 후 계속한다.
 
 | 파일 | 사용 시점 |
 |------|---------|
-| `.agents/skills/sync-tech-stack/references/tech-stack-detection.md` | Step 2 재탐지 시 |
-| `.agents/skills/sync-tech-stack/references/tech-stack-file-format.md` | Step 3 파일 작성/갱신 시 |
+| `references/tech-stack-detection.md` | Step 2 재탐지 시 |
+| `references/tech-stack-file-format.md` | Step 3 파일 작성/갱신 시 |

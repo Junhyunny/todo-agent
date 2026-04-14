@@ -128,7 +128,7 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 ### 수행 순서
 
 1. `.agents/tech-stack.md`가 있으면 그 파일을 읽는다
-2. 파일이 **없을 때만** `/sync-tech-stack`를 호출해 생성한다
+2. 파일이 **없을 때만** 현재 프로젝트를 직접 스캔해 `.agents/tech-stack.md`를 생성한다
 3. 생성 또는 기존 `.agents/tech-stack.md`의 `## 스택 요약`과 필요한 영역 섹션에서 다음 값을 추출한다:
    - **Stack**
    - **Unit test framework**
@@ -139,20 +139,19 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 ### 이미 파일이 있는 경우
 
 - `.agents/tech-stack.md`가 존재하면 **프로젝트 파일을 다시 스캔하지 않습니다**
-- `/sync-tech-stack`도 자동 호출하지 않습니다
 - 개발자가 명시적으로 `update stack`을 요청한 경우에만 다시 갱신합니다
 
 ### 파일이 없거나 읽을 수 없는 경우
 
-`.agents/tech-stack.md`가 없어서 `/sync-tech-stack`를 실행한 뒤에도 파일을 준비하지 못하면 중단한다:
+`.agents/tech-stack.md`가 없어서 현재 프로젝트를 스캔한 뒤에도 파일을 준비하지 못하면 중단한다:
 
 ```
 ❌ 기술 스택 파일을 준비하지 못했습니다.
 
-먼저 /sync-tech-stack 으로 `.agents/tech-stack.md`를 생성한 뒤 다시 시도해주세요.
+현재 프로젝트의 빌드 파일과 소스 구조를 확인해 `.agents/tech-stack.md`를 먼저 준비한 뒤 다시 시도해주세요.
 ```
 
-전체 연결 규칙은 `.agents/skills/tdd-plan/references/tech-stack-detection.md`를 참조하세요.
+세부 감지 규칙은 `references/tech-stack-detection.md`를 참조하세요.
 
 ---
 
@@ -198,7 +197,7 @@ Files read: [file list]
 All new code will follow these patterns.
 ```
 
-전체 컨벤션 규칙은 `.agents/skills/tdd-plan/references/convention-detection.md`를 참조하세요.
+전체 컨벤션 규칙은 `references/convention-detection.md`를 참조하세요.
 
 ---
 
@@ -365,7 +364,7 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 `.tdd-sessions/[filename]` created with [N] tasks.
 ```
 
-세션 파일 작성이 끝나면, 다음 긴 작업(`/tdd-task`)으로 넘어가기 전에 필요하면 `/context`로 사용량을 확인하고 `/compact`로 압축할 수 있다고 **짧게 안내만 남깁니다**.
+세션 파일 작성이 끝나면, 다음 작업으로 넘어가기 전에 필요하면 `/context`로 사용량을 확인하고 `/compact`로 압축할 수 있다고 **짧게 안내만 남깁니다**.
 
 - 에이전트는 `/context`, `/compact`를 직접 실행하지 않습니다.
 - 이 안내 때문에 다음 작업 진행을 멈추지 않습니다.
@@ -373,6 +372,6 @@ Type **"ready"**, **"go"**, or **"approved"** when satisfied.
 표시는 짧게 유지합니다:
 
 ```markdown
-Optional: before starting **/tdd-task**, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
-Then run **/tdd-task** to start Task 1.
+Optional: before starting the next task, review the relevant context usage with `/context` and compress it with `/compact` in the CLI.
+Then start Task 1 with your preferred workflow.
 ```

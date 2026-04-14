@@ -27,7 +27,7 @@ description: >
 1. `.tdd-sessions/` 내 파일 목록 조회
 2. **디렉토리가 존재하지 않거나 비어 있는 경우:**
    ```
-   "No active TDD session found. Run /tdd-plan to start a new session."
+   "No active TDD session found. Create or restore a session file, then try again."
    ```
    중단.
 3. **파일이 정확히 하나인 경우:** 해당 파일 사용
@@ -170,7 +170,7 @@ Delete `.tdd-sessions/[filename]`? (yes / no)
 ```markdown
 Session file kept: `.tdd-sessions/[filename]`
 
-Pending tasks remain. Continue with **/tdd-task** when you're ready.
+Pending tasks remain. Continue this work from the session file when you're ready.
 ```
 
 삭제 후 `.tdd-sessions/`가 비어 있어도 그대로 두면 됩니다 — 이미 gitignore에 등록되어 있습니다.
@@ -180,7 +180,7 @@ Pending tasks remain. Continue with **/tdd-task** when you're ready.
 ## 8단계: 커밋 완료 안내
 
 - **모든 태스크가 완료된 경우**에만 작업 종료 안내를 짧게 표시합니다.
-- **미완료 태스크가 남아 있는 경우**에는 새 대화를 권장하지 않고, 같은 작업을 `/tdd-task`로 이어가도록 안내합니다.
+- **미완료 태스크가 남아 있는 경우**에는 새 대화를 권장하지 않고, 같은 작업을 현재 세션 파일 기준으로 이어가도록 안내합니다.
 
 모든 태스크가 완료된 경우 표시:
 
@@ -196,7 +196,7 @@ All tasks are complete.
 ✅ TDD commit flow complete.
 
 Pending tasks remain.
-Continue with **/tdd-task** in this conversation when you're ready.
+Continue this work in the current session when you're ready.
 ```
 
 ---
@@ -205,4 +205,4 @@ Continue with **/tdd-task** in this conversation when you're ready.
 
 | 파일 | 읽는 시점 |
 |------|-------------|
-| `.agents/skills/tdd-commit/references/commit-conventions.md` | 전체 커밋 형식 규칙 및 멀티 세션 전략 |
+| `references/commit-conventions.md` | 전체 커밋 형식 규칙 및 멀티 세션 전략 |

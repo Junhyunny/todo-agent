@@ -83,7 +83,7 @@ PAUSE. 페르소나를 확인한 뒤 Step 2로 진행한다.
 
 ### 분리 기준
 
-분리 상세 규칙은 `.agents/skills/write-story/references/story-splitting-guide.md` 참조.
+분리 상세 규칙은 `references/story-splitting-guide.md` 참조.
 
 스토리의 `As` 항목은 반드시 명시적인 페르소나 표현을 사용한다.
 - 시나리오에 페르소나가 드러나면 그 표현을 사용한다.
@@ -227,7 +227,7 @@ Scenario: [시나리오 이름]
 
 PAUSE. 변경 사항 반영 후 재표시. "done" 을 받으면 Step 4로 진행한다.
 
-AC 작성 상세 규칙은 `.agents/skills/write-story/references/ac-writing-guide.md` 참조.
+AC 작성 상세 규칙은 `references/ac-writing-guide.md` 참조.
 
 ---
 
@@ -425,7 +425,7 @@ AC는 task가 아닌 `description`의 `### Acceptance Criteria` 섹션에 gherki
   - #[스토리 ID] [스토리 제목]
   ...
 
-→ /tdd-plan <project-id> <story-id> 로 각 스토리의 TDD 세션을 시작할 수 있습니다.
+→ 각 스토리에 대해 후속 구현 계획이나 개발 워크플로우를 이어갈 수 있습니다.
 ```
 
 ### 등록 실패
@@ -447,6 +447,6 @@ AC는 task가 아닌 `description`의 `### Acceptance Criteria` 섹션에 gherki
 
 | 파일 | 사용 시점 |
 |------|---------|
-| `.agents/skills/write-story/references/story-splitting-guide.md` | Step 2 스토리 분리 시 |
-| `.agents/skills/write-story/references/story-format-guide.md` | Step 2 스토리 초안 형식 |
-| `.agents/skills/write-story/references/ac-writing-guide.md` | Step 3 AC 작성 시 |
+| `references/story-splitting-guide.md` | Step 2 스토리 분리 시 |
+| `references/story-format-guide.md` | Step 2 스토리 초안 형식 |
+| `references/ac-writing-guide.md` | Step 3 AC 작성 시 |
