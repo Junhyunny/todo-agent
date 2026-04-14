@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import yaml
+
 from app import app
 
 spec_path = Path(__file__).parent.parent.parent / "spec" / "openapi.yaml"

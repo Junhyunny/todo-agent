@@ -5,6 +5,11 @@ import React from "react";
 import { describe, expect, test, vi } from "vitest";
 import { AgentRegistrationWindow } from "./AgentRegistrationWindow.tsx";
 
+const mockCreateAgent = vi.hoisted(() => vi.fn());
+vi.mock("../repository/agent-repository", () => ({
+  createAgent: mockCreateAgent,
+}));
+
 describe("AgentRegistrationWindow", () => {
   test("에이전트 이름 입력 필드가 보인다", () => {
     render(<AgentRegistrationWindow />);
@@ -34,6 +39,36 @@ describe("AgentRegistrationWindow", () => {
     });
     render(<AgentRegistrationWindow />);
     await userEvent.click(screen.getByRole("button", { name: "취소" }));
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  test("이름과 시스템 프롬프트를 입력하고 저장 버튼을 클릭하면 AgentsService.createAgent를 호출하고 윈도우를 닫는다", async () => {
+    mockCreateAgent.mockResolvedValue({
+      id: "1",
+      name: "테스트",
+      system_prompt: "프롬프트",
+    });
+    const close = vi.fn();
+    Object.defineProperty(window, "agentRegistration", {
+      configurable: true,
+      value: { close },
+    });
+
+    render(<AgentRegistrationWindow />);
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "너는 AI야",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "저장" }));
+
+    expect(mockCreateAgent).toHaveBeenCalledWith({
+      name: "테스트 에이전트",
+      system_prompt: "너는 AI야",
+    });
     expect(close).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,6 +4,19 @@ info:
   version: 0.1.0
 paths:
   /agents:
+    get:
+      summary: Get Agents
+      operationId: get_agents_agents_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AgentResponse'
+                type: array
+                title: Response Get Agents Agents Get
     post:
       summary: Create Agent
       operationId: create_agent_agents_post
@@ -19,7 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostAgentResponse'
+                $ref: '#/components/schemas/AgentResponse'
         '422':
           description: Validation Error
           content:
@@ -28,6 +41,24 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AgentResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        system_prompt:
+          type: string
+          title: System Prompt
+      type: object
+      required:
+      - id
+      - name
+      - system_prompt
+      title: AgentResponse
     HTTPValidationError:
       properties:
         detail:
@@ -50,24 +81,6 @@ components:
       - name
       - system_prompt
       title: PostAgentRequest
-    PostAgentResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        name:
-          type: string
-          title: Name
-        system_prompt:
-          type: string
-          title: System Prompt
-      type: object
-      required:
-      - id
-      - name
-      - system_prompt
-      title: PostAgentResponse
     ValidationError:
       properties:
         loc:

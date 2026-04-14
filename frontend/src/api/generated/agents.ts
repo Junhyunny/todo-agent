@@ -11,6 +11,12 @@ import type {
   AxiosResponse
 } from 'axios';
 
+export interface AgentResponse {
+  id: string;
+  name: string;
+  system_prompt: string;
+}
+
 export type ValidationErrorCtx = { [key: string]: unknown };
 
 export interface ValidationError {
@@ -30,24 +36,30 @@ export interface PostAgentRequest {
   system_prompt: string;
 }
 
-export interface PostAgentResponse {
-  id: string;
-  name: string;
-  system_prompt: string;
-}
-
 export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
+/**
+ * @summary Get Agents
+ */
+const getAgentsAgentsGet = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AgentResponse[]>> => {
+    return axiosInstance.get(
+      `/agents`,options
+    );
+  }
+
 /**
  * @summary Create Agent
  */
 const createAgentAgentsPost = (
     postAgentRequest: PostAgentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<PostAgentResponse>> => {
+ ): Promise<AxiosResponse<AgentResponse>> => {
     return axiosInstance.post(
       `/agents`,
       postAgentRequest,options
     );
   }
 
-return {createAgentAgentsPost}};
-export type CreateAgentAgentsPostResult = AxiosResponse<PostAgentResponse>
+return {getAgentsAgentsGet,createAgentAgentsPost}};
+export type GetAgentsAgentsGetResult = AxiosResponse<AgentResponse[]>
+export type CreateAgentAgentsPostResult = AxiosResponse<AgentResponse>

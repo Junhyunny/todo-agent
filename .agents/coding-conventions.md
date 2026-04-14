@@ -129,4 +129,6 @@
 
 - 윈도우 컴포넌트는 `frontend/src/windows/` 디렉토리에 둔다
 - **persistence layer test**: FastAPI + SQLAlchemy 통합 테스트는 `backend/src/conftest.py`에 `autouse=True` 픽스처를 두고 in-memory SQLite(`sqlite+aiosqlite:///:memory:`)로 모든 테스트 DB를 격리한다. `app.dependency_overrides[get_session]`으로 프로덕션 세션을 테스트 세션으로 교체하고, 각 테스트 후 `app.dependency_overrides.clear()`와 `engine.dispose()`로 정리한다.
+- **테스트 셋업/검증 독립성**: 테스트의 셋업(arrange)과 검증(assert)에서 구현 코드(다른 API 엔드포인트, 서비스 메서드 등)를 호출하지 않는다. 셋업은 DB에 직접 데이터를 삽입하고, 검증은 DB를 직접 조회하거나 응답 데이터만으로 확인한다. 이유: 다른 기능의 버그가 테스트 결과에 영향을 주는 것을 방지하고, 테스트 대상을 명확히 격리한다.
+- **API 호출은 repository 모듈을 통해 수행한다. 함수를 즉시 노출한다.** `frontend/src/repository/` 디렉토리에 도메인별 파일을 두고, 클래스나 객체 없이 함수를 named export로 노출한다. (예: `export const createAgent = async (...) => { ... }`)
 
