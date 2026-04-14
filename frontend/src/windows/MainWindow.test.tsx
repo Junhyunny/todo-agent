@@ -27,6 +27,7 @@ describe("MainWindow", () => {
 
   test("화면에서 에이전트 아이콘이 + 버튼 오른쪽에 렌더링된다", () => {
     render(<MainWindow />);
+
     const agentButton = screen.getByRole("button", { name: "agent" });
     expect(
       within(agentButton).getByRole("img", { name: "agent-icon" }),
@@ -34,11 +35,6 @@ describe("MainWindow", () => {
   });
 
   test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장·취소 버튼이 포함된 다이얼로그가 열린다", async () => {
-    Object.defineProperty(window, "agentRegistration", {
-      configurable: true,
-      value: { open: vi.fn(), close: vi.fn() },
-    });
-
     render(<MainWindow />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
@@ -52,27 +48,7 @@ describe("MainWindow", () => {
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
   });
 
-  test("저장 후 onClose 콜백에서 getAgents가 재호출되어 새 에이전트가 목록에 표시된다", async () => {
-    mockGetAgents
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        { id: "1", name: "새 에이전트", system_prompt: "" },
-      ]);
-
-    render(<MainWindow />);
-
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
-    await userEvent.type(
-      screen.getByRole("textbox", { name: "에이전트 이름" }),
-      "새 에이전트",
-    );
-    await userEvent.click(screen.getByRole("button", { name: "저장" }));
-
-    expect(await screen.findByText("새 에이전트")).toBeInTheDocument();
-    expect(mockGetAgents).toHaveBeenCalledTimes(2);
-  });
-
-  test("마운트 시 에이전트 목록을 불러와 화면에 렌더링한다", async () => {
+  test("에이전트 아이콘을 클릭하면 에이전트 리스트 다이얼로그가 열린다", async () => {
     mockGetAgents.mockResolvedValue([
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
       { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
@@ -80,8 +56,11 @@ describe("MainWindow", () => {
 
     render(<MainWindow />);
 
-    expect(await screen.findByText("에이전트A")).toBeInTheDocument();
-    expect(screen.getByText("에이전트B")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "agent" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(await within(dialog).findByText("에이전트A")).toBeInTheDocument();
+    expect(within(dialog).getByText("에이전트B")).toBeInTheDocument();
     expect(mockGetAgents).toHaveBeenCalledTimes(1);
   });
 });

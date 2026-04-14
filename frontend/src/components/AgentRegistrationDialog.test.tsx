@@ -17,7 +17,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("에이전트 이름 입력 필드가 보인다", async () => {
-    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
 
@@ -27,7 +27,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("시스템 프롬프트 입력 필드가 보인다", async () => {
-    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
 
@@ -37,7 +37,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼과 취소 버튼이 보인다", async () => {
-    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
 
@@ -46,9 +46,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 createAgent를 호출하고 onClose 콜백을 호출한다", async () => {
-    const mockOnClose = vi.fn();
-
-    render(<AgentRegistrationDialog onClose={mockOnClose} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
     await userEvent.type(
@@ -57,11 +55,11 @@ describe("AgentRegistrationDialog", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   test("취소 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
-    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
     expect(
@@ -76,7 +74,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
-    render(<AgentRegistrationDialog onClose={vi.fn()} />);
+    render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
     expect(
@@ -88,27 +86,5 @@ describe("AgentRegistrationDialog", () => {
     expect(
       screen.queryByRole("textbox", { name: "에이전트 이름" }),
     ).not.toBeInTheDocument();
-  });
-
-  test("createAgent가 완료된 후에 onClose 콜백이 호출된다", async () => {
-    let resolveCreate!: () => void;
-    mockCreateAgent.mockReturnValue(
-      new Promise<void>((resolve) => {
-        resolveCreate = resolve;
-      }),
-    );
-    const mockOnClose = vi.fn();
-
-    render(<AgentRegistrationDialog onClose={mockOnClose} />);
-
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
-    await userEvent.click(screen.getByRole("button", { name: "저장" }));
-
-    expect(mockOnClose).not.toHaveBeenCalled();
-
-    resolveCreate();
-    await vi.waitFor(() => {
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    });
   });
 });

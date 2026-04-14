@@ -8,12 +8,12 @@ start-copilot:
 		--allow-tool='shell(find:*)' \
 		--allow-tool='shell(grep:*)' \
 		--allow-tool='shell(xargs:*)' \
-		--allow-tool='tracker-boot(tb_get_story)' \
-		--allow-tool='tracker-boot(tb_get_story_tasks)' \
-		--allow-tool='tracker-boot(tb_get_story_comments)' \
-		--allow-tool='tracker-boot(tb_batch_create_tasks)' \
-		--allow-tool='tracker-boot(tb_update_story_status)' \
-		--allow-tool='tracker-boot(tb_update_task)' \
+		--allow-tool='tracker-boot-mcp(tb_get_story)' \
+		--allow-tool='tracker-boot-mcp(tb_get_story_tasks)' \
+		--allow-tool='tracker-boot-mcp(tb_get_story_comments)' \
+		--allow-tool='tracker-boot-mcp(tb_batch_create_tasks)' \
+		--allow-tool='tracker-boot-mcp(tb_update_story_status)' \
+		--allow-tool='tracker-boot-mcp(tb_update_task)' \
 		--deny-tool='shell(git push)' \
 		$(RESUME_OPT)
 

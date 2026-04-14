@@ -9,17 +9,12 @@ import {
 } from "@/components/ui/dialog.tsx";
 import { createAgent } from "@/repository/agent-repository.ts";
 
-type Props = {
-  onClose: () => void;
-};
-
-export const AgentRegistrationDialog = ({ onClose }: Props) => {
+export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
 
   const handleSave = async () => {
     await createAgent({ name, system_prompt: systemPrompt });
-    onClose();
   };
 
   return (
