@@ -29,15 +29,23 @@ describe("MainWindow", () => {
     ).toBeInTheDocument();
   });
 
-  test("+ 버튼을 클릭하면 에이전트 등록 윈도우 열기 요청을 보낸다", async () => {
-    const open = vi.fn();
+  test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장·취소 버튼이 포함된 다이얼로그가 열린다", async () => {
     Object.defineProperty(window, "agentRegistration", {
       configurable: true,
-      value: { open },
+      value: { open: vi.fn(), close: vi.fn() },
     });
+
     render(<MainWindow />);
+
     await userEvent.click(screen.getByRole("button", { name: "+" }));
-    expect(open).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
   });
 
   test("마운트 시 에이전트 목록을 불러와 화면에 렌더링한다", async () => {

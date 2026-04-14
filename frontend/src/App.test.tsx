@@ -13,12 +13,4 @@ describe("App", () => {
     render(<App />);
     expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
   });
-
-  test("#/agent-registration 경로에서 AgentRegistrationWindow가 렌더링된다", () => {
-    window.location.hash = "#/agent-registration";
-    render(<App />);
-    expect(
-      screen.getByRole("textbox", { name: "에이전트 이름" }),
-    ).toBeInTheDocument();
-  });
 });

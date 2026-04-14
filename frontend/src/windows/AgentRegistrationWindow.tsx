@@ -1,5 +1,10 @@
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
 import { createAgent } from "@/repository/agent-repository.ts";
 
 export const AgentRegistrationWindow = () => {
@@ -15,28 +20,31 @@ export const AgentRegistrationWindow = () => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        aria-label="에이전트 이름"
-        onChange={(e) => setName(e.target.value)}
-      />
-      <textarea
-        aria-label="시스템 프롬프트"
-        onChange={(e) => setSystemPrompt(e.target.value)}
-      />
-      <button type="button" onClick={closeWindow}>
-        취소
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          void handleCreate();
-          closeWindow();
-        }}
-      >
-        저장
-      </button>
-    </div>
+    <Dialog>
+      <DialogTrigger>+</DialogTrigger>
+      <DialogContent aria-label="agent-registration-dialog">
+        <input
+          type="text"
+          aria-label="에이전트 이름"
+          onChange={(e) => setName(e.target.value)}
+        />
+        <textarea
+          aria-label="시스템 프롬프트"
+          onChange={(e) => setSystemPrompt(e.target.value)}
+        />
+        <button type="button" onClick={closeWindow}>
+          취소
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            void handleCreate();
+            closeWindow();
+          }}
+        >
+          저장
+        </button>
+      </DialogContent>
+    </Dialog>
   );
 };
