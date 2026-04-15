@@ -5,7 +5,11 @@ import React from "react";
 import { describe, expect, test } from "vitest";
 import { AgentEditDialog } from "./AgentEditDialog.tsx";
 
-const agent = { id: "1", name: "테스트 에이전트", system_prompt: "테스트 프롬프트" };
+const agent = {
+  id: "1",
+  name: "테스트 에이전트",
+  system_prompt: "테스트 프롬프트",
+};
 
 describe("AgentEditDialog", () => {
   test("다이얼로그를 열면 에이전트 이름이 채워져 있다.", async () => {
@@ -23,9 +27,9 @@ describe("AgentEditDialog", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
-    expect(screen.getByRole("textbox", { name: "시스템 프롬프트" })).toHaveValue(
-      "테스트 프롬프트",
-    );
+    expect(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toHaveValue("테스트 프롬프트");
   });
 
   test("취소 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {

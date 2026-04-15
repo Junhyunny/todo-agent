@@ -1,6 +1,7 @@
 import { Bot, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
+import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { getAgents } from "@/repository/agent-repository.ts";
-import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
 
 export const AgentListDialog = () => {
   const [agents, setAgents] = useState<AgentResponse[]>([]);
