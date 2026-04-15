@@ -4,7 +4,11 @@ import {
   type PostAgentRequest,
 } from "../api/generated/agents";
 
-const { getAgentsApiAgentsGet, createAgentApiAgentsPost } = getFastAPI();
+const {
+  getAgentsApiAgentsGet,
+  createAgentApiAgentsPost,
+  updateAgentApiAgentsAgentIdPut,
+} = getFastAPI();
 
 export const createAgent = async (
   request: PostAgentRequest,
@@ -15,5 +19,13 @@ export const createAgent = async (
 
 export const getAgents = async (): Promise<AgentResponse[]> => {
   const response = await getAgentsApiAgentsGet();
+  return response.data;
+};
+
+export const updateAgent = async (
+  id: string,
+  request: PostAgentRequest,
+): Promise<AgentResponse> => {
+  const response = await updateAgentApiAgentsAgentIdPut(id, request);
   return response.data;
 };

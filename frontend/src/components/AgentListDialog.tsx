@@ -1,6 +1,7 @@
-import { Bot, Trash2 } from "lucide-react";
+import { Bot } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
+import { AgentDeleteDialog } from "@/components/AgentDeleteDialog.tsx";
 import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -43,10 +44,8 @@ export const AgentListDialog = () => {
               <p>{agent.system_prompt}</p>
             </div>
             <div className="flex gap-2">
-              <AgentEditDialog agent={agent} />
-              <Button aria-label="삭제" variant="ghost" size="icon">
-                <Trash2 />
-              </Button>
+              <AgentEditDialog agent={agent} onSave={fetchAgents} />
+              <AgentDeleteDialog agent={agent} />
             </div>
           </section>
         ))}

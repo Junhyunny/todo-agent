@@ -6,14 +6,22 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { AgentListDialog } from "./AgentListDialog.tsx";
 
 const mockGetAgents = vi.hoisted(() => vi.fn());
+const mockUpdateAgent = vi.hoisted(() => vi.fn());
 vi.mock("../repository/agent-repository", () => ({
   getAgents: mockGetAgents,
+  updateAgent: mockUpdateAgent,
 }));
 
 describe("AgentListDialog", () => {
   beforeEach(() => {
     mockGetAgents.mockClear();
+    mockUpdateAgent.mockClear();
     mockGetAgents.mockResolvedValue([]);
+    mockUpdateAgent.mockResolvedValue({
+      id: "1",
+      name: "에이전트A",
+      system_prompt: "프롬프트A",
+    });
   });
 
   test("다이얼로그를 열 수 있는 버튼이 보인다.", () => {
@@ -93,5 +101,24 @@ describe("AgentListDialog", () => {
     expect(
       screen.queryByRole("button", { name: "삭제" }),
     ).not.toBeInTheDocument();
+  });
+
+  test("수정 저장 후 에이전트 목록이 갱신된다.", async () => {
+    mockGetAgents.mockResolvedValue([
+      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
+    ]);
+
+    render(<AgentListDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "agent" }));
+
+    const dialog = screen.getByRole("dialog");
+    const agentItem = await within(dialog).findByLabelText("agent-1");
+    await userEvent.click(
+      within(agentItem).getByRole("button", { name: "수정" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "저장" }));
+
+    expect(mockGetAgents).toHaveBeenCalledTimes(2);
   });
 });

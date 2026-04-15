@@ -35,3 +35,13 @@ async def get_agents(db: AsyncSession = Depends(get_session)) -> list[AgentRespo
   result = await db.execute(select_stmt)
   agents = result.fetchall()
   return [AgentResponse(id=row[0].id, name=row[0].name, system_prompt=row[0].system_prompt) for row in agents]
+
+
+@app.put("/api/agents/{agent_id}", status_code=status.HTTP_200_OK)
+async def update_agent(agent_id: str, request: PostAgentRequest, db: AsyncSession = Depends(get_session)) -> AgentResponse:
+  result = await db.execute(select(AgentModel).where(AgentModel.id == agent_id))
+  agent = result.scalar_one()
+  agent.name = request.name
+  agent.system_prompt = request.system_prompt
+  await db.commit()
+  return AgentResponse(id=uuid.UUID(agent.id), name=agent.name, system_prompt=agent.system_prompt)

@@ -8,10 +8,22 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { updateAgent } from "@/repository/agent-repository.ts";
 
-export const AgentEditDialog = ({ agent }: { agent: AgentResponse }) => {
+export const AgentEditDialog = ({
+  agent,
+  onSave,
+}: {
+  agent: AgentResponse;
+  onSave: () => void;
+}) => {
   const [name, setName] = useState(agent.name);
   const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
+
+  const handleSave = async () => {
+    await updateAgent(agent.id, { name, system_prompt: systemPrompt });
+    onSave();
+  };
 
   return (
     <Dialog>
@@ -35,7 +47,9 @@ export const AgentEditDialog = ({ agent }: { agent: AgentResponse }) => {
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
         <DialogClose render={<Button variant="outline" />}>취소</DialogClose>
-        <DialogClose render={<Button />}>저장</DialogClose>
+        <DialogClose render={<Button />} onClick={() => void handleSave()}>
+          저장
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

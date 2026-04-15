@@ -41,8 +41,15 @@ format-lint:
 	cd backend && make check
 	cd frontend && npm run check
 
-
 .PHONY: test-all
 test-all:
 	cd backend && make test
 	cd frontend && npm run test
+
+.PHONY: start-frontend
+start-frontend:
+	cd frontend && npm run start
+
+.PHONY: start-backend
+start-backend:
+	cd backend && make run

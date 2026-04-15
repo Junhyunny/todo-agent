@@ -103,3 +103,58 @@ async def test_POST_agents_DB에_에이전트가_저장된다(setup_test_db):
   assert agent is not None
   assert agent.name == "DB저장 에이전트"
   assert agent.system_prompt == "저장 테스트"
+
+
+@pytest.mark.asyncio
+async def test_PUT_agents_에이전트를_수정하고_반환한다(setup_test_db):
+  from models import AgentModel
+
+  session_factory = setup_test_db
+  async with session_factory() as session:
+    agent = AgentModel(name="원래 이름", system_prompt="원래 프롬프트")
+    session.add(agent)
+    await session.commit()
+    agent_id = agent.id
+
+  async with AsyncClient(
+    transport=ASGITransport(app=app), base_url="http://test"
+  ) as client:
+    response = await client.put(
+      f"/api/agents/{agent_id}",
+      json={"name": "수정된 이름", "system_prompt": "수정된 프롬프트"},
+    )
+
+  assert response.status_code == 200
+  body = response.json()
+  assert body["id"] == agent_id
+  assert body["name"] == "수정된 이름"
+  assert body["system_prompt"] == "수정된 프롬프트"
+
+
+@pytest.mark.asyncio
+async def test_PUT_agents_DB에_에이전트가_수정된다(setup_test_db):
+  from sqlalchemy import select
+
+  from models import AgentModel
+
+  session_factory = setup_test_db
+  async with session_factory() as session:
+    agent = AgentModel(name="원래 이름", system_prompt="원래 프롬프트")
+    session.add(agent)
+    await session.commit()
+    agent_id = agent.id
+
+  async with AsyncClient(
+    transport=ASGITransport(app=app), base_url="http://test"
+  ) as client:
+    await client.put(
+      f"/api/agents/{agent_id}",
+      json={"name": "수정된 이름", "system_prompt": "수정된 프롬프트"},
+    )
+
+  async with session_factory() as session:
+    result = await session.execute(select(AgentModel).where(AgentModel.id == agent_id))
+    agent = result.scalar_one()
+
+  assert agent.name == "수정된 이름"
+  assert agent.system_prompt == "수정된 프롬프트"
