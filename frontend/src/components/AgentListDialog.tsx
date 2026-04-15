@@ -45,7 +45,7 @@ export const AgentListDialog = () => {
             </div>
             <div className="flex gap-2">
               <AgentEditDialog agent={agent} onSave={fetchAgents} />
-              <AgentDeleteDialog agent={agent} />
+              <AgentDeleteDialog agent={agent} onDelete={fetchAgents} />
             </div>
           </section>
         ))}

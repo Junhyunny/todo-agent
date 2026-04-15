@@ -8,6 +8,7 @@ const {
   getAgentsApiAgentsGet,
   createAgentApiAgentsPost,
   updateAgentApiAgentsAgentIdPut,
+  deleteAgentApiAgentsAgentIdDelete,
 } = getFastAPI();
 
 export const createAgent = async (
@@ -28,4 +29,8 @@ export const updateAgent = async (
 ): Promise<AgentResponse> => {
   const response = await updateAgentApiAgentsAgentIdPut(id, request);
   return response.data;
+};
+
+export const deleteAgent = async (id: string): Promise<void> => {
+  await deleteAgentApiAgentsAgentIdDelete(id);
 };

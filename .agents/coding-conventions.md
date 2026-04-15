@@ -25,6 +25,12 @@ expect(within(item).getByRole("button", { name: "삭제" })).toBeInTheDocument()
 ```
 비동기 진입은 `findBy*`, 이후 동기 검증은 `getBy*`.
 
+트리거 버튼과 다이얼로그 내부 버튼의 이름이 같을 때도 `within(dialog)`로 스코핑한다.
+```ts
+await userEvent.click(screen.getByRole("button", { name: "삭제" })); // 트리거
+await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" })); // 확인
+```
+
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
 - 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="agent-{id}">` 로 감싼다
@@ -44,7 +50,8 @@ expect(within(item).getByRole("button", { name: "삭제" })).toBeInTheDocument()
 
 ### 테스트
 - 파일 위치: `backend/src/` co-located `test_*.py`
-- 구조: pytest 함수 기반, `test_should_x_when_y` 네이밍
+- 구조: pytest 함수 기반, `test_METHOD_resource_한국어설명` 네이밍
+  - 예: `test_DELETE_agents_에이전트를_삭제하고_204를_반환한다`, `test_PUT_agents_DB에_에이전트가_수정된다`
 - DB 격리: `conftest.py`에 `autouse=True` 픽스처, in-memory SQLite (`sqlite+aiosqlite:///:memory:`)
 ```python
 app.dependency_overrides[get_session] = lambda: test_session
@@ -66,3 +73,31 @@ API 호출은 `frontend/src/repository/` 도메인별 파일에서 함수로 노
 export const createAgent = async (payload: CreateAgentRequest): Promise<Agent> => { ... }
 ```
 클래스/객체 래핑 금지, named export만 사용.
+
+**Repository 테스트 mock 완전성**
+`getFastAPI()` mock에는 테스트 대상 함수와 무관하게 전체 반환 함수를 포함한다. 누락 시 다른 테스트/import에서 오류가 발생한다.
+```ts
+vi.mock("../api/generated/agents", () => ({
+  getFastAPI: () => ({
+    getAgentsApiAgentsGet: mockGetAgentsApiAgentsGet,
+    createAgentApiAgentsPost: mockCreateAgentApiAgentsPost,
+    updateAgentApiAgentsAgentIdPut: mockUpdateAgentApiAgentsAgentIdPut,
+    deleteAgentApiAgentsAgentIdDelete: mockDeleteAgentApiAgentsAgentIdDelete,
+  }),
+}));
+```
+
+**다이얼로그 비동기 닫기 패턴**
+비동기 작업 완료 후 다이얼로그를 프로그래매틱하게 닫아야 할 때는 `useState`로 open 상태를 직접 관리한다.
+```tsx
+const [open, setOpen] = useState(false);
+
+const handleAction = () => {
+  someAsyncCall().then(() => {
+    setOpen(false);
+    onCallback();
+  });
+};
+
+return <Dialog open={open} onOpenChange={setOpen}>...</Dialog>;
+```

@@ -1,4 +1,5 @@
 import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -7,11 +8,26 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { deleteAgent } from "@/repository/agent-repository.ts";
 
-// biome-ignore lint/correctness/noUnusedFunctionParameters: will be used when delete is implemented
-export const AgentDeleteDialog = ({ agent }: { agent: AgentResponse }) => {
+export const AgentDeleteDialog = ({
+  agent,
+  onDelete,
+}: {
+  agent: AgentResponse;
+  onDelete: () => void;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const handleDelete = () => {
+    deleteAgent(agent.id).then(() => {
+      setOpen(false);
+      onDelete();
+    });
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
           <Button aria-label="삭제" variant="ghost" size="icon">
@@ -22,7 +38,9 @@ export const AgentDeleteDialog = ({ agent }: { agent: AgentResponse }) => {
       <DialogContent showCloseButton={false}>
         <p>삭제하겠습니까?</p>
         <DialogClose render={<Button variant="outline" />}>취소</DialogClose>
-        <Button variant="destructive">삭제</Button>
+        <Button variant="destructive" onClick={handleDelete}>
+          삭제
+        </Button>
       </DialogContent>
     </Dialog>
   );

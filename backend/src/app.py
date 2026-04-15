@@ -45,3 +45,11 @@ async def update_agent(agent_id: str, request: PostAgentRequest, db: AsyncSessio
   agent.system_prompt = request.system_prompt
   await db.commit()
   return AgentResponse(id=uuid.UUID(agent.id), name=agent.name, system_prompt=agent.system_prompt)
+
+
+@app.delete("/api/agents/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_agent(agent_id: str, db: AsyncSession = Depends(get_session)) -> None:
+  result = await db.execute(select(AgentModel).where(AgentModel.id == agent_id))
+  agent = result.scalar_one()
+  await db.delete(agent)
+  await db.commit()

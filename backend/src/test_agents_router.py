@@ -158,3 +158,47 @@ async def test_PUT_agents_DB에_에이전트가_수정된다(setup_test_db):
 
   assert agent.name == "수정된 이름"
   assert agent.system_prompt == "수정된 프롬프트"
+
+
+@pytest.mark.asyncio
+async def test_DELETE_agents_에이전트를_삭제하고_204를_반환한다(setup_test_db):
+  from models import AgentModel
+
+  session_factory = setup_test_db
+  async with session_factory() as session:
+    agent = AgentModel(name="삭제 대상", system_prompt="삭제 프롬프트")
+    session.add(agent)
+    await session.commit()
+    agent_id = agent.id
+
+  async with AsyncClient(
+    transport=ASGITransport(app=app), base_url="http://test"
+  ) as client:
+    response = await client.delete(f"/api/agents/{agent_id}")
+
+  assert response.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_DELETE_agents_DB에서_에이전트가_제거된다(setup_test_db):
+  from sqlalchemy import select
+
+  from models import AgentModel
+
+  session_factory = setup_test_db
+  async with session_factory() as session:
+    agent = AgentModel(name="삭제 대상", system_prompt="삭제 프롬프트")
+    session.add(agent)
+    await session.commit()
+    agent_id = agent.id
+
+  async with AsyncClient(
+    transport=ASGITransport(app=app), base_url="http://test"
+  ) as client:
+    await client.delete(f"/api/agents/{agent_id}")
+
+  async with session_factory() as session:
+    result = await session.execute(select(AgentModel).where(AgentModel.id == agent_id))
+    agent = result.scalar_one_or_none()
+
+  assert agent is None
