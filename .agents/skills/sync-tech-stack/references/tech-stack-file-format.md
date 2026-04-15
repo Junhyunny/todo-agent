@@ -17,41 +17,26 @@
 ## 템플릿
 
 ```markdown
-# 프로젝트 기술 스택
+# 기술 스택
 
-> **관리 스킬:** /sync-tech-stack
-> **생성:** YYYY-MM-DD
-> **마지막 업데이트:** YYYY-MM-DD
+<!--
+작성 원칙:
+- 현재 사실만 기술한다. "예정", "TBD", "미정"은 확정 후 추가한다.
+- 버전 번호, 탐지 근거, 관리 메타데이터는 기술하지 않는다.
+- 각 영역은 경로·프레임워크·테스트·특이사항만 담는다.
+-->
 
----
+## {영역명} — `{경로}/`
+- **언어/프레임워크:** {언어} + {주요 프레임워크 목록}
+- **빌드:** {빌드 도구}
+- **테스트:** {테스트 프레임워크} ({파일 배치 방식, 예: co-located `*.test.ts`})
+- **소스 경로:** `{소스 루트}/`
+- **{추가 항목}:** {값} ← 해당 영역에 특화된 항목만 추가 (예: API 클라이언트, 실행 방식)
 
-## 스택 요약
-
-| 영역 | 경로 | 스택 | 언어 | 빌드 도구 | Unit Test | E2E |
-|------|------|------|------|----------|-----------|-----|
-| Root | `.` | TypeScript + React | TypeScript | pnpm | Vitest + React Testing Library | Playwright |
-| Backend | `backend/` | Kotlin + Spring | Kotlin | Gradle | JUnit5 + MockK | RestAssured |
-
----
-
-## [영역명]
-
-- **Path:** `[경로]`
-- **Stack:** [스택]
-- **Language:** [언어]
-- **Build tool:** [빌드/패키지 도구]
-- **Unit test framework:** [프레임워크 또는 `—`]
-- **E2E framework:** [프레임워크 또는 `—`]
-- **Source roots:** `[경로1]`, `[경로2]`
-- **Test roots:** `[경로1]`, `[경로2]`
-- **Detection signals:** [핵심 신호 나열]
-- **Status:** detected | inferred | confirmed manually
-
----
-
-## Manual Notes
-
-- [개발자가 남기는 메모]
+<!--
+추가 영역이 있으면 위 블록을 반복한다.
+특이사항이 없는 항목(예: E2E 없음)은 줄 자체를 생략한다.
+-->
 ```
 
 ---

@@ -4,12 +4,12 @@
     "sync-coding-conventions": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "f0f8ccf2b2240dc5e9993f9529f1ef5d99c82925c290725587aec99e29a02c6f"
+      "computedHash": "d33dc1c88fa83f464d3cd2e33b7bfe2598dd45878e9762c3466db2ce443f2036"
     },
     "sync-tech-stack": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "0d3ca0718a68b91dd481a00da7aa8fb99ee5a3f6b62b7b81e7a1e0d4c0f8c608"
+      "computedHash": "9c579ba751a878742d3fa89604f09a4135bf96690d17f0a3df7727e871de4e0d"
     },
     "tdd-commit": {
       "source": "junhyunny/skills",
@@ -24,7 +24,7 @@
     "tdd-task": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "034c11f9f18cbf78ad3b1130a8a127dfe44da5f9133f4fcf370ac576dfeac00a"
+      "computedHash": "33c61dd647ec99b5cddf4e545330a304bc622d8b6c3773c4855e53f4dfbedaa5"
     },
     "write-story": {
       "source": "junhyunny/skills",

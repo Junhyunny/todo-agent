@@ -19,115 +19,67 @@
 
 프로젝트에 감지된 스택 수만큼 스택별 섹션을 만듭니다.
 
-```markdown
-# 프로젝트 코딩 컨벤션
+~~~markdown
+# 코딩 컨벤션
 
-> **출처:** 코드 분석 (기존 프로젝트) / 기본값 (새 프로젝트)
-> **생성:** [YYYY-MM-DD] | **마지막 업데이트:** [YYYY-MM-DD]
-> **기술 스택 참조:** `.agents/tech-stack.md`
+<!--
+작성 원칙:
+- 비직관적이거나 팀/프로젝트 고유한 패턴만 기술한다.
+- 프레임워크 기본 동작과 동일한 내용은 생략한다.
+- 패턴이 없는 항목은 줄 자체를 추가하지 않는다.
+- 코드 예시는 "왜 이렇게 해야 하는가"가 글로 설명하기 어려울 때만 포함한다.
+- 타임스탬프, 출처 주석, [기본값] 레이블은 포함하지 않는다.
+-->
 
----
+## {언어/프레임워크명}
 
-## [TypeScript + React] 컨벤션
+### 테스트
+- 파일 위치: {배치 방식, 예: co-located `*.test.tsx`}
+- 구조: {테스트 블록 패턴, 예: `describe(ComponentName)` + `test(...)`}
+- 테스트명: {명명 규칙, 예: 한국어 문장형 / `test_should_x_when_y`}
 
-> 출처: `frontend/src/` 코드 분석 / 기본값
-
-### 테스트 컨벤션
-
-**파일 위치**
-- [예: co-located — `UserService.ts` 옆에 `UserService.test.ts`]
-
-**테스트 구조**
-- [예: `describe('ClassName') > describe('methodName') > it('should ...')`]
-- beforeEach 위치: [예: describe 블록 내부]
-
-**Mock 패턴**
-- [예: `vi.fn()` 직접 주입 — `new Service({ findById: vi.fn() })`]
-
-**Assertion 패턴**
-- [예: `expect(result).toEqual(expected)`]
-
-**테스트 명명 규칙**
-- [예: `it('should [동작] when [조건]', ...)`]
-
-### 소스 코드 컨벤션
-
-**디렉토리 구조**
-- [예: feature-based — `src/user/`, `src/order/`]
-
-**클래스/함수 패턴**
-- [예: class 기반 — `class UserService { ... }`]
-
-**의존성 주입**
-- [예: 생성자 주입 — `constructor(private readonly repo: UserRepository) {}`]
-
-**에러 처리**
-- [예: 커스텀 예외 — `throw new UserNotFoundException(id)`]
-
-### 리팩토링 기준
-- 함수 최대 줄 수: [예: 10줄]
-- [스택 특화 규칙 — 예: React Hook 의존성 배열 누락 금지]
-
-### 안티패턴
-
-| 안티패턴 | 이유 | 대안 |
-|----------|------|------|
-| [예: 구현 세부사항 테스트] | 리팩토링 시 깨짐 | 동작(behavior) 기반 테스트 |
-| [예: GREEN에서 미리 구현] | TDD 사이클 위반 | 테스트가 요구할 때만 추가 |
-
----
-
-## [Kotlin + Spring] 컨벤션
-
-> 출처: `backend/src/` 코드 분석 / 기본값
-
-### 테스트 컨벤션
-
-**파일 위치**
-- [예: `src/test/kotlin/.../` — Maven/Gradle 표준 구조]
-
-**테스트 구조**
-- [예: `@DisplayName` + `@Nested` 계층 구조 — JUnit5]
-
-**Mock 패턴**
-- [예: `mockk<Repository>()` + `every { ... } returns ...`]
-
-**Assertion 패턴**
-- [예: `assertThat(result).isEqualTo(expected)` — AssertJ]
-
-**테스트 명명 규칙**
-- [예: `` `should return user when user exists` `` — Kotlin 백틱]
-
-### 소스 코드 컨벤션
-
-**패키지 구조**
-- [예: domain-based — `com.example.user`, `com.example.order`]
-
-**클래스 패턴**
-- [예: `@Service` + constructor injection — `class UserService(private val repo: UserRepository)`]
-
-**에러 처리**
-- [예: ErrorCode enum + 공통 예외 — `throw BusinessException(ErrorCode.USER_NOT_FOUND)`]
-
-### 리팩토링 기준
-- [예: Kotlin data class 우선 사용]
-- [예: scope function (`let`, `run`, `apply`) 적절히 활용]
-
-### 안티패턴
-
-| 안티패턴 | 이유 | 대안 |
-|----------|------|------|
-| [예: field injection (`@Autowired`)] | 테스트 어려움 | constructor injection |
-| [예: 단위 테스트에서 `@SpringBootTest`] | 느린 테스트 | MockK로 단위 테스트 |
-
----
-
-## Custom Rules (개발자 정의)
-
-> `add rule [내용]` 명령으로 추가됩니다. 모든 단계에서 최우선으로 적용됩니다.
-
-- [추가된 규칙이 여기에 기록됩니다]
+<!--
+아래는 비직관적인 패턴이 있을 때만 추가한다.
+제목과 이유를 함께 쓴다.
+-->
+**{패턴 이름} — {한 줄 이유}**
+{이유가 필요한 경우 한 줄로 설명}
+```{언어}
+// 구체적인 예시 코드
 ```
+
+### 소스 코드
+- {규칙}: {값}
+- {규칙}: {값}
+
+### 안티패턴
+| 금지 | 대안 |
+|------|------|
+| {하지 말아야 할 것} | {대신 할 것} |
+
+---
+
+<!--
+언어/프레임워크 영역이 여러 개면 위 블록을 반복한다.
+-->
+
+## {다른 언어/프레임워크명}
+
+<!-- 동일 구조 반복 -->
+
+---
+
+## {공통 패턴 이름, 예: Repository 패턴}
+<!--
+특정 언어에 국한되지 않고 프로젝트 전반에 적용되는 아키텍처 패턴은
+별도 섹션으로 분리한다.
+-->
+{패턴 설명}
+```{언어}
+// 예시 코드
+```
+{금지 사항이 있으면 한 줄로}
+~~~
 
 ---
 
