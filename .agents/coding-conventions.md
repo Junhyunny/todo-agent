@@ -1,143 +1,68 @@
-# 프로젝트 코딩 컨벤션
+# 코딩 컨벤션
 
-> **출처:** 코드 분석 (기존 프로젝트)
-> **생성:** 2026-04-11 | **마지막 업데이트:** 2026-04-14 (2회차)
+## Frontend (TypeScript + React)
 
----
+### 테스트
+- 파일 위치: 컴포넌트 옆 co-located `*.test.tsx`
+- 구조: `describe(ComponentName)` + 내부 `test(...)`
+- 쿼리: role 기반 (`getByRole`, `findByRole`)
+- 테스트명: 한국어 문장형
 
-## 기술 스택 현황
+**Mock — `vi.hoisted` 패턴**
+`vi.mock`은 호이스팅되므로 블록 바깥 변수를 참조할 수 없다. 반드시 `vi.hoisted`로 감싼다.
+```ts
+const mockCreateAgent = vi.hoisted(() => vi.fn());
+vi.mock("../repository/agents", () => ({ createAgent: mockCreateAgent }));
 
-| 영역 | 스택 | 주요 디렉토리 |
-|------|------|-------------|
-| Frontend | TypeScript + React + Electron | `frontend/` |
-| Agent | Python | `agent/` |
+beforeEach(() => { mockCreateAgent.mockClear(); });
+```
 
----
+**Assertion — 리스트 항목 스코핑**
+같은 role이 여러 개일 때 `within()`으로 스코핑한다.
+```ts
+const item = await within(screen).findByLabelText("agent-1");
+expect(within(item).getByRole("button", { name: "삭제" })).toBeInTheDocument();
+```
+비동기 진입은 `findBy*`, 이후 동기 검증은 `getBy*`.
 
-## [TypeScript + React + Electron] 컨벤션
-
-> 출처: `frontend/package.json`, `frontend/biome.json`, `frontend/src/App.tsx`, `frontend/src/App.test.tsx`, `frontend/src/components/ui/button.tsx`, `frontend/src/components/AgentListDialog.test.tsx`, `frontend/src/components/AgentRegistrationDialog.test.tsx`
-
-### 테스트 컨벤션
-
-**파일 위치**
-- co-located — 컴포넌트/모듈 옆에 `*.test.tsx` 파일을 둔다
-
-**테스트 구조**
-- 컴포넌트 테스트는 `describe(ComponentName, ...)` 블록으로 감싼다
-- 블록 안에서 top-level `test(...)`를 사용한다
-- React Testing Library로 렌더링 후 role 기반 쿼리를 사용한다
-
-**Mock 패턴** _(업데이트: 2026-04-14)_
-- repository 모듈을 mock할 때 `vi.hoisted(() => vi.fn())`으로 mock 함수를 선언하고, `vi.mock("../repository/모듈명", () => ({ 함수명: mockFn }))` 으로 모듈을 대체한다
-- `beforeEach`에서 `mockFn.mockClear()`로 상태를 초기화하고, `mockFn.mockResolvedValue(...)` 또는 `mockFn.mockRejectedValue(...)`로 시나리오별 응답을 설정한다
-- `vi.hoisted`를 사용하는 이유: `vi.mock` 호출이 호이스팅되므로, 블록 바깥 변수를 참조하려면 `vi.hoisted`로 감싸야 한다
-
-**Assertion 패턴** _(업데이트: 2026-04-14)_
-- `expect(element).toBeInTheDocument()`
-- 리스트 항목처럼 같은 role/name을 가진 요소가 여러 개 있을 때는 `within()` 스코핑을 사용한다
-  1. 먼저 `within(container).findByLabelText("item-id")`로 레이블된 컨테이너를 찾는다
-  2. 그 안에서 `within(item).getByRole(...)` 또는 `within(item).getByText(...)`로 요소를 검증한다
-- 비동기 상태가 포함된 경우 `findBy*`를 사용하고, 이후 동기 검증은 `getBy*`를 사용한다
-
-**테스트 명명 규칙**
-- 한국어 문장형 테스트명을 사용한다
-
-### 소스 코드 컨벤션
-
-**디렉토리 구조**
-- `frontend/src/` 아래에 앱 엔트리(`main.ts`, `renderer.ts`, `main.tsx`)와 컴포넌트를 함께 둔다
-- UI 컴포넌트는 `components/ui/`에 둔다
-
-**클래스/함수 패턴**
-- 함수형 React 컴포넌트를 선호한다
-- named export를 사용한다
-
-**접근성 / 시맨틱 마크업** _(업데이트: 2026-04-14)_
-- 내부에 인터랙티브 요소(버튼 등)를 포함하는 리스트 항목은 `<section aria-label="item-{id}">` 로 감싼다
-- `aria-label` 값은 항목을 고유하게 식별할 수 있어야 한다 (예: `agent-1`, `agent-{agent.id}`)
-- 이 패턴은 테스트에서 `within(container).findByLabelText("item-id")` 스코핑과 함께 사용된다
-
-**의존성 주입**
-- React props와 Electron preload 전역 API를 통해 의존성을 연결한다
-- main/renderer 경계는 preload 브리지로 노출한다
-
-**에러 처리**
-- 아직 고유 패턴은 관찰되지 않았다
-- [기본값] renderer에서 필요한 API가 없으면 테스트에서 명시적으로 stub하고, 구현에서는 broad catch 없이 호출 경계를 유지한다
-
-### 리팩토링 기준
-- Biome 포맷을 따른다: double quotes, 2-space indent
-- UI 테스트는 구현 세부사항보다 사용자 상호작용과 접근 가능한 role/name을 우선 검증한다
-- Electron main/renderer/preload 경계는 역할을 분리한다
+### 소스 코드
+- 컴포넌트: 함수형 + named export
+- 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="agent-{id}">` 로 감싼다
+- Electron 경계: renderer는 Electron 모듈 직접 접근 금지 → preload API로 노출
+- 포맷: Biome (double quotes, 2-space indent)
 
 ### 안티패턴
-
-| 안티패턴 | 이유 | 대안 |
-|----------|------|------|
-| 구현 세부사항 DOM 구조 직접 검사 | 리팩토링에 취약함 | role/name 기반 질의 |
-| GREEN 단계에서 불필요한 IPC/창 옵션까지 한 번에 구현 | TDD 사이클이 흐려짐 | 현재 테스트가 요구하는 최소 연결만 구현 |
-| renderer에서 Electron 모듈 직접 접근 | 보안/구조 경계가 흐려짐 | preload API로 노출 |
-
----
-
-## [Python] 컨벤션
-
-> 출처: `agent/requirements.txt`, `agent/ruff.toml`, `agent/src/main.py`
-
-### 테스트 컨벤션
-
-**파일 위치**
-- [기본값] `agent/tests/` 또는 소스 옆 `test_*.py` 패턴을 사용한다
-
-**테스트 구조**
-- [기본값] pytest 함수 기반 테스트를 우선 사용한다
-
-**Mock 패턴**
-- [기본값] `unittest.mock` 또는 pytest fixture 기반 mock을 사용한다
-
-**Assertion 패턴**
-- [기본값] plain `assert`를 우선 사용한다
-
-**테스트 명명 규칙**
-- [기본값] `test_should_x_when_y` 형식의 snake_case 이름을 사용한다
-
-### 소스 코드 컨벤션
-
-**디렉토리 구조**
-- 단일 실행 스크립트 중심으로 `agent/src/`에 소스를 둔다
-
-**클래스/함수 패턴**
-- top-level 함수와 모듈 상수를 사용한다
-- 타입 힌트를 사용한다
-
-**의존성 주입**
-- 아직 고유 DI 패턴은 관찰되지 않았다
-- [기본값] 함수 인자 또는 팩토리 함수 반환값으로 의존성을 전달한다
-
-**에러 처리**
-- broad catch 없이 예외를 그대로 드러내는 편이다
-
-### 리팩토링 기준
-- Ruff 포맷을 따른다: 2-space indent, import 정렬
-- 긴 프롬프트 문자열과 콘솔 출력 보조 함수는 별도 함수/상수로 유지한다
-
-### 안티패턴
-
-| 안티패턴 | 이유 | 대안 |
-|----------|------|------|
-| 타입 힌트 없는 공개 함수 | 의도 파악이 어려움 | 함수 시그니처에 타입 명시 |
-| 무분별한 전역 상태 추가 | 실행 흐름 추적이 어려움 | 명시적 함수 경계 사용 |
-| broad exception swallow | 실패 원인이 숨겨짐 | 예외를 그대로 노출하거나 구체적으로 처리 |
+| 금지 | 대안 |
+|------|------|
+| DOM 구조 직접 검사 | role/name 기반 쿼리 |
+| renderer에서 Electron 모듈 직접 import | preload API 경유 |
+| GREEN 단계에서 IPC까지 한 번에 구현 | 테스트가 요구하는 최소만 구현 |
 
 ---
 
-## Custom Rules (개발자 정의)
+## Backend (Python + FastAPI)
 
-> `add rule [내용]` 명령으로 추가됩니다. 모든 단계에서 최우선으로 적용됩니다.
+### 테스트
+- 파일 위치: `backend/src/` co-located `test_*.py`
+- 구조: pytest 함수 기반, `test_should_x_when_y` 네이밍
+- DB 격리: `conftest.py`에 `autouse=True` 픽스처, in-memory SQLite (`sqlite+aiosqlite:///:memory:`)
+```python
+app.dependency_overrides[get_session] = lambda: test_session
+# teardown: app.dependency_overrides.clear() + engine.dispose()
+ ```
+- 셋업/검증 독립성: arrange는 DB 직접 삽입, assert는 DB 직접 조회 또는 응답만 사용. 다른 API 엔드포인트 경유 금지
 
-- 윈도우 컴포넌트는 `frontend/src/windows/` 디렉토리에 둔다
-- **persistence layer test**: FastAPI + SQLAlchemy 통합 테스트는 `backend/src/conftest.py`에 `autouse=True` 픽스처를 두고 in-memory SQLite(`sqlite+aiosqlite:///:memory:`)로 모든 테스트 DB를 격리한다. `app.dependency_overrides[get_session]`으로 프로덕션 세션을 테스트 세션으로 교체하고, 각 테스트 후 `app.dependency_overrides.clear()`와 `engine.dispose()`로 정리한다.
-- **테스트 셋업/검증 독립성**: 테스트의 셋업(arrange)과 검증(assert)에서 구현 코드(다른 API 엔드포인트, 서비스 메서드 등)를 호출하지 않는다. 셋업은 DB에 직접 데이터를 삽입하고, 검증은 DB를 직접 조회하거나 응답 데이터만으로 확인한다. 이유: 다른 기능의 버그가 테스트 결과에 영향을 주는 것을 방지하고, 테스트 대상을 명확히 격리한다.
-- **API 호출은 repository 모듈을 통해 수행한다. 함수를 즉시 노출한다.** `frontend/src/repository/` 디렉토리에 도메인별 파일을 두고, 클래스나 객체 없이 함수를 named export로 노출한다. (예: `export const createAgent = async (...) => { ... }`)
+### 소스 코드
+- 포맷: Ruff (import 정렬)
+- 모든 공개 함수에 타입 힌트 필수
+- 예외: broad catch 없이 그대로 노출
 
+---
+
+## Frontend Repository 패턴
+API 호출은 `frontend/src/repository/` 도메인별 파일에서 함수로 노출한다.
+```ts
+// src/repository/agents.ts
+export const createAgent = async (payload: CreateAgentRequest): Promise<Agent> => { ... }
+```
+클래스/객체 래핑 금지, named export만 사용.
