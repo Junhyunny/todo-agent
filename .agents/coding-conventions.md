@@ -63,6 +63,7 @@ app.dependency_overrides[get_session] = lambda: test_session
 - 포맷: Ruff (import 정렬)
 - 모든 공개 함수에 타입 힌트 필수
 - 예외: broad catch 없이 그대로 노출
+- import: `src/` 루트 기준 전체 모듈 경로 사용 (`from repositories.database import Base`, `from models.agent_models import AgentModel`)
 
 ---
 
@@ -101,3 +102,18 @@ const handleAction = () => {
 
 return <Dialog open={open} onOpenChange={setOpen}>...</Dialog>;
 ```
+
+**다이얼로그 폼 상태 초기화 패턴**
+다이얼로그가 열릴 때 폼 입력값을 초기화(또는 원래 값으로 복구)해야 할 때는 `useEffect`로 `open` 상태를 의존성으로 사용한다.
+```tsx
+const [open, setOpen] = useState(false);
+const [name, setName] = useState("");
+
+useEffect(() => {
+  if (open) {
+    setName(""); // 등록 폼: 빈 값으로 초기화
+    // 수정 폼: setName(entity.name) 처럼 원래 값으로 복구
+  }
+}, [open]);
+```
+취소/저장 후 재오픈 시 이전 입력값이 남지 않도록 보장한다.
