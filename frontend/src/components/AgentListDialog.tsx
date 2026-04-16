@@ -1,5 +1,5 @@
 import { Bot } from "lucide-react";
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { AgentDeleteDialog } from "@/components/AgentDeleteDialog.tsx";
 import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
