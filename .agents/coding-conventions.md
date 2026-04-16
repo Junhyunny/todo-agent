@@ -88,6 +88,30 @@ vi.mock("../api/generated/agents", () => ({
 }));
 ```
 
+**다이얼로그 타이틀 구조** _(업데이트: 2026-04-17)_
+모든 다이얼로그는 `DialogHeader` + `DialogTitle`로 타이틀을 노출한다.
+```tsx
+<DialogContent>
+  <DialogHeader>
+    <DialogTitle>에이전트 등록</DialogTitle>
+  </DialogHeader>
+  ...
+</DialogContent>
+```
+테스트에서는 `getByRole("heading", { name: "..." })`으로 검증한다.
+
+**`DialogClose` 조건부 비활성화 패턴** _(업데이트: 2026-04-17)_
+저장 버튼을 조건부로 비활성화할 때는 `DialogClose`에 직접 `disabled`를 주지 않고 `render` prop의 `Button`에 전달한다.
+disabled 상태의 HTML 버튼은 클릭 이벤트가 발생하지 않으므로 다이얼로그도 닫히지 않는다.
+```tsx
+<DialogClose
+  render={<Button disabled={!name || !systemPrompt} />}
+  onClick={() => void handleSave()}
+>
+  저장
+</DialogClose>
+```
+
 **다이얼로그 비동기 닫기 패턴**
 비동기 작업 완료 후 다이얼로그를 프로그래매틱하게 닫아야 할 때는 `useState`로 open 상태를 직접 관리한다.
 ```tsx
