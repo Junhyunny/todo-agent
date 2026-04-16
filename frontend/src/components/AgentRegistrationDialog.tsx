@@ -53,7 +53,10 @@ export const AgentRegistrationDialog = () => {
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
         <DialogClose render={<Button />}>취소</DialogClose>
-        <DialogClose render={<Button />} onClick={() => void handleSave()}>
+        <DialogClose
+          render={<Button disabled={!name || !systemPrompt} />}
+          onClick={() => void handleSave()}
+        >
           저장
         </DialogClose>
       </DialogContent>

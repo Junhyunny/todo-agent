@@ -54,11 +54,75 @@ describe("AgentRegistrationDialog", () => {
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
   });
 
+  test("초기 상태에서 저장 버튼이 비활성화 상태이다.", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  test("이름만 입력하면 저장 버튼이 비활성화 상태이다.", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  test("프롬프트만 입력하면 저장 버튼이 비활성화 상태이다.", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 프롬프트",
+    );
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  test("이름과 프롬프트를 모두 입력하면 저장 버튼이 활성화 상태이다.", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 프롬프트",
+    );
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeEnabled();
+  });
+
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 시스템 프롬프트",
     );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
