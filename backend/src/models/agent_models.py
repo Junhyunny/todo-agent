@@ -2,11 +2,11 @@ import uuid
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from repositories.database import Base
 
 
 class AgentModel(Base):
-  __tablename__ = "todo_agent_db"
+  __tablename__ = "tb_agents"
 
   id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
   name: Mapped[str]
