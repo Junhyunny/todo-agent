@@ -16,7 +16,7 @@ describe("AgentRegistrationDialog", () => {
     mockCreateAgent.mockResolvedValue({});
   });
 
-  test("에이전트 이름 입력 필드가 보인다", async () => {
+  test("에이전트 이름 폼(form)이 보인다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
@@ -24,13 +24,6 @@ describe("AgentRegistrationDialog", () => {
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
     ).toBeInTheDocument();
-  });
-
-  test("시스템 프롬프트 입력 필드가 보인다", async () => {
-    render(<AgentRegistrationDialog />);
-
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
-
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toBeInTheDocument();
@@ -45,14 +38,10 @@ describe("AgentRegistrationDialog", () => {
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
   });
 
-  test("저장 버튼을 클릭하면 createAgent를 호출하고 onClose 콜백을 호출한다", async () => {
+  test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
-    await userEvent.type(
-      screen.getByRole("textbox", { name: "에이전트 이름" }),
-      "테스트 에이전트",
-    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -68,23 +57,74 @@ describe("AgentRegistrationDialog", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "취소" }));
 
-    expect(
-      screen.queryByRole("textbox", { name: "에이전트 이름" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("저장 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
+  test("저장 버튼을 클릭하면 에이전트 정보를 저장할 수 있다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(screen.getByRole("button", { name: "+" }));
-    expect(
+    await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
-    ).toBeInTheDocument();
-
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 시스템 프롬프트",
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
+    expect(mockCreateAgent).toHaveBeenCalledWith({
+      name: "테스트 에이전트",
+      system_prompt: "테스트 시스템 프롬프트",
+    });
+  });
+
+  test("어떤 값을 입력 후 저장 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 시스템 프롬프트",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "저장" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+
+    expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
+      "",
+    );
     expect(
-      screen.queryByRole("textbox", { name: "에이전트 이름" }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toHaveValue("");
+  });
+
+  test("어떤 값을 입력 후 취소 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 시스템 프롬프트",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "+" }));
+
+    expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
+      "",
+    );
+    expect(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toHaveValue("");
   });
 });

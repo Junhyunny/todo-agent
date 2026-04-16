@@ -1,5 +1,5 @@
 import { Bot } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { AgentDeleteDialog } from "@/components/AgentDeleteDialog.tsx";
 import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
@@ -14,17 +14,20 @@ import { getAgents } from "@/repository/agent-repository.ts";
 
 export const AgentListDialog = () => {
   const [agents, setAgents] = useState<AgentResponse[]>([]);
+  const [open, setOpen] = useState(false);
 
   const fetchAgents = useCallback(() => {
     getAgents().then(setAgents);
   }, []);
 
   useEffect(() => {
-    fetchAgents();
-  }, [fetchAgents]);
+    if (open) {
+      fetchAgents();
+    }
+  }, [fetchAgents, open]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
           <Button aria-label="agent" variant="ghost" size="icon">

@@ -1,5 +1,5 @@
 import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -19,14 +19,22 @@ export const AgentEditDialog = ({
 }) => {
   const [name, setName] = useState(agent.name);
   const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
+  const [open, setOpen] = useState(false);
 
   const handleSave = async () => {
     await updateAgent(agent.id, { name, system_prompt: systemPrompt });
     onSave();
   };
 
+  useEffect(() => {
+    if (open) {
+      setName(agent.name);
+      setSystemPrompt(agent.system_prompt);
+    }
+  }, [open, agent]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
           <Button aria-label="수정" variant="ghost" size="icon">

@@ -28,7 +28,6 @@ describe("AgentEditDialog", () => {
 
   test("다이얼로그를 열면 에이전트 이름이 채워져 있다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
@@ -38,7 +37,6 @@ describe("AgentEditDialog", () => {
 
   test("다이얼로그를 열면 시스템 프롬프트가 채워져 있다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(
@@ -48,38 +46,38 @@ describe("AgentEditDialog", () => {
 
   test("취소 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
     await userEvent.click(screen.getByRole("button", { name: "취소" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("저장 버튼이 보인다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
-    await userEvent.click(screen.getByRole("button", { name: "수정" }));
-
-    expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
-  });
-
   test("저장 버튼을 클릭하면 updateAgent를 호출한다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    const nameInput = screen.getByRole("textbox", { name: "에이전트 이름" });
+    const promptInput = screen.getByRole("textbox", {
+      name: "시스템 프롬프트",
+    });
+    await userEvent.clear(nameInput);
+    await userEvent.clear(promptInput);
+    await userEvent.type(nameInput, "변경된 테스트 에이전트");
+    await userEvent.type(promptInput, "변경된 테스트 프롬프트");
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(mockUpdateAgent).toHaveBeenCalledWith("1", {
-      name: "테스트 에이전트",
-      system_prompt: "테스트 프롬프트",
+      name: "변경된 테스트 에이전트",
+      system_prompt: "변경된 테스트 프롬프트",
     });
   });
 
   test("저장 버튼을 클릭하면 onSave 콜백을 호출한다.", async () => {
     const onSave = vi.fn();
     render(<AgentEditDialog agent={agent} onSave={onSave} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(onSave).toHaveBeenCalledOnce();
@@ -87,10 +85,35 @@ describe("AgentEditDialog", () => {
 
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("취소 버튼을 누른 후 다시 모달을 열면 이전 값이 보인다", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    const nameInput = screen.getByRole("textbox", { name: "에이전트 이름" });
+    const promptInput = screen.getByRole("textbox", {
+      name: "시스템 프롬프트",
+    });
+    await userEvent.clear(nameInput);
+    await userEvent.clear(promptInput);
+    await userEvent.type(nameInput, "변경된 테스트 에이전트");
+    await userEvent.type(promptInput, "변경된 테스트 프롬프트");
+
+    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
+      "테스트 에이전트",
+    );
+    expect(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toHaveValue("테스트 프롬프트");
   });
 });
