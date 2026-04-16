@@ -4,12 +4,9 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
-import axios from 'axios';
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse
-} from 'axios';
+
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios from "axios";
 
 export interface AgentResponse {
   id: string;
@@ -37,55 +34,58 @@ export interface PostAgentRequest {
 }
 
 export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
-/**
- * @summary Get Agents
- */
-const getAgentsApiAgentsGet = (
-     options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AgentResponse[]>> => {
-    return axiosInstance.get(
-      `/api/agents`,options
-    );
-  }
+  /**
+   * @summary Get Agents
+   */
+  const getAgentsApiAgentsGet = (
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<AgentResponse[]>> => {
+    return axiosInstance.get(`/api/agents`, options);
+  };
 
-/**
- * @summary Create Agent
- */
-const createAgentApiAgentsPost = (
-    postAgentRequest: PostAgentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.post(
-      `/api/agents`,
-      postAgentRequest,options
-    );
-  }
+  /**
+   * @summary Create Agent
+   */
+  const createAgentApiAgentsPost = (
+    postAgentRequest: PostAgentRequest,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<AgentResponse>> => {
+    return axiosInstance.post(`/api/agents`, postAgentRequest, options);
+  };
 
-/**
- * @summary Update Agent
- */
-const updateAgentApiAgentsAgentIdPut = (
+  /**
+   * @summary Update Agent
+   */
+  const updateAgentApiAgentsAgentIdPut = (
     agentId: string,
-    postAgentRequest: PostAgentRequest, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AgentResponse>> => {
+    postAgentRequest: PostAgentRequest,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<AgentResponse>> => {
     return axiosInstance.put(
       `/api/agents/${agentId}`,
-      postAgentRequest,options
+      postAgentRequest,
+      options,
     );
-  }
+  };
 
-/**
- * @summary Delete Agent
- */
-const deleteAgentApiAgentsAgentIdDelete = (
-    agentId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.delete(
-      `/api/agents/${agentId}`,options
-    );
-  }
+  /**
+   * @summary Delete Agent
+   */
+  const deleteAgentApiAgentsAgentIdDelete = (
+    agentId: string,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<void>> => {
+    return axiosInstance.delete(`/api/agents/${agentId}`, options);
+  };
 
-return {getAgentsApiAgentsGet,createAgentApiAgentsPost,updateAgentApiAgentsAgentIdPut,deleteAgentApiAgentsAgentIdDelete}};
-export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>
-export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>
-export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>
-export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>
+  return {
+    getAgentsApiAgentsGet,
+    createAgentApiAgentsPost,
+    updateAgentApiAgentsAgentIdPut,
+    deleteAgentApiAgentsAgentIdDelete,
+  };
+};
+export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
+export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>;
+export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>;
+export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>;

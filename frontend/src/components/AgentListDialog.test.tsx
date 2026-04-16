@@ -118,8 +118,12 @@ describe("AgentListDialog", () => {
 
     const dialog = screen.getByRole("dialog");
     const agentItem = await within(dialog).findByLabelText("agent-1");
-    await userEvent.click(within(agentItem).getByRole("button", { name: "삭제" }));
-    await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }));
+    await userEvent.click(
+      within(agentItem).getByRole("button", { name: "삭제" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }),
+    );
 
     expect(mockGetAgents).toHaveBeenCalledTimes(2);
   });

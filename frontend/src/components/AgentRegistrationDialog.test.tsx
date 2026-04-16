@@ -16,10 +16,24 @@ describe("AgentRegistrationDialog", () => {
     mockCreateAgent.mockResolvedValue({});
   });
 
+  test("에이전트 등록 타이틀이 보인다", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "에이전트 등록" }),
+    ).toBeInTheDocument();
+  });
+
   test("에이전트 이름 폼(form)이 보인다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
 
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
@@ -32,7 +46,9 @@ describe("AgentRegistrationDialog", () => {
   test("저장 버튼과 취소 버튼이 보인다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
 
     expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
@@ -41,7 +57,9 @@ describe("AgentRegistrationDialog", () => {
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -50,7 +68,9 @@ describe("AgentRegistrationDialog", () => {
   test("취소 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
     ).toBeInTheDocument();
@@ -63,7 +83,9 @@ describe("AgentRegistrationDialog", () => {
   test("저장 버튼을 클릭하면 에이전트 정보를 저장할 수 있다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
@@ -83,7 +105,9 @@ describe("AgentRegistrationDialog", () => {
   test("어떤 값을 입력 후 저장 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
@@ -94,7 +118,9 @@ describe("AgentRegistrationDialog", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
 
     expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
       "",
@@ -107,7 +133,9 @@ describe("AgentRegistrationDialog", () => {
   test("어떤 값을 입력 후 취소 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
     render(<AgentRegistrationDialog />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
@@ -118,7 +146,9 @@ describe("AgentRegistrationDialog", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "취소" }));
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
 
     expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
       "",

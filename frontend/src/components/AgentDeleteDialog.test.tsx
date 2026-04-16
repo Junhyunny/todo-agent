@@ -50,7 +50,9 @@ describe("AgentDeleteDialog", () => {
     render(<AgentDeleteDialog agent={agent} onDelete={mockOnDelete} />);
 
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
-    await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }));
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }),
+    );
 
     expect(mockDeleteAgent).toHaveBeenCalledWith("1");
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
@@ -60,7 +62,9 @@ describe("AgentDeleteDialog", () => {
     render(<AgentDeleteDialog agent={agent} onDelete={vi.fn()} />);
 
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
-    await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }));
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" }),
+    );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });

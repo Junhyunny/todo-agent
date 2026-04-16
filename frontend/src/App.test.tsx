@@ -11,6 +11,8 @@ describe("App", () => {
 
   test("기본 경로에서 MainWindow가 렌더링된다", () => {
     render(<App />);
-    expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    ).toBeInTheDocument();
   });
 });

@@ -22,7 +22,9 @@ describe("MainWindow", () => {
 
   test("메인 화면에서 + 버튼이 렌더링된다", () => {
     render(<MainWindow />);
-    expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    ).toBeInTheDocument();
   });
 
   test("화면에서 에이전트 아이콘이 + 버튼 오른쪽에 렌더링된다", () => {
@@ -37,7 +39,9 @@ describe("MainWindow", () => {
   test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장·취소 버튼이 포함된 다이얼로그가 열린다", async () => {
     render(<MainWindow />);
 
-    await userEvent.click(screen.getByRole("button", { name: "+" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
     ).toBeInTheDocument();
