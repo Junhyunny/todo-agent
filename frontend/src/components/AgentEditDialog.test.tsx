@@ -53,22 +53,37 @@ describe("AgentEditDialog", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  test("다이얼로그를 열면 '에이전트 수정' 타이틀이 보인다.", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    expect(
+      screen.getByRole("heading", { name: "에이전트 수정" }),
+    ).toBeInTheDocument();
+  });
+
+  test("이름 입력 필드가 비활성화 상태이다.", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    expect(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+    ).toBeDisabled();
+  });
+
   test("저장 버튼을 클릭하면 updateAgent를 호출한다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
-    const nameInput = screen.getByRole("textbox", { name: "에이전트 이름" });
     const promptInput = screen.getByRole("textbox", {
       name: "시스템 프롬프트",
     });
-    await userEvent.clear(nameInput);
     await userEvent.clear(promptInput);
-    await userEvent.type(nameInput, "변경된 테스트 에이전트");
     await userEvent.type(promptInput, "변경된 테스트 프롬프트");
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(mockUpdateAgent).toHaveBeenCalledWith("1", {
-      name: "변경된 테스트 에이전트",
+      name: "테스트 에이전트",
       system_prompt: "변경된 테스트 프롬프트",
     });
   });
@@ -96,22 +111,16 @@ describe("AgentEditDialog", () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
-    const nameInput = screen.getByRole("textbox", { name: "에이전트 이름" });
     const promptInput = screen.getByRole("textbox", {
       name: "시스템 프롬프트",
     });
-    await userEvent.clear(nameInput);
     await userEvent.clear(promptInput);
-    await userEvent.type(nameInput, "변경된 테스트 에이전트");
     await userEvent.type(promptInput, "변경된 테스트 프롬프트");
 
     await userEvent.click(screen.getByRole("button", { name: "취소" }));
 
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
-    expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
-      "테스트 에이전트",
-    );
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toHaveValue("테스트 프롬프트");

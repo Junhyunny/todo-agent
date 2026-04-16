@@ -6,6 +6,8 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { updateAgent } from "@/repository/agent-repository.ts";
@@ -43,10 +45,14 @@ export const AgentEditDialog = ({
         }
       />
       <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>에이전트 수정</DialogTitle>
+        </DialogHeader>
         <input
           type="text"
           aria-label="에이전트 이름"
           value={name}
+          disabled
           onChange={(e) => setName(e.target.value)}
         />
         <textarea
