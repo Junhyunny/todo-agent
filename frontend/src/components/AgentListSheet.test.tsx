@@ -93,16 +93,6 @@ describe("AgentListSheet", () => {
     ).toBeInTheDocument();
   });
 
-  test("이전 화면으로 이동하는 버튼이 보인다.", async () => {
-    render(<AgentListSheet />);
-
-    await userEvent.click(screen.getByRole("button", { name: "agent" }));
-
-    expect(
-      await screen.findByRole("button", { name: "이전" }),
-    ).toBeInTheDocument();
-  });
-
   test("등록된 에이전트가 없으면 에이전트 목록이 비어 있다.", async () => {
     mockGetAgents.mockResolvedValue([]);
 

@@ -6,7 +6,6 @@ import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -56,7 +55,6 @@ export const AgentListSheet = () => {
             </section>
           ))}
         </div>
-        <SheetClose render={<Button variant="outline" />}>이전</SheetClose>
       </SheetContent>
     </Sheet>
   );
