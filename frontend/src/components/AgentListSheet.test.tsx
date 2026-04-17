@@ -35,7 +35,18 @@ describe("AgentListSheet", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("버튼을 누르면 시트가 보이고, 에이전트 이름과 프롬프트가 보인다.", async () => {
+  test("시트를 열면 에이전트 목록 제목이 보인다.", async () => {
+    render(<AgentListSheet />);
+
+    await userEvent.click(screen.getByRole("button", { name: "agent" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(
+      await within(dialog).findByRole("heading", { name: "에이전트 목록" }),
+    ).toBeInTheDocument();
+  });
+
+  test("버튼을 누르면 시트가 보이고, 에이전트 이름이 보이고 설명은 보이지 않는다.", async () => {
     mockGetAgents.mockResolvedValue([
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
       { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
@@ -49,9 +60,9 @@ describe("AgentListSheet", () => {
     const item1 = await within(dialog).findByLabelText(`agent-1`);
     const item2 = await within(dialog).findByLabelText(`agent-2`);
     expect(within(item1).getByText("에이전트A")).toBeInTheDocument();
-    expect(within(item1).getByText("프롬프트A")).toBeInTheDocument();
+    expect(within(item1).queryByText("프롬프트A")).not.toBeInTheDocument();
     expect(within(item2).getByText("에이전트B")).toBeInTheDocument();
-    expect(within(item2).getByText("프롬프트B")).toBeInTheDocument();
+    expect(within(item2).queryByText("프롬프트B")).not.toBeInTheDocument();
   });
 
   test("시트 외부를 누르면 시트가 닫힌다.", async () => {

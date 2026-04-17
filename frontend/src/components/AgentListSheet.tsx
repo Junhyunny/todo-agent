@@ -8,6 +8,8 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet.tsx";
 import { getAgents } from "@/repository/agent-repository.ts";
@@ -36,22 +38,24 @@ export const AgentListSheet = () => {
         }
       />
       <SheetContent>
-        {agents.map((agent) => (
-          <section
-            key={agent.id}
-            aria-label={`agent-${agent.id}`}
-            className="flex items-center justify-between"
-          >
-            <div>
+        <SheetHeader>
+          <SheetTitle>에이전트 목록</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 overflow-y-auto">
+          {agents.map((agent) => (
+            <section
+              key={agent.id}
+              aria-label={`agent-${agent.id}`}
+              className="flex items-center justify-between"
+            >
               <h2>{agent.name}</h2>
-              <p>{agent.system_prompt}</p>
-            </div>
-            <div className="flex gap-2">
-              <AgentEditDialog agent={agent} onSave={fetchAgents} />
-              <AgentDeleteDialog agent={agent} onDelete={fetchAgents} />
-            </div>
-          </section>
-        ))}
+              <div className="flex gap-2">
+                <AgentEditDialog agent={agent} onSave={fetchAgents} />
+                <AgentDeleteDialog agent={agent} onDelete={fetchAgents} />
+              </div>
+            </section>
+          ))}
+        </div>
         <SheetClose render={<Button variant="outline" />}>이전</SheetClose>
       </SheetContent>
     </Sheet>
