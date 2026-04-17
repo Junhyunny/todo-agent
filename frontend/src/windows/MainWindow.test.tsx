@@ -7,9 +7,11 @@ import { MainWindow } from "./MainWindow.tsx";
 
 const mockGetAgents = vi.hoisted(() => vi.fn());
 const mockCreateAgent = vi.hoisted(() => vi.fn());
+const mockExistsAgentByName = vi.hoisted(() => vi.fn());
 vi.mock("../repository/agent-repository", () => ({
   getAgents: mockGetAgents,
   createAgent: mockCreateAgent,
+  existsAgentByName: mockExistsAgentByName,
 }));
 
 describe("MainWindow", () => {
@@ -18,6 +20,15 @@ describe("MainWindow", () => {
     mockGetAgents.mockResolvedValue([]);
     mockCreateAgent.mockClear();
     mockCreateAgent.mockResolvedValue({});
+    mockExistsAgentByName.mockClear();
+    mockExistsAgentByName.mockResolvedValue(false);
+  });
+
+  test("메인 화면에서 TODO 등록 버튼이 보인다", () => {
+    render(<MainWindow />);
+    expect(
+      screen.getByRole("button", { name: "TODO 등록" }),
+    ).toBeInTheDocument();
   });
 
   test("메인 화면에서 + 버튼이 렌더링된다", () => {
