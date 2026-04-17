@@ -102,3 +102,23 @@ async def test_delete_agent_레포지토리_delete_함수를_호출한다(mock_a
   mock_agent_repository.delete.assert_called_once()
   _, kwargs = mock_agent_repository.delete.call_args
   assert kwargs["agent_id"] == expected_id
+
+
+async def test_exists_agent_by_name_레포지토리_exists_by_name_함수를_호출한다(mock_agent_repository: AsyncMock):
+  mock_agent_repository.exists_by_name.return_value = True
+  sut = AgentService(agent_repository=mock_agent_repository)
+
+  await sut.exists_agent_by_name(name="에이전트1")
+
+  mock_agent_repository.exists_by_name.assert_called_once()
+  _, kwargs = mock_agent_repository.exists_by_name.call_args
+  assert kwargs["name"] == "에이전트1"
+
+
+async def test_exists_agent_by_name_레포지토리를_통해_에이전트_존재여부를_반환한다(mock_agent_repository: AsyncMock):
+  mock_agent_repository.exists_by_name.return_value = True
+  sut = AgentService(agent_repository=mock_agent_repository)
+
+  result = await sut.exists_agent_by_name(name="에이전트1")
+
+  assert result is True

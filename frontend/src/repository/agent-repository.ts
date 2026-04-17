@@ -7,6 +7,7 @@ import {
 const {
   getAgentsApiAgentsGet,
   createAgentApiAgentsPost,
+  existsAgentApiAgentsExistsGet,
   updateAgentApiAgentsAgentIdPut,
   deleteAgentApiAgentsAgentIdDelete,
 } = getFastAPI();
@@ -28,6 +29,11 @@ export const updateAgent = async (
   request: PostAgentRequest,
 ): Promise<AgentResponse> => {
   const response = await updateAgentApiAgentsAgentIdPut(id, request);
+  return response.data;
+};
+
+export const existsAgentByName = async (name: string): Promise<boolean> => {
+  const response = await existsAgentApiAgentsExistsGet({ name });
   return response.data;
 };
 

@@ -130,3 +130,21 @@ async def test_DELETE_agents_에이전트를_삭제한다(mock_async_client, moc
   response = await mock_async_client.delete(f"/api/agents/{expected_id}")
 
   assert response.status_code == 204
+
+
+async def test_GET_agents_exists_이름이_존재하면_true를_반환한다(mock_async_client, mock_agent_service: AsyncMock):
+  mock_agent_service.exists_agent_by_name.return_value = True
+
+  response = await mock_async_client.get("/api/agents/exists?name=테스트 에이전트")
+
+  assert response.status_code == 200
+  assert response.json() is True
+
+
+async def test_GET_agents_exists_이름이_없으면_false를_반환한다(mock_async_client, mock_agent_service: AsyncMock):
+  mock_agent_service.exists_agent_by_name.return_value = False
+
+  response = await mock_async_client.get("/api/agents/exists?name=없는 에이전트")
+
+  assert response.status_code == 200
+  assert response.json() is False

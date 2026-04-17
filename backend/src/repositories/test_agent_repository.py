@@ -86,3 +86,24 @@ async def test_delete_에이전트_정보를_삭제할_수_있다(setup_test_db:
   result = await session.execute(query)
   deleted_agent = result.scalar_one_or_none()
   assert deleted_agent is None
+
+
+@pytest.mark.parametrize(
+  "query_name, expected",
+  [
+    ("존재하는 에이전트", True),
+    ("없는 에이전트", False),
+  ],
+)
+async def test_exists_by_name_에이전트_이름으로_존재여부를_확인할_수_있다(
+  setup_test_db: AsyncSession, query_name: str, expected: bool
+):
+  agent_id = uuid.uuid4()
+  session = setup_test_db
+  session.add(AgentModel(id=str(agent_id), name="존재하는 에이전트", system_prompt="프롬프트"))
+
+  sut = AgentRepository(session=session)
+
+  result = await sut.exists_by_name(name=query_name)
+
+  assert result is expected

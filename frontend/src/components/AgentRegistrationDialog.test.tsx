@@ -6,14 +6,18 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { AgentRegistrationDialog } from "./AgentRegistrationDialog.tsx";
 
 const mockCreateAgent = vi.hoisted(() => vi.fn());
+const mockExistsAgentByName = vi.hoisted(() => vi.fn());
 vi.mock("../repository/agent-repository", () => ({
   createAgent: mockCreateAgent,
+  existsAgentByName: mockExistsAgentByName,
 }));
 
 describe("AgentRegistrationDialog", () => {
   beforeEach(() => {
     mockCreateAgent.mockClear();
     mockCreateAgent.mockResolvedValue({});
+    mockExistsAgentByName.mockClear();
+    mockExistsAgentByName.mockResolvedValue(false);
   });
 
   test("에이전트 등록 타이틀이 보인다", async () => {
@@ -220,5 +224,41 @@ describe("AgentRegistrationDialog", () => {
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toHaveValue("");
+  });
+
+  test("중복된 이름 입력 시 안내 문구가 표시된다", async () => {
+    mockExistsAgentByName.mockResolvedValue(true);
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "기존 에이전트",
+    );
+
+    expect(
+      await screen.findByText("동일한 이름의 에이전트가 존재합니다."),
+    ).toBeInTheDocument();
+  });
+
+  test("중복된 이름 입력 시 저장 버튼이 비활성화된다", async () => {
+    mockExistsAgentByName.mockResolvedValue(true);
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+      "기존 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+      "테스트 프롬프트",
+    );
+
+    expect(await screen.findByRole("button", { name: "저장" })).toBeDisabled();
   });
 });

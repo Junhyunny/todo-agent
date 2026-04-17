@@ -39,6 +39,11 @@ class AgentRepository:
       return existing_model
     raise RuntimeError("not found")
 
+  async def exists_by_name(self, name: str) -> bool:
+    query = select(AgentModel).where(AgentModel.name == name)
+    result = await self.session.execute(query)
+    return result.scalar_one_or_none() is not None
+
   async def delete(self, agent_id: UUID):
     query = delete(AgentModel).where(AgentModel.id == str(agent_id))
     await self.session.execute(query)

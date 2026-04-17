@@ -8,6 +8,11 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 
+export interface AgentRequest {
+  name: string;
+  system_prompt: string;
+}
+
 export interface AgentResponse {
   id: string;
   name: string;
@@ -28,10 +33,9 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
-export interface PostAgentRequest {
+export type ExistsAgentApiAgentsExistsGetParams = {
   name: string;
-  system_prompt: string;
-}
+};
 
 export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
   /**
@@ -47,10 +51,23 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
    * @summary Create Agent
    */
   const createAgentApiAgentsPost = (
-    postAgentRequest: PostAgentRequest,
+    agentRequest: AgentRequest,
     options?: AxiosRequestConfig,
   ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.post(`/api/agents`, postAgentRequest, options);
+    return axiosInstance.post(`/api/agents`, agentRequest, options);
+  };
+
+  /**
+   * @summary Exists Agent
+   */
+  const existsAgentApiAgentsExistsGet = (
+    params: ExistsAgentApiAgentsExistsGetParams,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<boolean>> => {
+    return axiosInstance.get(`/api/agents/exists`, {
+      ...options,
+      params: { ...params, ...options?.params },
+    });
   };
 
   /**
@@ -58,14 +75,10 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
    */
   const updateAgentApiAgentsAgentIdPut = (
     agentId: string,
-    postAgentRequest: PostAgentRequest,
+    agentRequest: AgentRequest,
     options?: AxiosRequestConfig,
   ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.put(
-      `/api/agents/${agentId}`,
-      postAgentRequest,
-      options,
-    );
+    return axiosInstance.put(`/api/agents/${agentId}`, agentRequest, options);
   };
 
   /**
@@ -81,11 +94,13 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
   return {
     getAgentsApiAgentsGet,
     createAgentApiAgentsPost,
+    existsAgentApiAgentsExistsGet,
     updateAgentApiAgentsAgentIdPut,
     deleteAgentApiAgentsAgentIdDelete,
   };
 };
 export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
 export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>;
+export type ExistsAgentApiAgentsExistsGetResult = AxiosResponse<boolean>;
 export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>;
 export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>;

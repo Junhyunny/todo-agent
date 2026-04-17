@@ -10,21 +10,34 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
-import { createAgent } from "@/repository/agent-repository.ts";
+import {
+  createAgent,
+  existsAgentByName,
+} from "@/repository/agent-repository.ts";
 
 export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [open, setOpen] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   const handleSave = async () => {
     await createAgent({ name, system_prompt: systemPrompt });
   };
 
   useEffect(() => {
+    if (!name) {
+      setIsDuplicate(false);
+      return;
+    }
+    existsAgentByName(name).then(setIsDuplicate);
+  }, [name]);
+
+  useEffect(() => {
     if (open) {
       setName("");
       setSystemPrompt("");
+      setIsDuplicate(false);
     }
   }, [open]);
 
@@ -47,6 +60,7 @@ export const AgentRegistrationDialog = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+        {isDuplicate && <p>동일한 이름의 에이전트가 존재합니다.</p>}
         <textarea
           aria-label="시스템 프롬프트"
           value={systemPrompt}
@@ -54,7 +68,7 @@ export const AgentRegistrationDialog = () => {
         />
         <DialogClose render={<Button />}>취소</DialogClose>
         <DialogClose
-          render={<Button disabled={!name || !systemPrompt} />}
+          render={<Button disabled={!name || !systemPrompt || isDuplicate} />}
           onClick={() => void handleSave()}
         >
           저장

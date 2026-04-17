@@ -19,6 +19,11 @@ async def get_agents(agent_service: AgentService = Depends(AgentService)) -> lis
   return await agent_service.get_agents()
 
 
+@router.get("/api/agents/exists", status_code=status.HTTP_200_OK)
+async def exists_agent(name: str, agent_service: AgentService = Depends(AgentService)) -> bool:
+  return await agent_service.exists_agent_by_name(name=name)
+
+
 @router.put("/api/agents/{agent_id}", status_code=status.HTTP_200_OK)
 async def update_agent(agent_id: str, request: AgentRequest, agent_service: AgentService = Depends(AgentService)) -> AgentResponse:
   return await agent_service.update_agent(agent_id=UUID(agent_id), request=request)

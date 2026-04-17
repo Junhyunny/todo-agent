@@ -24,5 +24,8 @@ class AgentService:
     result = await self.agent_repository.update(agent_id=agent_id, model=AgentModel(name=request.name, system_prompt=request.system_prompt))
     return AgentResponse(id=UUID(result.id), name=result.name, system_prompt=result.system_prompt)
 
+  async def exists_agent_by_name(self, name: str) -> bool:
+    return await self.agent_repository.exists_by_name(name=name)
+
   async def delete_agent(self, agent_id: UUID):
     await self.agent_repository.delete(agent_id=agent_id)

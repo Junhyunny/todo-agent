@@ -48,16 +48,65 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 
 ## Backend (Python + FastAPI)
 
-### 테스트
-- 파일 위치: `backend/src/` co-located `test_*.py`
-- 구조: pytest 함수 기반, `test_METHOD_resource_한국어설명` 네이밍
-  - 예: `test_DELETE_agents_에이전트를_삭제하고_204를_반환한다`, `test_PUT_agents_DB에_에이전트가_수정된다`
-- DB 격리: `conftest.py`에 `autouse=True` 픽스처, in-memory SQLite (`sqlite+aiosqlite:///:memory:`)
+### 테스트 _(업데이트: 2026-04-17)_
+
+테스트는 Router / Service / Repository 3개 레이어로 분리한다.
+
+| 레이어 | 파일 위치 | mock 대상 | DB |
+|--------|-----------|-----------|-----|
+| Router | `src/routers/test_*.py` | Service (`AsyncMock(spec=Service)`) | 없음 |
+| Service | `src/services/test_*.py` | Repository (`AsyncMock(spec=Repository)`) | 없음 |
+| Repository | `src/repositories/test_*.py` | 없음 | in-memory SQLite |
+
+#### 공통
+- 구조: pytest 함수 기반, 테스트명 한국어 문장형
+- `sut` 변수명으로 테스트 대상 인스턴스 생성
+
+#### Router 테스트
+- 네이밍: `test_HTTP메서드_resource_한국어설명`
+  - 예: `test_DELETE_agents_에이전트를_삭제하고_204를_반환한다`
+- `AsyncMock(spec=AgentService)` fixture → `app.dependency_overrides[Service] = lambda: mock`
+- 응답 상태코드와 body만 검증
+
+#### Service 테스트
+- 네이밍: `test_메서드명_한국어설명`
+  - 예: `test_create_agent_레포지토리_create_함수를_호출한다`
+- `AsyncMock(spec=AgentRepository)` fixture
+- 테스트 쌍으로 작성: "레포지토리 호출 검증" + "반환값 검증"
 ```python
-app.dependency_overrides[get_session] = lambda: test_session
-# teardown: app.dependency_overrides.clear() + engine.dispose()
- ```
-- 셋업/검증 독립성: arrange는 DB 직접 삽입, assert는 DB 직접 조회 또는 응답만 사용. 다른 API 엔드포인트 경유 금지
+@pytest.fixture
+def mock_agent_repository():
+    return AsyncMock(spec=AgentRepository)
+
+async def test_create_agent_레포지토리_create_함수를_호출한다(mock_agent_repository):
+    sut = AgentService(agent_repository=mock_agent_repository)
+    await sut.create_agent(request=AgentRequest(...))
+    mock_agent_repository.create.assert_called_once()
+    _, kwargs = mock_agent_repository.create.call_args
+    assert kwargs["model"].name == "..."
+```
+
+#### Repository 테스트
+- 네이밍: `test_메서드명_한국어설명`
+  - 예: `test_create_에이전트_정보를_저장할_수_있다`
+- `setup_test_db: AsyncSession` 픽스처로 세션 수령 (conftest `autouse=True`)
+- arrange: `session.add(Model(...))` 직접 삽입, assert: DB 직접 조회 또는 반환값만 사용
+- True/False 등 결과 분기가 있는 경우 `@pytest.mark.parametrize` 사용
+```python
+@pytest.mark.parametrize("query_name, expected", [
+    ("존재하는 에이전트", True),
+    ("없는 에이전트", False),
+])
+async def test_exists_by_name_에이전트_이름으로_존재여부를_확인할_수_있다(
+    setup_test_db: AsyncSession, query_name: str, expected: bool
+):
+    session = setup_test_db
+    session.add(AgentModel(id=str(uuid.uuid4()), name="존재하는 에이전트", system_prompt="프롬프트"))
+    sut = AgentRepository(session=session)
+    result = await sut.exists_by_name(name=query_name)
+    assert result is expected
+```
+- DB 격리: `conftest.py`에 `autouse=True` 픽스처, in-memory SQLite (`sqlite+aiosqlite:///:memory:`)
 
 ### 소스 코드
 - 포맷: Ruff (import 정렬)

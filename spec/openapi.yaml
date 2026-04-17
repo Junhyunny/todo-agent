@@ -24,7 +24,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostAgentRequest'
+              $ref: '#/components/schemas/AgentRequest'
         required: true
       responses:
         '201':
@@ -33,6 +33,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/agents/exists:
+    get:
+      summary: Exists Agent
+      operationId: exists_agent_api_agents_exists_get
+      parameters:
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: boolean
+                title: Response Exists Agent Api Agents Exists Get
         '422':
           description: Validation Error
           content:
@@ -55,7 +80,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PostAgentRequest'
+              $ref: '#/components/schemas/AgentRequest'
       responses:
         '200':
           description: Successful Response
@@ -90,6 +115,19 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    AgentRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        system_prompt:
+          type: string
+          title: System Prompt
+      type: object
+      required:
+      - name
+      - system_prompt
+      title: AgentRequest
     AgentResponse:
       properties:
         id:
@@ -117,19 +155,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    PostAgentRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-        system_prompt:
-          type: string
-          title: System Prompt
-      type: object
-      required:
-      - name
-      - system_prompt
-      title: PostAgentRequest
     ValidationError:
       properties:
         loc:
