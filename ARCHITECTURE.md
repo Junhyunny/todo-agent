@@ -43,7 +43,7 @@ frontend/src/
 FastAPI 엔드포인트 변경
   → make generate-spec → spec/openapi.yaml  [수정 금지]
   → npm run generate:api → src/api/generated/agents.ts  [수정 금지]
-  → src/repository/agent-repository.ts (named export 래퍼)
+  → src/repository/{domain}-repository.ts (named export 래퍼)
   → components
 ```
 
@@ -52,6 +52,8 @@ FastAPI 엔드포인트 변경
 ```
 Component → repository/{domain}-repository.ts → api/generated/agents.ts → HTTP → Backend
 ```
+
+> `api/generated/agents.ts`는 모든 도메인(agent, todo 등)의 API를 단일 파일로 생성한다.
 
 ### 레이어 아키텍처
 
@@ -87,18 +89,31 @@ backend/src/
   services/           # 비즈니스 로직
   repositories/       # DB 접근 (AsyncSession)
   models/             # SQLAlchemy ORM 모델 + Pydantic API 스키마
-backend/alembic/      # DB 마이그레이션
+backend/alembic/      # DB 마이그레이션 (versions/에 버전 파일 누적)
 ```
 
 ### 데이터 흐름
 
 ```
 HTTP Request
-  → routers/agent_router.py
-  → services/agent_service.py
-  → repositories/agent_repository.py
+  → routers/{domain}_router.py
+  → services/{domain}_service.py
+  → repositories/{domain}_repository.py
   → AsyncSession → SQLite (todo-agent.db)
 ```
+
+### DB 마이그레이션 워크플로우
+
+SQLAlchemy 모델(`models/`)에 변경이 있을 때 반드시 수행한다.
+
+```
+1. SQLAlchemy 모델 추가/변경
+2. models/__init__.py에 모델 import (Alembic 감지 필요)
+3. alembic revision --autogenerate -m "<설명>"  # 마이그레이션 파일 생성
+4. cd backend && make migrate                    # alembic upgrade head 실행
+```
+
+> 마이그레이션 없이 앱을 실행하면 테이블이 없어 런타임 오류가 발생한다.
 
 ### 레이어 아키텍처
 
@@ -109,7 +124,7 @@ Router → Service → Repository → AsyncSession (SQLite)
 - **Router:** 요청 파싱, 응답 직렬화. `Depends(Service)`로 Service 주입
 - **Service:** 비즈니스 로직. `Depends(Repository)`로 Repository 주입
 - **Repository:** DB CRUD. `Depends(get_session)`으로 `AsyncSession` 주입
-- **models/:** `AgentModel` (SQLAlchemy ORM) + `AgentRequest/AgentResponse` (Pydantic 스키마)
+- **models/:** `{Domain}Model` (SQLAlchemy ORM) + `{Domain}Request/{Domain}Response` (Pydantic 스키마). 신규 모델은 `models/__init__.py`에 import해야 Alembic이 감지한다
 
 DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레벨(전역) 생성, per-request `AsyncSession`을 yield한다.
 
@@ -119,6 +134,7 @@ DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레
 |------|------|------|
 | `spec/openapi.yaml` 직접 수정 | FastAPI 자동생성 | `make generate-spec` 실행 |
 | PYTHONPATH 없이 직접 실행 | `src/` 루트 기준 import | `make run` 또는 `PYTHONPATH=src` 명시 |
+| 마이그레이션 없이 모델 변경 배포 | 테이블 부재로 런타임 오류 | 모델 변경 후 반드시 `cd backend && make migrate` 실행 |
 
 ---
 
