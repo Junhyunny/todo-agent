@@ -8,8 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { createTodo } from "@/repository/todo-repository.ts";
 
-export const TodoRegistrationDialog = () => {
+type Props = {
+  onSave?: () => void;
+};
+
+export const TodoRegistrationDialog = ({ onSave }: Props) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -20,6 +25,13 @@ export const TodoRegistrationDialog = () => {
       setContent("");
     }
   }, [open]);
+
+  const handleSave = () => {
+    createTodo({ title, content }).then(() => {
+      setOpen(false);
+      onSave?.();
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -45,7 +57,9 @@ export const TodoRegistrationDialog = () => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <Button disabled={!title || !content}>저장</Button>
+        <Button disabled={!title || !content} onClick={handleSave}>
+          저장
+        </Button>
       </DialogContent>
     </Dialog>
   );

@@ -14,6 +14,13 @@ vi.mock("../repository/agent-repository", () => ({
   existsAgentByName: mockExistsAgentByName,
 }));
 
+const mockGetTodos = vi.hoisted(() => vi.fn());
+const mockCreateTodo = vi.hoisted(() => vi.fn());
+vi.mock("../repository/todo-repository", () => ({
+  getTodos: mockGetTodos,
+  createTodo: mockCreateTodo,
+}));
+
 describe("MainWindow", () => {
   beforeEach(() => {
     mockGetAgents.mockClear();
@@ -22,6 +29,10 @@ describe("MainWindow", () => {
     mockCreateAgent.mockResolvedValue({});
     mockExistsAgentByName.mockClear();
     mockExistsAgentByName.mockResolvedValue(false);
+    mockGetTodos.mockClear();
+    mockGetTodos.mockResolvedValue([]);
+    mockCreateTodo.mockClear();
+    mockCreateTodo.mockResolvedValue({});
   });
 
   test("메인 화면에서 TODO 등록 버튼이 보인다", () => {
@@ -77,5 +88,76 @@ describe("MainWindow", () => {
     expect(await within(dialog).findByText("에이전트A")).toBeInTheDocument();
     expect(within(dialog).getByText("에이전트B")).toBeInTheDocument();
     expect(mockGetAgents).toHaveBeenCalledTimes(1);
+  });
+
+  test("마운트 시 저장된 TODO 목록을 표시한다 (앱 재실행 유지)", async () => {
+    mockGetTodos.mockResolvedValue([
+      { id: "1", title: "할 일 A", content: "내용 A", status: "pending" },
+    ]);
+
+    render(<MainWindow />);
+
+    expect(await screen.findByText("할 일 A")).toBeInTheDocument();
+    expect(mockGetTodos).toHaveBeenCalledTimes(1);
+  });
+
+  test("저장 후 메인 화면에 TODO 제목이 노출된다", async () => {
+    mockGetTodos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ]);
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
+
+    render(<MainWindow />);
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "새 할 일",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+
+    expect(await screen.findByText("새 할 일")).toBeInTheDocument();
+  });
+
+  test("저장 후 TODO 항목 오른쪽에 회색 대기 중 아이콘이 노출된다", async () => {
+    mockGetTodos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ]);
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
+
+    render(<MainWindow />);
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "새 할 일",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+
+    await screen.findByText("새 할 일");
+    const todoSection = screen.getByRole("region", { name: "todo-1" });
+    expect(within(todoSection).getByLabelText("대기 중")).toBeInTheDocument();
   });
 });

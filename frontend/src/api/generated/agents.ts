@@ -33,6 +33,18 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
+export interface PostTodoRequest {
+  title: string;
+  content: string;
+}
+
+export interface TodoResponse {
+  id: string;
+  title: string;
+  content: string;
+  status: string;
+}
+
 export type ExistsAgentApiAgentsExistsGetParams = {
   name: string;
 };
@@ -91,12 +103,33 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
     return axiosInstance.delete(`/api/agents/${agentId}`, options);
   };
 
+  /**
+   * @summary Get Todos
+   */
+  const getTodosApiTodosGet = (
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<TodoResponse[]>> => {
+    return axiosInstance.get(`/api/todos`, options);
+  };
+
+  /**
+   * @summary Create Todo
+   */
+  const createTodoApiTodosPost = (
+    postTodoRequest: PostTodoRequest,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<TodoResponse>> => {
+    return axiosInstance.post(`/api/todos`, postTodoRequest, options);
+  };
+
   return {
     getAgentsApiAgentsGet,
     createAgentApiAgentsPost,
     existsAgentApiAgentsExistsGet,
     updateAgentApiAgentsAgentIdPut,
     deleteAgentApiAgentsAgentIdDelete,
+    getTodosApiTodosGet,
+    createTodoApiTodosPost,
   };
 };
 export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
@@ -104,3 +137,5 @@ export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>;
 export type ExistsAgentApiAgentsExistsGetResult = AxiosResponse<boolean>;
 export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>;
 export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>;
+export type GetTodosApiTodosGetResult = AxiosResponse<TodoResponse[]>;
+export type CreateTodoApiTodosPostResult = AxiosResponse<TodoResponse>;

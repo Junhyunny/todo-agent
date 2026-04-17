@@ -113,6 +113,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/todos:
+    get:
+      summary: Get Todos
+      operationId: get_todos_api_todos_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TodoResponse'
+                type: array
+                title: Response Get Todos Api Todos Get
+    post:
+      summary: Create Todo
+      operationId: create_todo_api_todos_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTodoRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     AgentRequest:
@@ -155,6 +191,41 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    PostTodoRequest:
+      properties:
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - title
+      - content
+      title: PostTodoRequest
+    TodoResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        title:
+          type: string
+          title: Title
+        content:
+          type: string
+          title: Content
+        status:
+          type: string
+          title: Status
+      type: object
+      required:
+      - id
+      - title
+      - content
+      - status
+      title: TodoResponse
     ValidationError:
       properties:
         loc:
