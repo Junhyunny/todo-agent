@@ -58,4 +58,50 @@ describe("TodoRegistrationDialog", () => {
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByRole("button", { name: "저장" })).toBeDisabled();
   });
+
+  test("제목만 입력하고 내용을 입력하지 않으면 저장 버튼이 비활성화 상태이다", async () => {
+    render(<TodoRegistrationDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "제목 내용",
+    );
+
+    expect(within(dialog).getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  test("내용만 입력하고 제목을 입력하지 않으면 저장 버튼이 비활성화 상태이다", async () => {
+    render(<TodoRegistrationDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용 입력",
+    );
+
+    expect(within(dialog).getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  test("제목과 내용을 모두 입력하면 저장 버튼이 활성화 상태이다", async () => {
+    render(<TodoRegistrationDialog />);
+
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "제목 내용",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용 입력",
+    );
+
+    expect(within(dialog).getByRole("button", { name: "저장" })).toBeEnabled();
+  });
 });
