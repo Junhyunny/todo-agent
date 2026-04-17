@@ -44,7 +44,7 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
-- 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="agent-{id}">` 로 감싼다
+- 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="{domain}-{id}">` 로 감싼다 (예: `agent-{id}`, `todo-{id}`)
 - Electron 경계: renderer는 Electron 모듈 직접 접근 금지 → preload API로 노출
 - 포맷: Biome (double quotes, 2-space indent)
 
@@ -84,6 +84,7 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
   - 예: `test_create_agent_레포지토리_create_함수를_호출한다`
 - `AsyncMock(spec=AgentRepository)` fixture
 - 테스트 쌍으로 작성: "레포지토리 호출 검증" + "반환값 검증"
+- **Repository mock 반환값은 반드시 ORM `Model` 객체로 설정한다.** Pydantic `Response` 객체를 반환하면 Service 내부에서 UUID 변환(`uuid.UUID(result.id)` 등)이 실패한다. Service가 Model→Response 변환을 담당한다.
 ```python
 @pytest.fixture
 def mock_agent_repository():
