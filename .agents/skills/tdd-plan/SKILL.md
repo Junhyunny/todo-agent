@@ -123,13 +123,13 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 ## Step 2: 기술 스택 감지
 
 이 단계에서는 **프로젝트 전체를 바로 다시 검색하지 않습니다.**
-먼저 프로젝트 루트의 `.agents/tech-stack.md` 존재 여부를 확인하고, 파일이 있으면 **그 파일만 읽어 사용합니다**.
+먼저 프로젝트 루트의 `ARCHITECTURE.md` 존재 여부를 확인하고, 파일이 있으면 **그 파일만 읽어 사용합니다**.
 
 ### 수행 순서
 
-1. `.agents/tech-stack.md`가 있으면 그 파일을 읽는다
-2. 파일이 **없을 때만** 현재 프로젝트를 직접 스캔해 `.agents/tech-stack.md`를 생성한다
-3. 생성 또는 기존 `.agents/tech-stack.md`의 `## 스택 요약`과 필요한 영역 섹션에서 다음 값을 추출한다:
+1. `ARCHITECTURE.md`가 있으면 그 파일을 읽는다
+2. 파일이 **없을 때만** 현재 프로젝트를 직접 스캔해 `ARCHITECTURE.md`를 생성한다
+3. 생성 또는 기존 `ARCHITECTURE.md`의 `## 스택 요약`과 필요한 영역 섹션에서 다음 값을 추출한다:
    - **Stack**
    - **Unit test framework**
    - **E2E framework**
@@ -138,17 +138,17 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 
 ### 이미 파일이 있는 경우
 
-- `.agents/tech-stack.md`가 존재하면 **프로젝트 파일을 다시 스캔하지 않습니다**
+- `ARCHITECTURE.md`가 존재하면 **프로젝트 파일을 다시 스캔하지 않습니다**
 - 개발자가 명시적으로 `update stack`을 요청한 경우에만 다시 갱신합니다
 
 ### 파일이 없거나 읽을 수 없는 경우
 
-`.agents/tech-stack.md`가 없어서 현재 프로젝트를 스캔한 뒤에도 파일을 준비하지 못하면 중단한다:
+`ARCHITECTURE.md`가 없어서 현재 프로젝트를 스캔한 뒤에도 파일을 준비하지 못하면 중단한다:
 
 ```
 ❌ 기술 스택 파일을 준비하지 못했습니다.
 
-현재 프로젝트의 빌드 파일과 소스 구조를 확인해 `.agents/tech-stack.md`를 먼저 준비한 뒤 다시 시도해주세요.
+현재 프로젝트의 빌드 파일과 소스 구조를 확인해 `ARCHITECTURE.md`를 먼저 준비한 뒤 다시 시도해주세요.
 ```
 
 세부 감지 규칙은 `references/tech-stack-detection.md`를 참조하세요.
@@ -157,11 +157,11 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 
 ## Step 3: 프로젝트 컨벤션 감지
 
-먼저 프로젝트 루트의 `.agents/coding-conventions.md` 존재 여부를 확인합니다.
+먼저 프로젝트 루트의 `CONVENTIONS.md` 존재 여부를 확인합니다.
 
 ### 이미 파일이 있는 경우
 
-- `.agents/coding-conventions.md`가 있으면 **그 파일만 읽어 사용합니다**
+- `CONVENTIONS.md`가 있으면 **그 파일만 읽어 사용합니다**
 - 이 경우 프로젝트 소스/테스트 파일을 다시 검색하지 않습니다
 - 개발자가 명시적으로 `update conventions`를 요청한 경우에만 다시 스캔합니다
 
@@ -169,7 +169,7 @@ Does this look correct? Type "ok" to continue, or let me know what to fix.
 
 **기존 테스트 또는 소스 파일이 없는 경우(새 프로젝트) 이 단계를 건너뜁니다.**
 
-`.agents/coding-conventions.md`가 없을 때만 `.agents/tech-stack.md`에서 선택된 영역을 기준으로, 스토리와 같은 영역의 테스트 파일 2~3개와 소스 파일 1~2개를 읽습니다. 최근 수정된 파일을 선호합니다.
+`CONVENTIONS.md`가 없을 때만 `ARCHITECTURE.md`에서 선택된 영역을 기준으로, 스토리와 같은 영역의 테스트 파일 2~3개와 소스 파일 1~2개를 읽습니다. 최근 수정된 파일을 선호합니다.
 
 추출:
 - 테스트 파일 위치 (동일 위치 vs `test/` 디렉토리)

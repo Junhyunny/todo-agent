@@ -1,13 +1,13 @@
-# `.agents/coding-conventions.md` 파일 형식
+# `CONVENTIONS.md` 파일 형식
 
-`/sync-coding-conventions`가 생성/갱신하는 공유 코딩 컨벤션 파일의 형식을 정의한다.
+`/sync-conventions`가 생성/갱신하는 공유 코딩 컨벤션 파일의 형식을 정의한다.
 
 ---
 
 ## 파일 위치
 
 ```text
-.agents/coding-conventions.md
+CONVENTIONS.md
 ```
 
 프로젝트 루트 기준이며, 프로젝트의 공유 규칙 문서로 유지한다.
@@ -86,4 +86,4 @@
 2. 전체 재작성보다 섹션 단위 갱신을 우선한다
 3. 변경 근거가 명확한 항목만 규칙으로 승격한다
 4. 사용자 의도가 의심되는 경우 확인 후 반영한다
-5. 변경된 항목에는 `_(업데이트: YYYY-MM-DD)_` 태그를 붙일 수 있다
+5. 변경된 항목에 날짜 태그를 붙이지 않는다

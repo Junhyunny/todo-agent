@@ -9,7 +9,7 @@
 ## 실행 시점
 
 Phase 2 Step 2에서, 스택 감지 직후에 실행합니다.
-스택 자체는 직접 다시 감지하지 말고 `.agents/tech-stack.md`에서 가져옵니다.
+스택 자체는 직접 다시 감지하지 말고 `ARCHITECTURE.md`에서 가져옵니다.
 
 ```
 No test/source files found → new project → use default patterns from tdd-test-writing-guide.md
@@ -20,7 +20,7 @@ Test/source files exist    → existing project → follow this guide to read co
 
 ## 공통: 읽을 파일
 
-먼저 `.agents/tech-stack.md`에서 현재 작업 대상 스택 영역을 확인한 뒤, 그 영역에 속한 파일을 우선적으로 읽습니다.
+먼저 `ARCHITECTURE.md`에서 현재 작업 대상 스택 영역을 확인한 뒤, 그 영역에 속한 파일을 우선적으로 읽습니다.
 
 ### 1. 우선순위: 스토리와 동일한 영역의 파일
 

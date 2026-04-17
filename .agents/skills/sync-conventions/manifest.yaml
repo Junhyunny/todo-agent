@@ -1,17 +1,17 @@
-name: sync-coding-conventions
+name: sync-conventions
 version: 1.0.0
 description: >
   Detects convention drift from AI edits, user edits, and broader project changes,
-  then creates or updates .agents/coding-conventions.md. When user refactors code
+  then creates or updates .agents/conventions.md. When user refactors code
   differently from AI context, it asks whether that intent should be reflected in
   the shared conventions file.
 category: engineering
 tags: [conventions, coding-style, drift, refactoring, tdd]
-invocation: /sync-coding-conventions
+invocation: /sync-conventions
 preconditions:
   - Project root is available
 effects:
-  - Creates or updates .agents/coding-conventions.md
+  - Creates or updates .agents/conventions.md
   - Detects convention changes from changed files, git diff, and session context
   - Asks for confirmation before adopting likely user-intent overrides
 next_steps:

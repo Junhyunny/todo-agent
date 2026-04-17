@@ -1,8 +1,9 @@
 ---
 name: review-and-commit
 description: >
-  Use this skill when the user says "review and commit", "코드 리뷰 후 커밋", "리뷰하고 커밋",
-  "변경 사항 리뷰", or wants to review their code changes and then commit them.
+  Use this skill when the user says "review and commit", "commit", "커밋", "커밋해줘", "커밋해",
+  "커밋하고 싶어", "코드 리뷰 후 커밋", "리뷰하고 커밋", "변경 사항 리뷰",
+  or wants to commit or review their code changes and then commit them.
   Reviews staged/unstaged changes for security risks, code duplication, module separation,
   and improvement opportunities, then validates with tests/lint/format, and commits using
   Conventional Commits format.
