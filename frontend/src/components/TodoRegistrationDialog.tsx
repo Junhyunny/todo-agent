@@ -1,5 +1,5 @@
 import { CirclePlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -11,6 +11,15 @@ import {
 
 export const TodoRegistrationDialog = () => {
   const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setTitle("");
+      setContent("");
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -23,8 +32,20 @@ export const TodoRegistrationDialog = () => {
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>TODO 등록</DialogTitle>
+          <DialogTitle>해야할 일</DialogTitle>
         </DialogHeader>
+        <input
+          type="text"
+          aria-label="제목"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <textarea
+          aria-label="내용"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <Button disabled={!title || !content}>저장</Button>
       </DialogContent>
     </Dialog>
   );
