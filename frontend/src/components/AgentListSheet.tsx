@@ -5,14 +5,14 @@ import { AgentDeleteDialog } from "@/components/AgentDeleteDialog.tsx";
 import { AgentEditDialog } from "@/components/AgentEditDialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog.tsx";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet.tsx";
 import { getAgents } from "@/repository/agent-repository.ts";
 
-export const AgentListDialog = () => {
+export const AgentListSheet = () => {
   const [agents, setAgents] = useState<AgentResponse[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -27,15 +27,15 @@ export const AgentListDialog = () => {
   }, [fetchAgents, open]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
         render={
           <Button aria-label="agent" variant="ghost" size="icon">
             <Bot role="img" aria-label="agent-icon" />
           </Button>
         }
       />
-      <DialogContent showCloseButton={false}>
+      <SheetContent>
         {agents.map((agent) => (
           <section
             key={agent.id}
@@ -52,8 +52,8 @@ export const AgentListDialog = () => {
             </div>
           </section>
         ))}
-        <DialogClose render={<Button variant="outline" />}>이전</DialogClose>
-      </DialogContent>
-    </Dialog>
+        <SheetClose render={<Button variant="outline" />}>이전</SheetClose>
+      </SheetContent>
+    </Sheet>
   );
 };

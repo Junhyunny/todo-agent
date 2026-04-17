@@ -1,11 +1,11 @@
-import { AgentListDialog } from "@/components/AgentListDialog.tsx";
+import { AgentListSheet } from "@/components/AgentListSheet.tsx";
 import { AgentRegistrationDialog } from "@/components/AgentRegistrationDialog.tsx";
 
 export const MainWindow = () => {
   return (
     <div>
       <AgentRegistrationDialog />
-      <AgentListDialog />
+      <AgentListSheet />
     </div>
   );
 };

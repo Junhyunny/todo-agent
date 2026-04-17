@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { AgentListDialog } from "./AgentListDialog.tsx";
+import { AgentListSheet } from "./AgentListSheet.tsx";
 
 const mockGetAgents = vi.hoisted(() => vi.fn());
 const mockUpdateAgent = vi.hoisted(() => vi.fn());
@@ -14,7 +14,7 @@ vi.mock("../repository/agent-repository", () => ({
   deleteAgent: mockDeleteAgent,
 }));
 
-describe("AgentListDialog", () => {
+describe("AgentListSheet", () => {
   beforeEach(() => {
     mockGetAgents.mockClear();
     mockUpdateAgent.mockClear();
@@ -28,20 +28,20 @@ describe("AgentListDialog", () => {
     mockDeleteAgent.mockResolvedValue(undefined);
   });
 
-  test("다이얼로그를 열 수 있는 버튼이 보인다.", () => {
-    render(<AgentListDialog />);
+  test("시트를 열 수 있는 버튼이 보인다.", () => {
+    render(<AgentListSheet />);
 
     expect(screen.getByRole("button", { name: "agent" })).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("버튼을 누르면 다이얼로그가 보이고, 에이전트 이름과 프롬프트가 보인다.", async () => {
+  test("버튼을 누르면 시트가 보이고, 에이전트 이름과 프롬프트가 보인다.", async () => {
     mockGetAgents.mockResolvedValue([
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
       { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
     ]);
 
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
@@ -54,8 +54,8 @@ describe("AgentListDialog", () => {
     expect(within(item2).getByText("프롬프트B")).toBeInTheDocument();
   });
 
-  test("다이얼로그 외부를 누르면 다이얼로그가 닫힌다.", async () => {
-    render(<AgentListDialog />);
+  test("시트 외부를 누르면 시트가 닫힌다.", async () => {
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
     await userEvent.click(document.body);
@@ -68,7 +68,7 @@ describe("AgentListDialog", () => {
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
     ]);
 
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
@@ -83,7 +83,7 @@ describe("AgentListDialog", () => {
   });
 
   test("이전 화면으로 이동하는 버튼이 보인다.", async () => {
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
@@ -95,7 +95,7 @@ describe("AgentListDialog", () => {
   test("등록된 에이전트가 없으면 에이전트 목록이 비어 있다.", async () => {
     mockGetAgents.mockResolvedValue([]);
 
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
@@ -112,7 +112,7 @@ describe("AgentListDialog", () => {
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
     ]);
 
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
@@ -133,7 +133,7 @@ describe("AgentListDialog", () => {
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
     ]);
 
-    render(<AgentListDialog />);
+    render(<AgentListSheet />);
 
     await userEvent.click(screen.getByRole("button", { name: "agent" }));
 
