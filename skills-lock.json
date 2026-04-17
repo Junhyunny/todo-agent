@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "review-and-commit": {
+      "source": "junhyunny/skills",
+      "sourceType": "github",
+      "computedHash": "813023512b3d858c57791f0420acff35eb34889e2b0393d10d30c3e974c03f9f"
+    },
     "sync-coding-conventions": {
       "source": "junhyunny/skills",
       "sourceType": "github",
