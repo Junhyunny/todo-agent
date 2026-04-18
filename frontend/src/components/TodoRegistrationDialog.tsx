@@ -8,6 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
 import { createTodo } from "@/repository/todo-repository.ts";
 
 type Props = {
@@ -46,13 +48,13 @@ export const TodoRegistrationDialog = ({ onSave }: Props) => {
         <DialogHeader>
           <DialogTitle>해야할 일</DialogTitle>
         </DialogHeader>
-        <input
+        <Input
           type="text"
           aria-label="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-        <textarea
+        <Textarea
           aria-label="내용"
           value={content}
           onChange={(e) => setContent(e.target.value)}

@@ -10,6 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
 import { updateAgent } from "@/repository/agent-repository.ts";
 
 export const AgentEditDialog = ({
@@ -48,14 +50,14 @@ export const AgentEditDialog = ({
         <DialogHeader>
           <DialogTitle>에이전트 수정</DialogTitle>
         </DialogHeader>
-        <input
+        <Input
           type="text"
           aria-label="에이전트 이름"
           value={name}
           disabled
           onChange={(e) => setName(e.target.value)}
         />
-        <textarea
+        <Textarea
           aria-label="시스템 프롬프트"
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
