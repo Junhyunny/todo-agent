@@ -27,8 +27,29 @@ export const TodoStatusSheet = ({ todo }: Props) => {
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>{todo.title}</SheetTitle>
+          <SheetTitle>해야할 일</SheetTitle>
         </SheetHeader>
+        <div className="flex flex-col gap-4 p-4">
+          <input
+            aria-label="제목"
+            disabled
+            value={todo.title}
+            className="w-full rounded border px-3 py-2"
+          />
+          <textarea
+            aria-label="내용"
+            disabled
+            value={todo.content}
+            className="w-full rounded border px-3 py-2"
+          />
+          <div className="flex items-center gap-2">
+            <Circle
+              aria-label="에이전트 할당 대기 아이콘"
+              className="text-gray-400"
+            />
+            <span>에이전트 할당 대기</span>
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   );
