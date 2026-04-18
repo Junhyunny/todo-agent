@@ -157,7 +157,7 @@ describe("MainWindow", () => {
     await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
 
     await screen.findByText("새 할 일");
-    const todoSection = screen.getByRole("region", { name: "todo-1" });
+    const todoSection = screen.getByRole("button", { name: "todo-1" });
     expect(within(todoSection).getByLabelText("대기 중")).toBeInTheDocument();
   });
 });
