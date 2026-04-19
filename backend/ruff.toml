@@ -5,7 +5,7 @@ line-length = 150
 select = ["E", "F", "I"]
 
 [lint.isort]
-known-first-party = ["models", "services", "routers", "repositories", "database"]
+known-first-party = ["entities", "services", "routers", "repositories", "database"]
 
 [format]
 indent-style = "space"

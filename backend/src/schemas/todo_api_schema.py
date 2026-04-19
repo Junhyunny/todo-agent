@@ -13,3 +13,4 @@ class TodoResponse(BaseModel):
   title: str
   content: str
   status: str
+  assigned_agent_name: str | None = None

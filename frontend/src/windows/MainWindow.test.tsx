@@ -1,8 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as sseHandler from "../utils/sse-handler.ts";
 import { MainWindow } from "./MainWindow.tsx";
 
 const mockGetAgents = vi.hoisted(() => vi.fn());
@@ -21,8 +22,24 @@ vi.mock("../repository/todo-repository", () => ({
   createTodo: mockCreateTodo,
 }));
 
+let capturedEventSources: MockEventSource[] = [];
+
+class MockEventSource {
+  url: string;
+  onmessage: ((e: MessageEvent) => void) | null = null;
+  onerror: (() => void) | null = null;
+  close = vi.fn();
+
+  constructor(url: string) {
+    this.url = url;
+    capturedEventSources.push(this);
+  }
+}
+
 describe("MainWindow", () => {
   beforeEach(() => {
+    capturedEventSources = [];
+    vi.stubGlobal("EventSource", MockEventSource);
     mockGetAgents.mockClear();
     mockGetAgents.mockResolvedValue([]);
     mockCreateAgent.mockClear();
@@ -159,5 +176,159 @@ describe("MainWindow", () => {
     await screen.findByText("새 할 일");
     const todoSection = screen.getByRole("button", { name: "todo-1" });
     expect(within(todoSection).getByLabelText("대기 중")).toBeInTheDocument();
+  });
+
+  test("todo 저장 시 EventSource를 생성한다", async () => {
+    const mockSseHandler = vi
+      .spyOn(sseHandler, "sseHandler")
+      .mockImplementation((_url: string, _callback) => ({}) as EventSource);
+    mockGetTodos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ]);
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
+
+    render(<MainWindow />);
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "새 할 일",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+
+    await screen.findByText("새 할 일");
+    expect(mockSseHandler).toHaveBeenCalledWith(
+      "http://127.0.0.1:8000/api/todos/1/events",
+      expect.any(Function),
+    );
+  });
+
+  test("SSE assigned 이벤트 수신 시 getTodos를 다시 호출하고, 에이전트가 할당된 것을 확인할 수 있다", async () => {
+    let capturedCallback: (e: MessageEvent) => Promise<boolean>;
+    vi.spyOn(sseHandler, "sseHandler").mockImplementation(
+      (_url: string, _callback) => {
+        capturedCallback = _callback;
+        return {} as EventSource;
+      },
+    );
+    mockGetTodos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "1",
+          title: "새 할 일",
+          content: "내용",
+          status: "in_progress",
+          assigned_agent_name: "검색 에이전트",
+        },
+      ]);
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
+
+    render(<MainWindow />);
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "새 할 일",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+    await screen.findByText("새 할 일");
+
+    let callbackResult = false;
+    await act(async () => {
+      callbackResult = await capturedCallback(
+        new MessageEvent("message", {
+          data: JSON.stringify({
+            type: "assigned",
+            agent_name: "검색 에이전트",
+          }),
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(callbackResult).toEqual(true);
+      expect(mockGetTodos).toHaveBeenCalledTimes(3);
+      expect(screen.getByLabelText("작업 중")).toBeInTheDocument();
+    });
+  });
+
+  test("SSE assigned 이벤트 수신 받지 못하면 false를 반환하고, getTodos를 호출하지 않는다", async () => {
+    let capturedCallback: (e: MessageEvent) => Promise<boolean>;
+    vi.spyOn(sseHandler, "sseHandler").mockImplementation(
+      (_url: string, _callback) => {
+        capturedCallback = _callback;
+        return {} as EventSource;
+      },
+    );
+    mockGetTodos
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ])
+      .mockResolvedValueOnce([
+        { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+      ]);
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
+
+    render(<MainWindow />);
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "새 할 일",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+    await screen.findByText("새 할 일");
+
+    let callbackResult = false;
+    await act(async () => {
+      callbackResult = await capturedCallback(
+        new MessageEvent("message", {
+          data: JSON.stringify({
+            type: "not_assigned",
+            agent_name: "",
+          }),
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(callbackResult).toEqual(false);
+      expect(mockGetTodos).toHaveBeenCalledTimes(2);
+      expect(screen.getByLabelText("대기 중")).toBeInTheDocument();
+    });
   });
 });

@@ -5,8 +5,8 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from models.agent_api_schema import AgentResponse
 from routers.agent_router import router
+from schemas.agent_api_schema import AgentResponse
 from services.agent_service import AgentService
 
 

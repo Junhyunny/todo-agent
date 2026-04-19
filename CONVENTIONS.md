@@ -48,6 +48,47 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 - Electron 경계: renderer는 Electron 모듈 직접 접근 금지 → preload API로 노출
 - 포맷: Biome (double quotes, 2-space indent)
 
+**콜백 인자 검증**
+콜백 호출은 인자가 있으면 반드시 `toHaveBeenCalledWith`로 인자까지 검증한다. `toHaveBeenCalledTimes(1)` 단독으로는 인자 변경을 감지하지 못한다.
+```ts
+// 잘못된 예 — 인자 변경을 감지하지 못한다
+expect(onSave).toHaveBeenCalledTimes(1);
+
+// 올바른 예
+expect(onSave).toHaveBeenCalledWith("todo-abc-123");
+```
+
+**EventSource (SSE) 테스트 패턴**
+`EventSource`는 jsdom에서 지원하지 않으므로 `vi.stubGlobal`로 교체한다. 인스턴스를 모듈 레벨 배열에 캡처해 `url`, `onmessage`, `onerror`, `close` 호출을 검증한다.
+```ts
+let capturedEventSources: MockEventSource[] = [];
+
+class MockEventSource {
+  url: string;
+  onmessage: ((e: MessageEvent) => void) | null = null;
+  onerror: (() => void) | null = null;
+  close = vi.fn();
+  constructor(url: string) {
+    this.url = url;
+    capturedEventSources.push(this);
+  }
+}
+
+beforeEach(() => {
+  capturedEventSources = [];
+  vi.stubGlobal("EventSource", MockEventSource);
+});
+```
+이벤트를 수동으로 발생시킬 때는 `act()`로 감싼다. 비동기 결과(state update 등)는 `waitFor()`로 대기한다.
+```tsx
+act(() => {
+  capturedEventSources[0].onmessage?.(
+    new MessageEvent("message", { data: JSON.stringify({ type: "assigned" }) })
+  );
+});
+await waitFor(() => expect(mockGetTodos).toHaveBeenCalledTimes(3));
+```
+
 ### 안티패턴
 | 금지 | 대안 |
 |------|------|
@@ -61,13 +102,19 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 
 ### 테스트
 
-테스트는 Router / Service / Repository 3개 레이어로 분리한다.
+테스트는 역할별로 레이어를 분리한다.
 
 | 레이어 | 파일 위치 | mock 대상 | DB |
 |--------|-----------|-----------|-----|
 | Router | `src/routers/test_*.py` | Service (`AsyncMock(spec=Service)`) | 없음 |
-| Service | `src/services/test_*.py` | Repository (`AsyncMock(spec=Repository)`) | 없음 |
+| Service | `src/services/test_*.py` | Repository, Agent (`AsyncMock(spec=...)`) | 없음 |
+| Agent | `src/agents/test_*.py` | LangChain `create_agent` (`@patch`) | 없음 |
 | Repository | `src/repositories/test_*.py` | 없음 | in-memory SQLite |
+| Publisher | `src/pubs/test_*.py` | asyncio.Queue (실제 Queue 사용) | 없음 |
+| Listener | `src/listeners/test_*.py` | Repository, OrchestrationService, SSEManager, async_session_factory | 없음 |
+| SSEManager | `src/sse/test_*.py` | 없음 (순수 단위 테스트) | 없음 |
+| SSE Router | `src/routers/test_sse_*.py` | SSEManager (`MagicMock(spec=SSEManager)`) | 없음 |
+| CORS/앱 설정 | `src/test_cors.py` | Service (ASGITransport, 미들웨어 포함 앱) | 없음 |
 
 #### 공통
 - 구조: pytest 함수 기반, 테스트명 한국어 문장형
@@ -84,13 +131,14 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
   - 예: `test_create_agent_레포지토리_create_함수를_호출한다`
 - `AsyncMock(spec=AgentRepository)` fixture
 - 테스트 쌍으로 작성: "레포지토리 호출 검증" + "반환값 검증"
-- **Repository mock 반환값은 반드시 ORM `Model` 객체로 설정한다.** Pydantic `Response` 객체를 반환하면 Service 내부에서 UUID 변환(`uuid.UUID(result.id)` 등)이 실패한다. Service가 Model→Response 변환을 담당한다.
+- **"반환값 검증" 테스트는 반환 객체의 모든 공개 필드를 assert한다.** 스키마에 필드가 추가되면 해당 테스트도 함께 수정한다. 일부 필드만 검증하면 새 필드 누락을 감지하지 못한다.
+- **Repository mock 반환값은 반드시 ORM `Entity` 객체로 설정한다.** Pydantic `Response` 객체를 반환하면 Service 내부에서 UUID 변환(`uuid.UUID(result.id)` 등)이 실패한다. Service가 Entity→Response 변환을 담당한다.
 ```python
 @pytest.fixture
-def mock_agent_repository():
+def mock_agent_repository() -> AsyncMock:
     return AsyncMock(spec=AgentRepository)
 
-async def test_create_agent_레포지토리_create_함수를_호출한다(mock_agent_repository):
+async def test_create_agent_레포지토리_create_함수를_호출한다(mock_agent_repository: AsyncMock) -> None:
     sut = AgentService(agent_repository=mock_agent_repository)
     await sut.create_agent(request=AgentRequest(...))
     mock_agent_repository.create.assert_called_once()
@@ -102,7 +150,7 @@ async def test_create_agent_레포지토리_create_함수를_호출한다(mock_a
 - 네이밍: `test_메서드명_한국어설명`
   - 예: `test_create_에이전트_정보를_저장할_수_있다`
 - `setup_test_db: AsyncSession` 픽스처로 세션 수령 (conftest `autouse=True`)
-- arrange: `session.add(Model(...))` 직접 삽입, assert: DB 직접 조회 또는 반환값만 사용
+- arrange: `session.add(Entity(...))` 직접 삽입, assert: DB 직접 조회 또는 반환값만 사용
 - True/False 등 결과 분기가 있는 경우 `@pytest.mark.parametrize` 사용
 ```python
 @pytest.mark.parametrize("query_name, expected", [
@@ -111,20 +159,111 @@ async def test_create_agent_레포지토리_create_함수를_호출한다(mock_a
 ])
 async def test_exists_by_name_에이전트_이름으로_존재여부를_확인할_수_있다(
     setup_test_db: AsyncSession, query_name: str, expected: bool
-):
+) -> None:
     session = setup_test_db
-    session.add(AgentModel(id=str(uuid.uuid4()), name="존재하는 에이전트", system_prompt="프롬프트"))
+    session.add(AgentEntity(id=str(uuid.uuid4()), name="존재하는 에이전트", system_prompt="프롬프트"))
     sut = AgentRepository(session=session)
     result = await sut.exists_by_name(name=query_name)
     assert result is expected
 ```
 - DB 격리: `conftest.py`에 `autouse=True` 픽스처, in-memory SQLite (`sqlite+aiosqlite:///:memory:`)
 
+#### Agent 테스트
+- 네이밍: `test_클래스명_한국어설명`
+- LangChain `create_agent`는 `@patch("agents.*.create_agent")`로 교체
+- `ainvoke` 반환값을 `{"structured_response": OrchestrationAgentMessage(...)}` 형태로 설정
+```python
+@patch("agents.orchestration_agent.create_agent")
+async def test_orchestration_agent_에이전트에게_프롬프트를_전달한다(mock_create_agent, mock_agent) -> None:
+    mock_create_agent.return_value = mock_agent
+    mock_agent.ainvoke.return_value = {
+        "structured_response": OrchestrationAgentMessage(result=TargetAgent(...), is_applicable=True, reason="...")
+    }
+    sut = OrchestrationAgent()
+    await sut.ainvoke(user_message)
+    mock_agent.ainvoke.assert_called_once_with({"messages": [{"role": "user", "content": user_message}]})
+```
+
+#### Listener 테스트
+- 네이밍: `test_함수명_한국어설명`
+- 무한 루프 함수는 `asyncio.Queue + queue.join()` 패턴으로 항목 하나 처리 후 `task.cancel()`로 종료
+- `async_session_factory`는 `asynccontextmanager`로 패치, Repository 클래스는 `return_value=mock`으로 패치
+- mock_todo_repo / mock_agent_repo는 pytest fixture로 분리해 `spec=TodoRepository`, `spec=AgentRepository`로 생성
+```python
+@pytest.fixture
+def mock_todo_repo() -> AsyncMock:
+    return AsyncMock(spec=TodoRepository)
+
+@pytest.fixture
+def mock_agent_repo() -> AsyncMock:
+    return AsyncMock(spec=AgentRepository)
+
+async def _run_once(
+    queue: asyncio.Queue[str],
+    orchestration_service: OrchestrationService,
+    sse_manager: SSEManager,
+    mock_todo_repo: AsyncMock,
+    mock_agent_repo: AsyncMock,
+) -> None:
+    @asynccontextmanager
+    async def fake_session_factory() -> AsyncGenerator[AsyncMock, None]:
+        yield AsyncMock()
+
+    with (
+        patch("listeners.assignment_listener.async_session_factory", fake_session_factory),
+        patch("listeners.assignment_listener.TodoRepository", return_value=mock_todo_repo),
+        patch("listeners.assignment_listener.AgentRepository", return_value=mock_agent_repo),
+    ):
+        task = asyncio.create_task(run_assignment_listener(queue, orchestration_service, sse_manager))
+        await queue.join()
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
+```
+
+#### SSE Router 테스트
+- `MagicMock(spec=SSEManager)`로 SSEManager를 교체하고 `subscribe`가 미리 채운 Queue를 반환하도록 설정
+- "assigned" 이벤트가 스트림 종료를 트리거하므로 `await client.get(...)`으로 전체 응답을 수집 가능
+```python
+@pytest.fixture
+def mock_sse_manager():
+    q: asyncio.Queue[dict] = asyncio.Queue()
+    q.put_nowait({"type": "assigned", "agent_name": "검색 에이전트"})
+    manager = MagicMock(spec=SSEManager)
+    manager.subscribe.return_value = q
+    return manager
+```
+
 ### 소스 코드
 - 포맷: Ruff (import 정렬)
-- 모든 공개 함수에 타입 힌트 필수
+- 모든 공개 함수에 타입 힌트 필수 (`-> None` 포함)
+- 제네릭 타입은 타입 인자를 반드시 명시한다. bare `dict` / `list` / `Queue` 금지.
+  - 올바른 예: `dict[str, Any]`, `asyncio.Queue[str]`, `list[AgentEntity]`
+  - 잘못된 예: `dict`, `Queue`, `list`
+- 비동기 제너레이터 함수는 `AsyncGenerator[YieldType, None]` 반환 타입을 명시한다.
+  ```python
+  async def event_generator() -> AsyncGenerator[str, None]:
+      yield "data: ...\n\n"
+  ```
+- 테스트 함수도 `-> None` 반환 타입을 명시한다. pytest fixture는 반환 타입을 명시한다.
+  ```python
+  async def test_something() -> None: ...
+  @pytest.fixture
+  def mock_service() -> AsyncMock: ...
+  @pytest.fixture
+  async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+      async with AsyncClient(...) as c:
+          yield c
+  ```
 - 예외: broad catch 없이 그대로 노출
-- import: `src/` 루트 기준 전체 모듈 경로 사용 (`from repositories.database import Base`, `from models.agent_models import AgentModel`)
+- import: `src/` 루트 기준 전체 모듈 경로 사용 (`from repositories.database import Base`, `from entities.agent_entities import AgentEntity`)
+- SSE 채널 이름은 반드시 `channels/channel_names.py`의 함수로 생성한다. 문자열 리터럴 직접 사용 금지.
+  ```python
+  # 올바른 예
+  from channels.channel_names import TODO_ASSIGN_CHANNEL
+  await sse_manager.publish(TODO_ASSIGN_CHANNEL(todo_id), {...})
+  # 잘못된 예
+  await sse_manager.publish(f"todo-{todo_id}", {...})
+  ```
 
 ---
 

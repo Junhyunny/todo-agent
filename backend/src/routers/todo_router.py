@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from models.todo_api_schema import PostTodoRequest, TodoResponse
+from schemas.todo_api_schema import PostTodoRequest, TodoResponse
 from services.todo_service import TodoService
 
 router = APIRouter()

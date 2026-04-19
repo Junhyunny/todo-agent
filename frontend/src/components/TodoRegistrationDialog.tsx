@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea.tsx";
 import { createTodo } from "@/repository/todo-repository.ts";
 
 type Props = {
-  onSave?: () => void;
+  onSave?: (todoId: string) => void;
 };
 
 export const TodoRegistrationDialog = ({ onSave }: Props) => {
@@ -29,9 +29,9 @@ export const TodoRegistrationDialog = ({ onSave }: Props) => {
   }, [open]);
 
   const handleSave = () => {
-    createTodo({ title, content }).then(() => {
+    createTodo({ title, content }).then((todo) => {
       setOpen(false);
-      onSave?.();
+      onSave?.(todo.id);
     });
   };
 

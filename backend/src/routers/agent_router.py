@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from models.agent_api_schema import AgentRequest, AgentResponse
+from schemas.agent_api_schema import AgentRequest, AgentResponse
 from services.agent_service import AgentService
 
 router = APIRouter()

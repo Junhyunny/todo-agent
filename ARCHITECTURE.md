@@ -82,13 +82,20 @@ windows/ → components/ → repository/ → api/generated/
 
 ```
 backend/src/
-  app.py              # FastAPI 앱 진입점, 라우터 등록
+  app.py              # FastAPI 앱 진입점, 라우터 등록, lifespan (백그라운드 리스너)
   conftest.py         # 테스트 공통 픽스처 (in-memory SQLite)
   export_spec.py      # OpenAPI spec 내보내기 스크립트
   routers/            # HTTP 엔드포인트 핸들러
-  services/           # 비즈니스 로직
+  services/           # 비즈니스 로직 (orchestration_service 포함)
   repositories/       # DB 접근 (AsyncSession)
-  models/             # SQLAlchemy ORM 모델 + Pydantic API 스키마
+  entities/           # SQLAlchemy ORM 엔티티 ({Domain}Entity)
+  schemas/            # Pydantic API 스키마 ({Domain}Request / {Domain}Response)
+  models/             # LLM 관련 데이터 모델 (structured output 스키마)
+  agents/             # LangChain 에이전트 (OrchestrationAgent, LLM 팩토리)
+  channels/           # asyncio.Queue 싱글톤 + 채널 이름 함수
+  pubs/               # Queue Publisher (assignment_publisher)
+  listeners/          # Queue Listener (assignment_listener) — 백그라운드 태스크
+  sse/                # SSE pub/sub 매니저 (in-memory)
 backend/alembic/      # DB 마이그레이션 (versions/에 버전 파일 누적)
 ```
 
@@ -102,13 +109,36 @@ HTTP Request
   → AsyncSession → SQLite (todo-agent.db)
 ```
 
-### DB 마이그레이션 워크플로우
-
-SQLAlchemy 모델(`models/`)에 변경이 있을 때 반드시 수행한다.
+TODO 등록 시 비동기 에이전트 할당 흐름:
 
 ```
-1. SQLAlchemy 모델 추가/변경
-2. models/__init__.py에 모델 import (Alembic 감지 필요)
+POST /api/todos
+  → TodoService.create_todo()
+      → TodoRepository.create()        # DB 저장 (status: pending)
+      → AssignmentPublisher.publish()  # asyncio.Queue에 todo_id 적재
+      → TodoResponse 즉시 반환
+
+[백그라운드: AssignmentListener]
+  Queue.get(todo_id)
+  → TodoRepository.find_by_id()          → TodoEntity
+  → AgentRepository.get_all()            → list[AgentEntity]
+  → OrchestrationService.select_agent(todo, agents)
+      → OrchestrationAgent.ainvoke()     # LangChain structured output
+      → str | None (에이전트 이름)
+  → TodoRepository.assign_agent()        # status: in_progress, agent 할당
+  → SSEManager.publish(TODO_ASSIGN_CHANNEL(todo_id), ...)  # SSE 이벤트 발행
+
+GET /api/todos/{todo_id}/events  (SSE)
+  → SSEManager.subscribe(TODO_ASSIGN_CHANNEL(todo_id)) → stream until "assigned" 이벤트
+```
+
+### DB 마이그레이션 워크플로우
+
+`entities/` 엔티티에 변경이 있을 때 반드시 수행한다.
+
+```
+1. entities/ 엔티티 추가/변경
+2. entities/__init__.py에 엔티티 import (Alembic 감지 필요)
 3. alembic revision --autogenerate -m "<설명>"  # 마이그레이션 파일 생성
 4. cd backend && make migrate                    # alembic upgrade head 실행
 ```
@@ -119,12 +149,23 @@ SQLAlchemy 모델(`models/`)에 변경이 있을 때 반드시 수행한다.
 
 ```
 Router → Service → Repository → AsyncSession (SQLite)
+                 ↘ Publisher → Queue → Listener → Repository
+                                              ↘ OrchestrationService → OrchestrationAgent (LLM)
+                                              ↘ SSEManager → SSE Router
 ```
 
 - **Router:** 요청 파싱, 응답 직렬화. `Depends(Service)`로 Service 주입
-- **Service:** 비즈니스 로직. `Depends(Repository)`로 Repository 주입
+- **Service:** 비즈니스 로직. `Depends(Repository)`로 Repository 주입. AssignmentPublisher도 주입받아 큐에 적재
 - **Repository:** DB CRUD. `Depends(get_session)`으로 `AsyncSession` 주입
-- **models/:** `{Domain}Model` (SQLAlchemy ORM) + `{Domain}Request/{Domain}Response` (Pydantic 스키마). 신규 모델은 `models/__init__.py`에 import해야 Alembic이 감지한다
+- **entities/:** `{Domain}Entity` (SQLAlchemy ORM). 신규 엔티티는 `entities/__init__.py`에 import해야 Alembic이 감지한다
+- **schemas/:** `{Domain}Request` / `{Domain}Response` (Pydantic). Router에서 요청·응답 직렬화에 사용
+- **models/:** LLM structured output 스키마 (`OrchestrationAgentMessage`, `TargetAgent`)
+- **agents/:** LangChain 에이전트 (`OrchestrationAgent`). `create_agent` + structured output 패턴. LLM 팩토리 포함
+- **channels/:** `assignment_queue.py` (asyncio.Queue 싱글톤) + `channel_names.py` (채널 이름 생성 함수)
+- **pubs/:** Queue에 메시지를 적재하는 Publisher. Service 레이어에서 주입
+- **listeners/:** 큐를 소비해 에이전트 할당 → SSE 발행하는 백그라운드 태스크. `app.py` lifespan에서 시작
+- **sse/:** in-memory pub/sub 매니저. 채널 이름(`TODO_ASSIGN_CHANNEL(todo_id)`)으로 구독/발행. SSE Router에서 구독, Listener에서 발행
+- **services/orchestration_service.py:** `OrchestrationAgent` 주입. DB 접근 없음. `(todo, agents=[...])` 시그니처로 에이전트 선택
 
 DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레벨(전역) 생성, per-request `AsyncSession`을 yield한다.
 
@@ -134,7 +175,9 @@ DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레
 |------|------|------|
 | `spec/openapi.yaml` 직접 수정 | FastAPI 자동생성 | `make generate-spec` 실행 |
 | PYTHONPATH 없이 직접 실행 | `src/` 루트 기준 import | `make run` 또는 `PYTHONPATH=src` 명시 |
-| 마이그레이션 없이 모델 변경 배포 | 테이블 부재로 런타임 오류 | 모델 변경 후 반드시 `cd backend && make migrate` 실행 |
+| 마이그레이션 없이 엔티티 변경 배포 | 테이블 부재로 런타임 오류 | 엔티티 변경 후 반드시 `cd backend && make migrate` 실행 |
+| `entities/`에 Pydantic 스키마 정의 | ORM·API 스키마 혼재 | Pydantic 스키마는 `schemas/`에 작성 |
+| `schemas/`에 SQLAlchemy 모델 정의 | ORM·API 스키마 혼재 | ORM 엔티티는 `entities/`에 작성 |
 
 ---
 

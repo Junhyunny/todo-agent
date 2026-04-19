@@ -5,10 +5,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from repositories.database import Base
 
 
-class TodoModel(Base):
-  __tablename__ = "tb_todos"
+class AgentEntity(Base):
+  __tablename__ = "tb_agents"
 
   id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
-  title: Mapped[str]
-  content: Mapped[str]
-  status: Mapped[str] = mapped_column(default="pending")
+  name: Mapped[str]
+  system_prompt: Mapped[str]

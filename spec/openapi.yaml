@@ -149,6 +149,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/todos/{todo_id}/events:
+    get:
+      summary: Todo Events
+      operationId: todo_events_api_todos__todo_id__events_get
+      parameters:
+      - name: todo_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Todo Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     AgentRequest:
@@ -219,6 +242,11 @@ components:
         status:
           type: string
           title: Status
+        assigned_agent_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned Agent Name
       type: object
       required:
       - id

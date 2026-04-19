@@ -9,7 +9,7 @@ from alembic import context
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import models  # noqa: F401
+import entities  # noqa: F401
 from repositories.database import DATABASE_URL, Base
 
 config = context.config

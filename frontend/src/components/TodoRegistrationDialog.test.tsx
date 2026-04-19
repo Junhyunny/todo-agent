@@ -167,4 +167,29 @@ describe("TodoRegistrationDialog", () => {
 
     expect(onSave).toHaveBeenCalledTimes(1);
   });
+
+  test("저장 버튼 클릭 시 onSave 콜백을 todo id와 함께 호출한다", async () => {
+    mockCreateTodo.mockResolvedValue({
+      id: "todo-abc-123",
+      title: "제목 내용",
+      content: "내용 입력",
+      status: "pending",
+    });
+    const onSave = vi.fn();
+    render(<TodoRegistrationDialog onSave={onSave} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "제목" }),
+      "제목 내용",
+    );
+    await userEvent.type(
+      within(dialog).getByRole("textbox", { name: "내용" }),
+      "내용 입력",
+    );
+    await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
+
+    expect(onSave).toHaveBeenCalledWith("todo-abc-123");
+  });
 });
