@@ -9,8 +9,6 @@ import { sseHandler } from "@/utils/sse-handler.ts";
 
 declare const __API_BASE_URL__: string;
 
-export const refetchTodos = () => getTodos();
-
 export const MainWindow = () => {
   const [todos, setTodos] = useState<TodoResponse[]>([]);
 
@@ -25,7 +23,8 @@ export const MainWindow = () => {
       if (data.type !== "assigned") {
         return false;
       }
-      getTodos().then(setTodos);
+      const todos = await getTodos();
+      setTodos(todos);
       return true;
     });
   };
