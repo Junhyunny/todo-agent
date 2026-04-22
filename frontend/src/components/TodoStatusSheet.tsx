@@ -98,17 +98,33 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
             </div>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="삭제"
-          onClick={() => {
-            setOpen(false);
-            onDelete?.(todo.id);
-          }}
-        >
-          <Trash2 />
-        </Button>
+        <Dialog>
+          <DialogTrigger
+            render={<Button variant="ghost" size="icon" aria-label="삭제" />}
+          >
+            <Trash2 />
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>해야할 일 삭제</DialogTitle>
+            </DialogHeader>
+            <p>"{todo.title}을 삭제하시겠습니까?"</p>
+            <div className="flex justify-end gap-2">
+              <DialogClose render={<Button variant="outline" />}>
+                취소
+              </DialogClose>
+              <DialogClose
+                render={<Button />}
+                onClick={() => {
+                  setOpen(false);
+                  onDelete?.(todo.id);
+                }}
+              >
+                삭제
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
       </SheetContent>
     </Sheet>
   );
