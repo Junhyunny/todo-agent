@@ -219,7 +219,7 @@ describe("TodoStatusSheet", () => {
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
 
     expect(
-      screen.getByText(`"${mockTodo.title}을 삭제하시겠습니까?"`),
+      screen.getByText(`${mockTodo.title}을 삭제하시겠습니까?`),
     ).toBeInTheDocument();
   });
 

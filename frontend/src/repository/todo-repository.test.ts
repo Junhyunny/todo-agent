@@ -1,12 +1,14 @@
 import { describe, expect, test, vi } from "vitest";
-import { createTodo, getTodos } from "./todo-repository";
+import { createTodo, deleteTodo, getTodos } from "./todo-repository";
 
 const mockGetTodosApiTodosGet = vi.hoisted(() => vi.fn());
 const mockCreateTodoApiTodosPost = vi.hoisted(() => vi.fn());
+const mockDeleteTodoApiTodosTodoIdDelete = vi.hoisted(() => vi.fn());
 vi.mock("../api/generated/agents", () => ({
   getFastAPI: () => ({
     getTodosApiTodosGet: mockGetTodosApiTodosGet,
     createTodoApiTodosPost: mockCreateTodoApiTodosPost,
+    deleteTodoApiTodosTodoIdDelete: mockDeleteTodoApiTodosTodoIdDelete,
   }),
 }));
 
@@ -38,5 +40,15 @@ describe("todo-repository", () => {
 
     expect(result).toEqual(created);
     expect(mockCreateTodoApiTodosPost).toHaveBeenCalledWith(request);
+  });
+
+  test("deleteTodo는 DELETE /todos/{id}를 호출한다", async () => {
+    mockDeleteTodoApiTodosTodoIdDelete.mockResolvedValue({});
+
+    await deleteTodo("todo-id-1");
+
+    expect(mockDeleteTodoApiTodosTodoIdDelete).toHaveBeenCalledWith(
+      "todo-id-1",
+    );
   });
 });

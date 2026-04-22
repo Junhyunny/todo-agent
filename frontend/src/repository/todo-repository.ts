@@ -4,7 +4,11 @@ import {
   type TodoResponse,
 } from "../api/generated/agents";
 
-const { getTodosApiTodosGet, createTodoApiTodosPost } = getFastAPI();
+const {
+  getTodosApiTodosGet,
+  createTodoApiTodosPost,
+  deleteTodoApiTodosTodoIdDelete,
+} = getFastAPI();
 
 export const createTodo = async (
   request: PostTodoRequest,
@@ -16,4 +20,8 @@ export const createTodo = async (
 export const getTodos = async (): Promise<TodoResponse[]> => {
   const response = await getTodosApiTodosGet();
   return response.data;
+};
+
+export const deleteTodo = async (id: string): Promise<void> => {
+  await deleteTodoApiTodosTodoIdDelete(id);
 };

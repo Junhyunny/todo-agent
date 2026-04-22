@@ -40,9 +40,16 @@ class TodoRepository:
     if not model:
       raise RuntimeError("not found")
     model.assigned_agent_name = agent_name
-    model.status = "in_progress"
+    model.status = TodoStatus.ASSIGNED
     await self.session.commit()
     return model
+
+  async def delete(self, todo_id: UUID) -> None:
+    todo = await self.find_by_id(todo_id)
+    if not todo:
+      raise RuntimeError("not found")
+    await self.session.delete(todo)
+    await self.session.commit()
 
   async def complete_todo(self, todo_id: UUID, result: str) -> None:
     model = await self.find_by_id(todo_id)

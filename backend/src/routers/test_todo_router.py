@@ -79,6 +79,25 @@ async def test_GET_todos_todo_목록을_조회한다(mock_async_client, mock_tod
   assert body[1]["title"] == "할 일2"
 
 
+async def test_DELETE_todos_todo를_삭제할_때_서비스를_호출한다(mock_async_client, mock_todo_service: AsyncMock) -> None:
+  expected_id = uuid.uuid4()
+  mock_todo_service.delete_todo.return_value = None
+
+  await mock_async_client.delete(f"/api/todos/{expected_id}")
+
+  mock_todo_service.delete_todo.assert_called_once()
+  _, kwargs = mock_todo_service.delete_todo.call_args
+  assert kwargs["todo_id"] == expected_id
+
+
+async def test_DELETE_todos_todo를_삭제하고_204를_반환한다(mock_async_client, mock_todo_service: AsyncMock) -> None:
+  mock_todo_service.delete_todo.return_value = None
+
+  response = await mock_async_client.delete(f"/api/todos/{uuid.uuid4()}")
+
+  assert response.status_code == 204
+
+
 async def test_GET_todos_todo_목록을_조회할_때_서비스를_호출한다(mock_async_client, mock_todo_service: AsyncMock):
   mock_todo_service.get_todos.return_value = []
 

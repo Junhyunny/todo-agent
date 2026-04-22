@@ -149,6 +149,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/todos/{todo_id}:
+    delete:
+      summary: Delete Todo
+      operationId: delete_todo_api_todos__todo_id__delete
+      parameters:
+      - name: todo_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Todo Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/todos/{todo_id}/events:
     get:
       summary: Todo Events

@@ -1,5 +1,6 @@
 import uuid
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends
 
@@ -29,6 +30,9 @@ class TodoService:
       assigned_agent_name=result.assigned_agent_name,
       result=result.result,
     )
+
+  async def delete_todo(self, todo_id: UUID) -> None:
+    await self.todo_repository.delete(todo_id=todo_id)
 
   async def get_todos(self) -> list[TodoResponse]:
     todo_list = await self.todo_repository.get_all()

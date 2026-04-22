@@ -125,6 +125,16 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
   };
 
   /**
+   * @summary Delete Todo
+   */
+  const deleteTodoApiTodosTodoIdDelete = (
+    todoId: string,
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<void>> => {
+    return axiosInstance.delete(`/api/todos/${todoId}`, options);
+  };
+
+  /**
    * @summary Todo Events
    */
   const todoEventsApiTodosTodoIdEventsGet = (
@@ -142,6 +152,7 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
     deleteAgentApiAgentsAgentIdDelete,
     getTodosApiTodosGet,
     createTodoApiTodosPost,
+    deleteTodoApiTodosTodoIdDelete,
     todoEventsApiTodosTodoIdEventsGet,
   };
 };
@@ -152,4 +163,5 @@ export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>;
 export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>;
 export type GetTodosApiTodosGetResult = AxiosResponse<TodoResponse[]>;
 export type CreateTodoApiTodosPostResult = AxiosResponse<TodoResponse>;
+export type DeleteTodoApiTodosTodoIdDeleteResult = AxiosResponse<void>;
 export type TodoEventsApiTodosTodoIdEventsGetResult = AxiosResponse<unknown>;

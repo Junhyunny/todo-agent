@@ -4,7 +4,7 @@ import { AgentListSheet } from "@/components/AgentListSheet.tsx";
 import { AgentRegistrationDialog } from "@/components/AgentRegistrationDialog.tsx";
 import { TodoRegistrationDialog } from "@/components/TodoRegistrationDialog.tsx";
 import { TodoStatusSheet } from "@/components/TodoStatusSheet.tsx";
-import { getTodos } from "@/repository/todo-repository.ts";
+import { deleteTodo, getTodos } from "@/repository/todo-repository.ts";
 import { sseHandler } from "@/utils/sse-handler.ts";
 
 declare const __API_BASE_URL__: string;
@@ -20,6 +20,14 @@ export const MainWindow = () => {
   useEffect(() => {
     void fetchTodos();
   }, [fetchTodos]);
+
+  const handleTodoDelete = useCallback(
+    async (todoId: string) => {
+      await deleteTodo(todoId);
+      await fetchTodos();
+    },
+    [fetchTodos],
+  );
 
   const handleTodoSave = (todoId: string) => {
     void fetchTodos();
@@ -39,7 +47,11 @@ export const MainWindow = () => {
       <AgentListSheet />
       <TodoRegistrationDialog onSave={handleTodoSave} />
       {todos.map((todo) => (
-        <TodoStatusSheet key={todo.id} todo={todo} />
+        <TodoStatusSheet
+          key={todo.id}
+          todo={todo}
+          onDelete={handleTodoDelete}
+        />
       ))}
     </div>
   );
