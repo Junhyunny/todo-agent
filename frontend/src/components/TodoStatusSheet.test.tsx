@@ -145,4 +145,45 @@ describe("TodoStatusSheet", () => {
 
     expect(screen.getByLabelText("작업 완료 아이콘")).toBeInTheDocument();
   });
+
+  test("작업 완료 영역을 탭하면 작업 결과 다이얼로그가 열린다", async () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "작업 결과 보기" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "작업 결과" }),
+    ).toBeInTheDocument();
+  });
+
+  test("작업 결과 다이얼로그에 작업 결과 내용이 보인다", async () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "작업 결과 보기" }),
+    );
+
+    expect(screen.getByText("작업 결과입니다")).toBeInTheDocument();
+  });
+
+  test("작업 결과 다이얼로그에 닫기 버튼이 있다", async () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "작업 결과 보기" }),
+    );
+
+    expect(screen.getByRole("button", { name: "닫기" })).toBeInTheDocument();
+  });
 });

@@ -71,7 +71,7 @@ async def test_get_todos_todo_목록을_반환한다(mock_todo_repository: Async
   id_2 = uuid.uuid4()
   mock_todo_repository.get_all.return_value = [
     TodoEntity(id=str(id_1), title="할 일1", content="내용1", status="pending", assigned_agent_name=None),
-    TodoEntity(id=str(id_2), title="할 일2", content="내용2", status="in_progress", assigned_agent_name="에이전트1"),
+    TodoEntity(id=str(id_2), title="할 일2", content="내용2", status="in_progress", assigned_agent_name="에이전트1", result="작업 결과"),
   ]
   sut = TodoService(todo_repository=mock_todo_repository, publisher=mock_publisher)
 
@@ -83,8 +83,10 @@ async def test_get_todos_todo_목록을_반환한다(mock_todo_repository: Async
   assert result[0].content == "내용1"
   assert result[0].status == "pending"
   assert result[0].assigned_agent_name is None
+  assert result[0].result is None
   assert result[1].id == id_2
   assert result[1].title == "할 일2"
   assert result[1].content == "내용2"
   assert result[1].status == "in_progress"
   assert result[1].assigned_agent_name == "에이전트1"
+  assert result[1].result == "작업 결과"

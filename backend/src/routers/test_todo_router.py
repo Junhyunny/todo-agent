@@ -32,7 +32,9 @@ async def mock_async_client(app, mock_todo_service):
 
 async def test_POST_todos_todo를_저장하고_반환한다(mock_async_client, mock_todo_service: AsyncMock):
   expected_id = uuid.uuid4()
-  mock_todo_service.create_todo.return_value = TodoResponse(id=expected_id, title="할 일", content="내용", status="pending")
+  mock_todo_service.create_todo.return_value = TodoResponse(
+    id=expected_id, title="할 일", content="내용", status="completed", assigned_agent_name="에이전트1", result="작업 결과"
+  )
 
   response = await mock_async_client.post("/api/todos", json={"title": "할 일", "content": "내용"})
 
@@ -41,7 +43,9 @@ async def test_POST_todos_todo를_저장하고_반환한다(mock_async_client, m
   assert body["id"] == str(expected_id)
   assert body["title"] == "할 일"
   assert body["content"] == "내용"
-  assert body["status"] == "pending"
+  assert body["status"] == "completed"
+  assert body["assigned_agent_name"] == "에이전트1"
+  assert body["result"] == "작업 결과"
 
 
 async def test_POST_todos_todo를_저장할_때_서비스를_호출한다(mock_async_client, mock_todo_service: AsyncMock):

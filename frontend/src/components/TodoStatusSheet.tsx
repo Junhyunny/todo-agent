@@ -1,6 +1,15 @@
 import { Circle, CircleCheck, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
+import { Button } from "@/components/ui/button.tsx";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import {
   Sheet,
@@ -44,13 +53,32 @@ export const TodoStatusSheet = ({ todo }: Props) => {
           <Input aria-label="제목" disabled value={todo.title} />
           <Textarea aria-label="내용" disabled value={todo.content} />
           {todo.status === "completed" ? (
-            <div className="flex items-center gap-2">
-              <CircleCheck
-                aria-label="작업 완료 아이콘"
-                className="text-green-500"
-              />
-              <span>작업 완료</span>
-            </div>
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <button
+                    aria-label="작업 결과 보기"
+                    className="flex items-center gap-2"
+                    type="button"
+                  />
+                }
+              >
+                <CircleCheck
+                  aria-label="작업 완료 아이콘"
+                  className="text-green-500"
+                />
+                <span>작업 완료</span>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>작업 결과</DialogTitle>
+                </DialogHeader>
+                <p>{todo.result}</p>
+                <DialogClose render={<Button variant="outline" />}>
+                  닫기
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
           ) : todo.assigned_agent_name ? (
             <div className="flex items-center gap-2">
               <LoaderCircle

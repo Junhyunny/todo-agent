@@ -27,6 +27,7 @@ class TodoService:
       content=result.content,
       status=result.status,
       assigned_agent_name=result.assigned_agent_name,
+      result=result.result,
     )
 
   async def get_todos(self) -> list[TodoResponse]:
@@ -38,6 +39,7 @@ class TodoService:
         content=todo.content,
         status=todo.status,
         assigned_agent_name=todo.assigned_agent_name,
+        result=todo.result,
       )
       for todo in todo_list
     ]
