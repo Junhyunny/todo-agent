@@ -44,6 +44,7 @@ export interface TodoResponse {
   content: string;
   status: string;
   assigned_agent_name?: string | null;
+  result?: string | null;
 }
 
 export type ExistsAgentApiAgentsExistsGetParams = {

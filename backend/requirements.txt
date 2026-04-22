@@ -7,14 +7,13 @@ annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
 attrs==26.1.0
-bas==0.0.2
 beautifulsoup4==4.14.3
 boto3==1.42.71
 botocore==1.42.71
 certifi==2026.2.25
 chardet==3.0.4
 charset-normalizer==3.4.6
-Click==7.0
+click==8.2.1
 dataclasses-json==0.6.7
 dnspython==2.8.0
 dotenv==0.9.9

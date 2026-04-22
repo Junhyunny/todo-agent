@@ -18,6 +18,8 @@ start-copilot:
 start-claude:
 	claude \
   		--allowedTools 'Bash(git *)' \
+  		'Bash(find *)' \
+  		'Bash(grep *)' \
   		'Read' \
   		'Write(./*)' \
   		'Update' \

@@ -247,6 +247,11 @@ components:
           - type: string
           - type: 'null'
           title: Assigned Agent Name
+        result:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Result
       type: object
       required:
       - id

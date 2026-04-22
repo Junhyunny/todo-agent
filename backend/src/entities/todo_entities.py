@@ -24,3 +24,4 @@ class TodoEntity(Base):
     default=TodoStatus.PENDING,
   )
   assigned_agent_name: Mapped[str | None] = mapped_column(nullable=True, default=None)
+  result: Mapped[str | None] = mapped_column(nullable=True, default=None)

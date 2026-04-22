@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
 import { AgentListSheet } from "@/components/AgentListSheet.tsx";
 import { AgentRegistrationDialog } from "@/components/AgentRegistrationDialog.tsx";
@@ -12,20 +12,24 @@ declare const __API_BASE_URL__: string;
 export const MainWindow = () => {
   const [todos, setTodos] = useState<TodoResponse[]>([]);
 
-  useEffect(() => {
-    getTodos().then(setTodos);
+  const fetchTodos = useCallback(async () => {
+    const todos = await getTodos();
+    setTodos(todos);
   }, []);
 
+  useEffect(() => {
+    void fetchTodos();
+  }, [fetchTodos]);
+
   const handleTodoSave = (todoId: string) => {
-    getTodos().then(setTodos);
+    void fetchTodos();
     sseHandler(`${__API_BASE_URL__}/api/todos/${todoId}/events`, async (e) => {
       const data = JSON.parse(e.data) as { type: string; agent_name: string };
-      if (data.type !== "assigned") {
-        return false;
+      if (data.type === "assigned" || data.type === "completed") {
+        await fetchTodos();
+        return data.type === "completed";
       }
-      const todos = await getTodos();
-      setTodos(todos);
-      return true;
+      return false;
     });
   };
 

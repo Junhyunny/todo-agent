@@ -7,7 +7,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from entities.todo_entities import TodoEntity
+from entities.todo_entities import TodoEntity, TodoStatus
 from repositories.database import get_session
 
 
@@ -43,3 +43,11 @@ class TodoRepository:
     model.status = "in_progress"
     await self.session.commit()
     return model
+
+  async def complete_todo(self, todo_id: UUID, result: str) -> None:
+    model = await self.find_by_id(todo_id)
+    if not model:
+      raise RuntimeError("not found")
+    model.status = TodoStatus.COMPLETED
+    model.result = result
+    await self.session.commit()

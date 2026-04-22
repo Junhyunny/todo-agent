@@ -1,4 +1,4 @@
-import { Circle, LoaderCircle } from "lucide-react";
+import { Circle, CircleCheck, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
 import { Input } from "@/components/ui/input.tsx";
@@ -25,7 +25,9 @@ export const TodoStatusSheet = ({ todo }: Props) => {
         render={<section aria-label={`todo-${todo.id}`} />}
       >
         <span>{todo.title}</span>
-        {todo.assigned_agent_name ? (
+        {todo.status === "completed" ? (
+          <CircleCheck aria-label="작업 완료" className="text-green-500" />
+        ) : todo.assigned_agent_name ? (
           <LoaderCircle
             aria-label="작업 중"
             className="animate-spin text-blue-500"
@@ -41,7 +43,15 @@ export const TodoStatusSheet = ({ todo }: Props) => {
         <div className="flex flex-col gap-4 p-4">
           <Input aria-label="제목" disabled value={todo.title} />
           <Textarea aria-label="내용" disabled value={todo.content} />
-          {todo.assigned_agent_name ? (
+          {todo.status === "completed" ? (
+            <div className="flex items-center gap-2">
+              <CircleCheck
+                aria-label="작업 완료 아이콘"
+                className="text-green-500"
+              />
+              <span>작업 완료</span>
+            </div>
+          ) : todo.assigned_agent_name ? (
             <div className="flex items-center gap-2">
               <LoaderCircle
                 aria-label="에이전트 작업 중 아이콘"

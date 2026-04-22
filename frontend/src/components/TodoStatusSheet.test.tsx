@@ -18,6 +18,13 @@ const mockAssignedTodo = {
   status: "in_progress",
 };
 
+const mockCompletedTodo = {
+  ...mockTodo,
+  assigned_agent_name: "검색 에이전트",
+  status: "completed",
+  result: "작업 결과입니다",
+};
+
 describe("TodoStatusSheet", () => {
   test("TODO 항목을 탭하면 상태 시트가 열린다", async () => {
     render(<TodoStatusSheet todo={mockTodo} />);
@@ -111,5 +118,31 @@ describe("TodoStatusSheet", () => {
     expect(
       screen.getByLabelText("에이전트 작업 중 아이콘"),
     ).toBeInTheDocument();
+  });
+
+  test("작업이 완료된 TODO 항목에는 초록 체크박스 아이콘이 보인다", () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    expect(screen.getByLabelText("작업 완료")).toBeInTheDocument();
+  });
+
+  test("시트가 열리면 '작업 완료' 메시지가 보인다", async () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
+    );
+
+    expect(screen.getByText("작업 완료")).toBeInTheDocument();
+  });
+
+  test("시트가 열리면 작업 완료 아이콘이 보인다", async () => {
+    render(<TodoStatusSheet todo={mockCompletedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
+    );
+
+    expect(screen.getByLabelText("작업 완료 아이콘")).toBeInTheDocument();
   });
 });

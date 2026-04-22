@@ -1,10 +1,6 @@
 import asyncio
-from uuid import UUID
 
-from channels.channel_names import TODO_ASSIGN_CHANNEL
-from repositories.agent_repository import AgentRepository
-from repositories.database import async_session_factory
-from repositories.todo_repository import TodoRepository
+from channels.channel_names import TODO_STATUS_CHANNEL
 from services.orchestration_service import OrchestrationService
 from sse.manager import SSEManager
 
@@ -17,22 +13,14 @@ async def run_assignment_listener(
   while True:
     todo_id = await assign_que.get()
     try:
-      async with async_session_factory() as session:
-        todo_repo = TodoRepository(session=session)
-        agent_repo = AgentRepository(session=session)
+      agent = await orchestration_service.select_and_assign(todo_id)
+      if agent is None:
+        continue
 
-        todo = await todo_repo.find_by_id(UUID(todo_id))
-        agents = list(await agent_repo.get_all())
+      await sse_manager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "assigned", "agent_name": agent.name})
 
-        if not todo or not agents:
-          continue
-
-        agent_name = await orchestration_service.select_agent(
-          todo,
-          agents=agents,
-        )
-        await todo_repo.assign_agent(UUID(todo_id), agent_name)
-        await sse_manager.publish(TODO_ASSIGN_CHANNEL(todo_id), {"type": "assigned", "agent_name": agent_name})
+      await orchestration_service.execute_and_complete(todo_id, agent)
+      await sse_manager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "completed", "agent_name": agent.name})
     except Exception:
       pass
     finally:

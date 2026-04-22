@@ -20,7 +20,9 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
   listener = asyncio.create_task(
     run_assignment_listener(
       assign_que=get_assignment_queue(),
-      orchestration_service=OrchestrationService(agent=get_orchestration_agent()),
+      orchestration_service=OrchestrationService(
+        agent=get_orchestration_agent(),
+      ),
       sse_manager=get_sse_manager(),
     )
   )
