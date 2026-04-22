@@ -124,8 +124,10 @@ POST /api/todos
       → TodoRepository.find_by_id()       # 내부에서 async_session_factory 사용
       → AgentRepository.get_all()
       → OrchestrationAgent.ainvoke()      # LangChain structured output → 에이전트 선택
-      → TodoRepository.assign_agent()     # status: in_progress
-      → AgentEntity 반환
+      → (에이전트 없거나 선택 실패) OrchestrationService.fail_assignment()
+          → TodoRepository.fail_todo()    # status: failed
+          → AgentEntity | None 반환
+  → (None이면) SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "failed", ...}) → 루프 계속
   → SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "assigned", ...})
   → OrchestrationService.execute_and_complete(todo_id, agent)
       → TodoRepository.find_by_id()       # 내부에서 async_session_factory 사용
@@ -134,7 +136,7 @@ POST /api/todos
   → SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "completed", ...})
 
 GET /api/todos/{todo_id}/events  (SSE)
-  → SSEManager.subscribe(TODO_STATUS_CHANNEL(todo_id)) → stream until "completed" 이벤트
+  → SSEManager.subscribe(TODO_STATUS_CHANNEL(todo_id)) → stream until "completed" or "failed" 이벤트
 ```
 
 ### DB 마이그레이션 워크플로우
@@ -171,7 +173,7 @@ Router → Service → Repository → AsyncSession (SQLite)
 - **pubs/:** Queue에 메시지를 적재하는 Publisher. Service 레이어에서 주입
 - **listeners/:** 큐를 소비해 `OrchestrationService`에 위임하고 SSE 이벤트를 발행하는 백그라운드 태스크. `app.py` lifespan에서 시작
 - **sse/:** in-memory pub/sub 매니저. 채널 이름(`TODO_STATUS_CHANNEL(todo_id)`)으로 구독/발행. SSE Router에서 구독, Listener에서 발행
-- **services/orchestration_service.py:** `OrchestrationAgent` 주입, `TaskAgent`는 팩토리(`get_task_agent()`)로 내부 생성. `async_session_factory`를 직접 호출해 per-operation 세션을 관리한다. `select_and_assign(todo_id)` → `AgentEntity | None`, `execute_and_complete(todo_id, agent)` → `None`
+- **services/orchestration_service.py:** `OrchestrationAgent` 주입, `TaskAgent`는 팩토리(`get_task_agent()`)로 내부 생성. `async_session_factory`를 직접 호출해 per-operation 세션을 관리한다. `select_and_assign(todo_id)` → `AgentEntity | None` (에이전트 없거나 선택 실패 시 `fail_assignment()` 호출 후 `None` 반환), `fail_assignment(todo_id)` → `None` (status: failed 저장), `execute_and_complete(todo_id, agent)` → `None`
 
 DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레벨(전역) 생성, per-request `AsyncSession`을 yield한다.
 
