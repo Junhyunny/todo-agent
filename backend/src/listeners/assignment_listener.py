@@ -21,6 +21,7 @@ async def run_assignment_listener(
     try:
       agent = await orchestration_service.select_and_assign(todo_id)
       if agent is None:
+        await sse_manager.publish(channel_name, create_assignment_message(TodoStatus.FAILED.value, agent_name=""))
         continue
       await sse_manager.publish(channel_name, create_assignment_message(TodoStatus.ASSIGNED.value, agent_name=agent.name))
       await orchestration_service.execute_and_complete(todo_id, agent)

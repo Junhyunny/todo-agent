@@ -1,4 +1,10 @@
-import { Circle, CircleCheck, LoaderCircle, Trash2 } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  CircleX,
+  LoaderCircle,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
@@ -37,6 +43,8 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
         <span>{todo.title}</span>
         {todo.status === "completed" ? (
           <CircleCheck aria-label="작업 완료" className="text-green-500" />
+        ) : todo.status === "failed" ? (
+          <CircleX aria-label="에이전트 할당 실패" className="text-red-500" />
         ) : todo.assigned_agent_name ? (
           <LoaderCircle
             aria-label="작업 중"
@@ -80,6 +88,14 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
                 </DialogClose>
               </DialogContent>
             </Dialog>
+          ) : todo.status === "failed" ? (
+            <div className="flex items-center gap-2">
+              <CircleX
+                aria-label="에이전트 할당 실패 아이콘"
+                className="text-red-500"
+              />
+              <span>에이전트 할당 실패</span>
+            </div>
           ) : todo.assigned_agent_name ? (
             <div className="flex items-center gap-2">
               <LoaderCircle

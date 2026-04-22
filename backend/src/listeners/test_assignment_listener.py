@@ -97,4 +97,18 @@ async def test_run_assignment_listener_에이전트를_선택하지_못하면_�
   await _run_once(queue, mock_orchestration_service, mock_sse_manager)
 
   mock_orchestration_service.execute_and_complete.assert_not_called()
-  mock_sse_manager.publish.assert_not_called()
+
+
+async def test_run_assignment_listener_에이전트를_선택하지_못하면_failed_SSE_이벤트를_발행한다(
+  mock_orchestration_service: AsyncMock, mock_sse_manager: AsyncMock
+) -> None:
+  todo_id = str(uuid.uuid4())
+  mock_orchestration_service.select_and_assign.return_value = None
+  queue: asyncio.Queue[str] = asyncio.Queue()
+  await queue.put(todo_id)
+
+  await _run_once(queue, mock_orchestration_service, mock_sse_manager)
+
+  calls = mock_sse_manager.publish.call_args_list
+  assert len(calls) == 1
+  assert calls[0].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "failed", "agent_name": ""})

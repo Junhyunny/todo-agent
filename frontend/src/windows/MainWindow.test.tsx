@@ -370,6 +370,56 @@ describe("MainWindow", () => {
       });
     });
 
+    test("SSE failed 이벤트 수신 시 getTodos를 다시 호출하고, X 아이콘이 보인다", async () => {
+      mockGetTodos
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { id: "1", title: "새 할 일", content: "내용", status: "pending" },
+        ])
+        .mockResolvedValueOnce([
+          {
+            id: "1",
+            title: "새 할 일",
+            content: "내용",
+            status: "failed",
+          },
+        ]);
+
+      render(<MainWindow />);
+      await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+      const dialog = screen.getByRole("dialog");
+      await userEvent.type(
+        within(dialog).getByRole("textbox", { name: "제목" }),
+        "새 할 일",
+      );
+      await userEvent.type(
+        within(dialog).getByRole("textbox", { name: "내용" }),
+        "내용",
+      );
+      await userEvent.click(
+        within(dialog).getByRole("button", { name: "저장" }),
+      );
+      await screen.findByText("새 할 일");
+
+      let callbackResult = false;
+      await act(async () => {
+        callbackResult = await capturedCallback(
+          new MessageEvent("message", {
+            data: JSON.stringify({
+              type: "failed",
+              agent_name: "",
+            }),
+          }),
+        );
+      });
+
+      await waitFor(() => {
+        expect(callbackResult).toEqual(true);
+        expect(mockGetTodos).toHaveBeenCalledTimes(3);
+        expect(screen.getByLabelText("에이전트 할당 실패")).toBeInTheDocument();
+      });
+    });
+
     test("SSE assigned 이벤트 수신 받지 못하면 false를 반환하고, getTodos를 호출하지 않는다", async () => {
       mockGetTodos
         .mockResolvedValueOnce([])

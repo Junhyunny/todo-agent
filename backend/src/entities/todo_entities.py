@@ -11,6 +11,7 @@ class TodoStatus(str, Enum):
   PENDING = "pending"
   ASSIGNED = "assigned"
   COMPLETED = "completed"
+  FAILED = "failed"
 
 
 class TodoEntity(Base):

@@ -14,6 +14,11 @@ class OrchestrationService:
     self.agent = agent
     self.task_agent: TaskAgent = get_task_agent()
 
+  async def fail_assignment(self, todo_id: str) -> None:
+    async with async_session_factory() as session:
+      todo_repo = TodoRepository(session=session)
+      await todo_repo.fail_todo(UUID(todo_id))
+
   async def select_and_assign(self, todo_id: str) -> AgentEntity | None:
     async with async_session_factory() as session:
       todo_repo = TodoRepository(session=session)
@@ -23,6 +28,8 @@ class OrchestrationService:
       agents = list(await agent_repo.get_all())
 
       if not todo or not agents:
+        if todo:
+          await self.fail_assignment(todo_id)
         return None
 
       agent_list = [{a.name: a.system_prompt} for a in agents]
@@ -33,10 +40,12 @@ class OrchestrationService:
       print(user_message)
       result = await self.agent.ainvoke(json.dumps(user_message))
       if result is None:
+        await self.fail_assignment(todo_id)
         return None
 
       selected = next((a for a in agents if a.name == result.name), None)
       if selected is None:
+        await self.fail_assignment(todo_id)
         return None
 
       await todo_repo.assign_agent(UUID(todo_id), agent_name=selected.name)

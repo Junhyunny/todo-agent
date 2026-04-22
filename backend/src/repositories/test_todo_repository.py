@@ -141,3 +141,25 @@ async def test_delete_todo_존재하지_않는_todo이면_예외가_발생한다
 
   with pytest.raises(RuntimeError):
     await sut.delete(todo_id=uuid.uuid4())
+
+
+async def test_fail_todo_상태를_failed로_변경한다(setup_test_db: AsyncSession) -> None:
+  session = setup_test_db
+  todo_id = str(uuid.uuid4())
+  session.add(TodoEntity(id=todo_id, title="할 일", content="내용", status=TodoStatus.PENDING.value))
+  await session.commit()
+  sut = TodoRepository(session=session)
+
+  await sut.fail_todo(uuid.UUID(todo_id))
+
+  result = await sut.find_by_id(uuid.UUID(todo_id))
+  assert result is not None
+  assert result.status == TodoStatus.FAILED
+
+
+async def test_fail_todo_존재하지_않는_todo이면_예외가_발생한다(setup_test_db: AsyncSession) -> None:
+  session = setup_test_db
+  sut = TodoRepository(session=session)
+
+  with pytest.raises(RuntimeError):
+    await sut.fail_todo(uuid.uuid4())

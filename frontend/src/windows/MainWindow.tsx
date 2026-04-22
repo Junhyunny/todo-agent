@@ -33,9 +33,13 @@ export const MainWindow = () => {
     void fetchTodos();
     sseHandler(`${__API_BASE_URL__}/api/todos/${todoId}/events`, async (e) => {
       const data = JSON.parse(e.data) as { type: string; agent_name: string };
-      if (data.type === "assigned" || data.type === "completed") {
+      if (
+        data.type === "assigned" ||
+        data.type === "completed" ||
+        data.type === "failed"
+      ) {
         await fetchTodos();
-        return data.type === "completed";
+        return data.type === "completed" || data.type === "failed";
       }
       return false;
     });

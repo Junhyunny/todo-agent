@@ -25,6 +25,11 @@ const mockCompletedTodo = {
   result: "작업 결과입니다",
 };
 
+const mockFailedTodo = {
+  ...mockTodo,
+  status: "failed",
+};
+
 describe("TodoStatusSheet", () => {
   test("TODO 항목을 탭하면 상태 시트가 열린다", async () => {
     render(<TodoStatusSheet todo={mockTodo} />);
@@ -263,5 +268,41 @@ describe("TodoStatusSheet", () => {
     expect(
       screen.queryByRole("heading", { name: "해야할 일" }),
     ).not.toBeInTheDocument();
+  });
+
+  test("할당 실패 TODO에는 X 아이콘이 보인다", () => {
+    render(<TodoStatusSheet todo={mockFailedTodo} />);
+
+    expect(screen.getByLabelText("에이전트 할당 실패")).toBeInTheDocument();
+  });
+
+  test("할당 성공 TODO에는 X 아이콘이 보이지 않는다", () => {
+    render(<TodoStatusSheet todo={mockTodo} />);
+
+    expect(
+      screen.queryByLabelText("에이전트 할당 실패"),
+    ).not.toBeInTheDocument();
+  });
+
+  test("할당 실패 TODO 시트가 열리면 에이전트 할당 실패 아이콘이 보인다", async () => {
+    render(<TodoStatusSheet todo={mockFailedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
+    );
+
+    expect(
+      screen.getByLabelText("에이전트 할당 실패 아이콘"),
+    ).toBeInTheDocument();
+  });
+
+  test("할당 실패 TODO 시트가 열리면 '에이전트 할당 실패' 메시지가 보인다", async () => {
+    render(<TodoStatusSheet todo={mockFailedTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
+    );
+
+    expect(screen.getByText("에이전트 할당 실패")).toBeInTheDocument();
   });
 });
