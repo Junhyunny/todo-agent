@@ -250,4 +250,18 @@ describe("TodoStatusSheet", () => {
 
     expect(onDelete).toHaveBeenCalledWith(mockTodo.id);
   });
+
+  test("삭제 확인 버튼을 탭하면 시트가 닫힌다", async () => {
+    render(<TodoStatusSheet todo={mockTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "삭제" }));
+    await userEvent.click(screen.getByRole("button", { name: "삭제" }));
+
+    expect(
+      screen.queryByRole("heading", { name: "해야할 일" }),
+    ).not.toBeInTheDocument();
+  });
 });
