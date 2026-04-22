@@ -49,17 +49,6 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
       <SheetContent>
         <SheetHeader className="flex flex-row items-center justify-between">
           <SheetTitle>해야할 일</SheetTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="삭제"
-            onClick={() => {
-              setOpen(false);
-              onDelete?.(todo.id);
-            }}
-          >
-            <Trash2 />
-          </Button>
         </SheetHeader>
         <div className="flex flex-col gap-4 p-4">
           <Input aria-label="제목" disabled value={todo.title} />
@@ -109,6 +98,17 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
             </div>
           )}
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="삭제"
+          onClick={() => {
+            setOpen(false);
+            onDelete?.(todo.id);
+          }}
+        >
+          <Trash2 />
+        </Button>
       </SheetContent>
     </Sheet>
   );
