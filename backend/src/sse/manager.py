@@ -1,10 +1,14 @@
 import asyncio
+from numbers import Number
 from typing import Any
 
 
 class SSEManager:
   def __init__(self) -> None:
     self._subscribers: dict[str, asyncio.Queue[dict[str, Any]]] = {}
+
+  def channel_size(self) -> Number:
+    return len(self._subscribers)
 
   def subscribe(self, channel_name: str) -> asyncio.Queue[dict[str, Any]]:
     q: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
