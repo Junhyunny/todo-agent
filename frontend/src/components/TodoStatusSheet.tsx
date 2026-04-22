@@ -1,4 +1,4 @@
-import { Circle, CircleCheck, LoaderCircle } from "lucide-react";
+import { Circle, CircleCheck, LoaderCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
@@ -22,9 +22,10 @@ import { Textarea } from "@/components/ui/textarea.tsx";
 
 type Props = {
   todo: TodoResponse;
+  onDelete?: (todoId: string) => void;
 };
 
-export const TodoStatusSheet = ({ todo }: Props) => {
+export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,8 +47,19 @@ export const TodoStatusSheet = ({ todo }: Props) => {
         )}
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader>
+        <SheetHeader className="flex flex-row items-center justify-between">
           <SheetTitle>해야할 일</SheetTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="삭제"
+            onClick={() => {
+              setOpen(false);
+              onDelete?.(todo.id);
+            }}
+          >
+            <Trash2 />
+          </Button>
         </SheetHeader>
         <div className="flex flex-col gap-4 p-4">
           <Input aria-label="제목" disabled value={todo.title} />

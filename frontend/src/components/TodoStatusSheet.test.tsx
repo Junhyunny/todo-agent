@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { TodoStatusSheet } from "./TodoStatusSheet.tsx";
 
 const mockTodo = {
@@ -185,5 +185,27 @@ describe("TodoStatusSheet", () => {
     );
 
     expect(screen.getByRole("button", { name: "닫기" })).toBeInTheDocument();
+  });
+
+  test("시트가 열리면 삭제 버튼이 보인다", async () => {
+    render(<TodoStatusSheet todo={mockTodo} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
+    );
+
+    expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
+  });
+
+  test("삭제 버튼을 탭하면 onDelete 콜백이 todo id와 함께 호출된다", async () => {
+    const onDelete = vi.fn();
+    render(<TodoStatusSheet todo={mockTodo} onDelete={onDelete} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "삭제" }));
+
+    expect(onDelete).toHaveBeenCalledWith(mockTodo.id);
   });
 });
