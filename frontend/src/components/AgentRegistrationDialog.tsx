@@ -75,7 +75,6 @@ export const AgentRegistrationDialog = () => {
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
-        <DialogClose render={<Button />}>취소</DialogClose>
         <DialogClose
           render={<Button disabled={!name || !systemPrompt || isDuplicate} />}
           onClick={() => void handleSave()}

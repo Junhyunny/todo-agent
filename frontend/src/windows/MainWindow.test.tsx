@@ -83,7 +83,7 @@ describe("MainWindow", () => {
     ).toBeInTheDocument();
   });
 
-  test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장·취소 버튼이 포함된 다이얼로그가 열린다", async () => {
+  test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장 버튼이 포함된 다이얼로그가 열린다", async () => {
     render(<MainWindow />);
     const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
     await userEvent.click(
@@ -96,7 +96,9 @@ describe("MainWindow", () => {
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "취소" }),
+    ).not.toBeInTheDocument();
   });
 
   test("에이전트 아이콘을 클릭하면 에이전트 리스트 다이얼로그가 열린다", async () => {

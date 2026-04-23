@@ -48,7 +48,7 @@ describe("AgentRegistrationDialog", () => {
     ).toBeInTheDocument();
   });
 
-  test("저장 버튼과 취소 버튼이 보인다", async () => {
+  test("저장 버튼이 보인다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(
@@ -56,7 +56,16 @@ describe("AgentRegistrationDialog", () => {
     );
 
     expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
+  });
+
+  test("X 버튼이 보인다", async () => {
+    render(<AgentRegistrationDialog />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+
+    expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
   });
 
   test("초기 상태에서 저장 버튼이 비활성화 상태이다.", async () => {
@@ -134,7 +143,7 @@ describe("AgentRegistrationDialog", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("취소 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
+  test("X 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(
@@ -144,7 +153,7 @@ describe("AgentRegistrationDialog", () => {
       screen.getByRole("textbox", { name: "에이전트 이름" }),
     ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
@@ -199,7 +208,7 @@ describe("AgentRegistrationDialog", () => {
     ).toHaveValue("");
   });
 
-  test("어떤 값을 입력 후 취소 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
+  test("어떤 값을 입력 후 X 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(
@@ -213,7 +222,7 @@ describe("AgentRegistrationDialog", () => {
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
       "테스트 시스템 프롬프트",
     );
-    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
