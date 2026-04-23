@@ -265,7 +265,7 @@ describe("AgentRegistrationDialog", () => {
       expect(screen.getByRole("combobox")).toBeInTheDocument();
     });
 
-    test("도구 리스트 콤보박스를 클릭하면 웹 서치(web search) 항목이 표시된다", async () => {
+    test("도구 리스트 콤보박스를 클릭하면 웹 검색(web search) 항목이 표시된다", async () => {
       render(<AgentRegistrationDialog />);
 
       await userEvent.click(
@@ -279,7 +279,7 @@ describe("AgentRegistrationDialog", () => {
       fireEvent.mouseDown(chipsContainer as Element);
 
       expect(
-        await screen.findByRole("option", { name: "웹 서치(web search)" }),
+        await screen.findByRole("option", { name: "웹 검색(web search)" }),
       ).toBeInTheDocument();
     });
   });

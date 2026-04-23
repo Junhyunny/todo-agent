@@ -1,17 +1,8 @@
 import { UserPlus } from "lucide-react";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React, { useEffect, useState } from "react";
+import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxItem,
-  ComboboxList,
-  useComboboxAnchor,
-} from "@/components/ui/combobox.tsx";
 import {
   Dialog,
   DialogClose,
@@ -28,8 +19,6 @@ import {
   existsAgentByName,
 } from "@/repository/agent-repository.ts";
 
-const TOOLS = ["웹 서치(web search)"] as const;
-
 export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,7 +26,6 @@ export const AgentRegistrationDialog = () => {
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
-  const anchor = useComboboxAnchor();
 
   const handleSave = async () => {
     await createAgent({ name, system_prompt: systemPrompt });
@@ -95,29 +83,11 @@ export const AgentRegistrationDialog = () => {
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
         <Label htmlFor="agent-tools">도구 리스트</Label>
-        <Combobox
-          multiple
+        <ToolListComboBox
+          id="agent-tools"
           value={selectedTools}
-          onValueChange={(newTools) => setSelectedTools(newTools)}
-        >
-          <ComboboxChips ref={anchor}>
-            {selectedTools.map((tool) => (
-              <ComboboxChip key={tool} value={tool}>
-                {tool}
-              </ComboboxChip>
-            ))}
-            <ComboboxChipsInput id="agent-tools" />
-          </ComboboxChips>
-          <ComboboxContent anchor={anchor}>
-            <ComboboxList>
-              {TOOLS.map((tool) => (
-                <ComboboxItem key={tool} value={tool}>
-                  {tool}
-                </ComboboxItem>
-              ))}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
+          onValueChange={setSelectedTools}
+        />
         <DialogClose
           render={<Button disabled={!name || !systemPrompt || isDuplicate} />}
           onClick={() => void handleSave()}
