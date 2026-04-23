@@ -417,3 +417,40 @@ useEffect(() => {
 getByRole("textbox", { name: "에이전트 이름" })
 ```
 `aria-label` 대신 `Label` + `htmlFor`/`id` 조합을 우선한다.
+
+**멀티셀렉트 콤보박스 (`shadcn/ui Combobox`)**
+여러 값을 선택하는 드롭다운은 shadcn/ui `Combobox`의 `multiple` 모드를 사용한다. `useComboboxAnchor()`로 앵커를 생성하고 `ComboboxChips`와 `ComboboxContent`에 연결해 드롭다운 위치를 정렬한다.
+```tsx
+const [selectedTools, setSelectedTools] = useState<string[]>([]);
+const anchor = useComboboxAnchor();
+
+<Label htmlFor="agent-tools">도구 리스트</Label>
+<Combobox multiple value={selectedTools} onValueChange={(v) => setSelectedTools(v)}>
+  <ComboboxChips ref={anchor}>
+    {selectedTools.map((tool) => (
+      <ComboboxChip key={tool} value={tool}>{tool}</ComboboxChip>
+    ))}
+    <ComboboxChipsInput id="agent-tools" />
+  </ComboboxChips>
+  <ComboboxContent anchor={anchor}>
+    <ComboboxList>
+      {TOOLS.map((tool) => (
+        <ComboboxItem key={tool} value={tool}>{tool}</ComboboxItem>
+      ))}
+    </ComboboxList>
+  </ComboboxContent>
+</Combobox>
+```
+다이얼로그가 열릴 때 선택값을 초기화하려면 `useEffect([open])` 안에서 `setSelectedTools([])`를 호출한다.
+
+**shadcn Combobox 테스트 — 팝업 열기**
+`userEvent.click(screen.getByRole("combobox"))`는 팝업을 열지 않는다. `@base-ui/react`의 `handleInputPress`가 클릭 대상이 인터랙티브 요소(`input`)일 때 조기 반환하기 때문이다. 팝업을 열려면 `[data-slot="combobox-chips"]` 컨테이너에 `fireEvent.mouseDown`을 사용한다.
+```tsx
+const comboboxInput = screen.getByRole("combobox");
+const chipsContainer = comboboxInput.closest('[data-slot="combobox-chips"]');
+expect(chipsContainer).toBeInTheDocument();
+fireEvent.mouseDown(chipsContainer as Element);
+
+expect(await screen.findByRole("option", { name: "웹 서치(web search)" })).toBeInTheDocument();
+```
+`ComboboxContent`는 Portal로 렌더링되므로 `findByRole("option")`은 문서 전체에서 옵션을 찾을 수 있다.
