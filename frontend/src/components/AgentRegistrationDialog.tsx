@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import {
   createAgent,
@@ -58,20 +59,23 @@ export const AgentRegistrationDialog = () => {
         <DialogHeader>
           <DialogTitle>에이전트 등록</DialogTitle>
         </DialogHeader>
+        <Label htmlFor="agent-name">에이전트 이름</Label>
         <Input
           type="text"
-          aria-label="에이전트 이름"
+          id="agent-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         {isDuplicate && <p>동일한 이름의 에이전트가 존재합니다.</p>}
+        <Label htmlFor="agent-describe">설명</Label>
         <Textarea
-          aria-label="설명"
+          id="agent-describe"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        <Label htmlFor="agent-system-prompt">시스템 프롬프트</Label>
         <Textarea
-          aria-label="시스템 프롬프트"
+          id="agent-system-prompt"
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />

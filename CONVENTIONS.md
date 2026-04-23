@@ -51,7 +51,7 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
-- 공유 enum·타입: `src/types/` 에 정의한다. (예: `TodoStatus` enum → `src/types/emums.ts`)
+- 공유 enum·타입: `src/types/` 에 정의한다. (예: `TodoStatus` enum → `src/types/enums.ts`)
 - 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="{domain}-{id}">` 로 감싼다 (예: `agent-{id}`, `todo-{id}`)
 - Electron 경계: renderer는 Electron 모듈 직접 접근 금지 → preload API로 노출
 - 포맷: Biome (double quotes, 2-space indent)
@@ -352,6 +352,20 @@ vi.mock("../api/generated/agents", () => ({
 ```
 테스트에서는 `getByRole("heading", { name: "..." })`으로 검증한다.
 
+**`DialogContent` 기본 X 버튼**
+`DialogContent`는 기본적으로 우측 상단 X 버튼(`showCloseButton=true`)을 렌더링한다. 명시적 취소 버튼 없이 X 버튼만으로 닫는 다이얼로그에서는 취소 버튼을 추가하지 않는다. X 버튼의 접근 가능한 이름은 `"Close"` (sr-only span)이므로 테스트에서 아래와 같이 쿼리한다.
+```tsx
+// X 버튼 존재 확인
+expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
+
+// 취소 버튼 미노출 확인
+expect(screen.queryByRole("button", { name: "취소" })).not.toBeInTheDocument();
+
+// X 버튼 클릭으로 닫기 확인
+await userEvent.click(screen.getByRole("button", { name: "Close" }));
+expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+```
+
 **`DialogClose` 조건부 비활성화**
 저장 버튼을 조건부로 비활성화할 때는 `DialogClose`에 직접 `disabled`를 주지 않고 `render` prop의 `Button`에 전달한다.
 disabled 상태의 HTML 버튼은 클릭 이벤트가 발생하지 않으므로 다이얼로그도 닫히지 않는다.
@@ -390,3 +404,16 @@ useEffect(() => {
 }, [open]);
 ```
 취소/저장 후 재오픈 시 이전 입력값이 남지 않도록 보장한다.
+
+**폼 라벨**
+폼에서 입력 필드에 라벨이 필요하면 `components/ui/label.tsx` (shadcn/ui `Label`)를 사용한다.
+`Label`의 `htmlFor`와 입력 요소의 `id`를 짝지어 접근성을 보장한다.
+```tsx
+<Label htmlFor="agent-name">에이전트 이름</Label>
+<Input id="agent-name" ... />
+```
+테스트에서는 라벨과 연결된 접근 가능한 이름으로 쿼리한다.
+```tsx
+getByRole("textbox", { name: "에이전트 이름" })
+```
+`aria-label` 대신 `Label` + `htmlFor`/`id` 조합을 우선한다.

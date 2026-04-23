@@ -1,11 +1,11 @@
 ---
 name: sync-conventions
 description: >
-  Use this skill when the user says "sync coding conventions", "update conventions",
-  "refresh conventions", "컨벤션 동기화", "컨벤션 업데이트", or when you need to
-  detect convention drift from AI edits, human edits, and broader project changes.
-  Creates or updates `CONVENTIONS.md`, and asks for confirmation when
-  user edits appear to intentionally override AI-generated patterns.
+   Use this skill when the user says "sync coding conventions", "update conventions",
+   "refresh conventions", "컨벤션 동기화", "컨벤션 업데이트", or when you need to
+   detect convention drift from AI edits, human edits, and broader project changes.
+   Creates or updates `CONVENTIONS.md`, and asks for confirmation when
+   user edits appear to intentionally override AI-generated patterns.
 ---
 
 # Sync Coding Conventions
@@ -47,13 +47,22 @@ description: >
 
 컨벤션 파일이 이미 있으면, 전체 프로젝트 스캔 대신 **변경 신호만 우선 수집**한다.
 
+**가장 먼저** 아래 명령을 실행해 실제 변경 상태를 확인한다 — AI 컨텍스트에만 의존하지 않는다:
+
+```bash
+git diff          # unstaged 변경 확인
+git diff --staged # staged 변경 확인
+```
+
 수집 대상:
 
-1. `git diff --staged`, `git diff`에 나타나는 변경 파일
+1. `git diff`, `git diff --staged`에 나타나는 변경 파일 **(필수 선행 확인)**
 2. 새로 생성되거나 삭제된 파일
 3. 최근 변경된 테스트/소스 파일
 4. 현재 대화에서 AI가 수정한 파일, AI가 제안한 패턴, AI가 설명한 의도
 5. 사용자가 직접 붙여넣거나 에디터에서 수정한 코드 조각
+
+**AI 컨텍스트 외 변경 처리**: `git diff`에서 AI가 이번 대화에서 수정하지 않은 파일의 변경이 발견되면, 해당 파일을 직접 읽어 어떤 패턴이 바뀌었는지 분석하고 사용자 의도 후보로 처리한다.
 
 변경 파일이 없는 경우:
 
