@@ -3,6 +3,16 @@ import { UserPlus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button.tsx";
 import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxItem,
+  ComboboxList,
+  useComboboxAnchor,
+} from "@/components/ui/combobox.tsx";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -18,12 +28,16 @@ import {
   existsAgentByName,
 } from "@/repository/agent-repository.ts";
 
+const TOOLS = ["웹 서치(web search)"] as const;
+
 export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const anchor = useComboboxAnchor();
 
   const handleSave = async () => {
     await createAgent({ name, system_prompt: systemPrompt });
@@ -42,6 +56,7 @@ export const AgentRegistrationDialog = () => {
       setName("");
       setDescription("");
       setSystemPrompt("");
+      setSelectedTools([]);
       setIsDuplicate(false);
     }
   }, [open]);
@@ -79,6 +94,30 @@ export const AgentRegistrationDialog = () => {
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
+        <Label htmlFor="agent-tools">도구 리스트</Label>
+        <Combobox
+          multiple
+          value={selectedTools}
+          onValueChange={(newTools) => setSelectedTools(newTools)}
+        >
+          <ComboboxChips ref={anchor}>
+            {selectedTools.map((tool) => (
+              <ComboboxChip key={tool} value={tool}>
+                {tool}
+              </ComboboxChip>
+            ))}
+            <ComboboxChipsInput id="agent-tools" />
+          </ComboboxChips>
+          <ComboboxContent anchor={anchor}>
+            <ComboboxList>
+              {TOOLS.map((tool) => (
+                <ComboboxItem key={tool} value={tool}>
+                  {tool}
+                </ComboboxItem>
+              ))}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
         <DialogClose
           render={<Button disabled={!name || !systemPrompt || isDuplicate} />}
           onClick={() => void handleSave()}

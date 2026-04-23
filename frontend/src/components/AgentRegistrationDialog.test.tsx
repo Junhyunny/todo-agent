@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
@@ -251,6 +251,37 @@ describe("AgentRegistrationDialog", () => {
     expect(
       await screen.findByText("동일한 이름의 에이전트가 존재합니다."),
     ).toBeInTheDocument();
+  });
+
+  describe("도구 리스트", () => {
+    test("도구 리스트 라벨과 콤보박스가 보인다", async () => {
+      render(<AgentRegistrationDialog />);
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+
+      expect(screen.getByText("도구 리스트")).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
+
+    test("도구 리스트 콤보박스를 클릭하면 웹 서치(web search) 항목이 표시된다", async () => {
+      render(<AgentRegistrationDialog />);
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+      const comboboxInput = screen.getByRole("combobox");
+      const chipsContainer = comboboxInput.closest(
+        '[data-slot="combobox-chips"]',
+      );
+      expect(chipsContainer).toBeInTheDocument();
+      fireEvent.mouseDown(chipsContainer as Element);
+
+      expect(
+        await screen.findByRole("option", { name: "웹 서치(web search)" }),
+      ).toBeInTheDocument();
+    });
   });
 
   test("중복된 이름 입력 시 저장 버튼이 비활성화된다", async () => {
