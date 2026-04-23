@@ -5,9 +5,22 @@ import { AgentRegistrationDialog } from "@/components/AgentRegistrationDialog.ts
 import { TodoRegistrationDialog } from "@/components/TodoRegistrationDialog.tsx";
 import { TodoStatusSheet } from "@/components/TodoStatusSheet.tsx";
 import { deleteTodo, getTodos } from "@/repository/todo-repository.ts";
+import { TodoStatus } from "@/types/enums.ts";
 import { sseHandler } from "@/utils/sse-handler.ts";
 
 declare const __API_BASE_URL__: string;
+
+const isRefetch = (type: string): boolean => {
+  return (
+    type === TodoStatus.ASSIGNED ||
+    type === TodoStatus.COMPLETED ||
+    type === TodoStatus.FAILED
+  );
+};
+
+const isSyncFinished = (type: string): boolean => {
+  return type === TodoStatus.COMPLETED || type === TodoStatus.FAILED;
+};
 
 export const MainWindow = () => {
   const [todos, setTodos] = useState<TodoResponse[]>([]);
@@ -33,13 +46,9 @@ export const MainWindow = () => {
     void fetchTodos();
     sseHandler(`${__API_BASE_URL__}/api/todos/${todoId}/events`, async (e) => {
       const data = JSON.parse(e.data) as { type: string; agent_name: string };
-      if (
-        data.type === "assigned" ||
-        data.type === "completed" ||
-        data.type === "failed"
-      ) {
+      if (isRefetch(data.type)) {
         await fetchTodos();
-        return data.type === "completed" || data.type === "failed";
+        return isSyncFinished(data.type);
       }
       return false;
     });

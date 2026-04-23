@@ -195,7 +195,9 @@ describe("MainWindow", () => {
     const todoSection = within(todoList).getByRole("button", {
       name: "todo-1",
     });
-    expect(within(todoSection).getByLabelText("대기 중")).toBeInTheDocument();
+    expect(
+      within(todoSection).getByLabelText("에이전트 할당 대기"),
+    ).toBeInTheDocument();
   });
 
   test("todo 저장 시 EventSource를 생성한다", async () => {
@@ -304,7 +306,7 @@ describe("MainWindow", () => {
             id: "1",
             title: "새 할 일",
             content: "내용",
-            status: "in_progress",
+            status: "assigned",
             assigned_agent_name: "검색 에이전트",
           },
         ]);
@@ -344,7 +346,9 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(false);
         expect(mockGetTodos).toHaveBeenCalledTimes(3);
-        expect(within(todoList).getByLabelText("작업 중")).toBeInTheDocument();
+        expect(
+          within(todoList).getByLabelText("에이전트 작업 중"),
+        ).toBeInTheDocument();
       });
     });
 
@@ -507,7 +511,9 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(false);
         expect(mockGetTodos).toHaveBeenCalledTimes(2);
-        expect(within(todoList).getByLabelText("대기 중")).toBeInTheDocument();
+        expect(
+          within(todoList).getByLabelText("에이전트 할당 대기"),
+        ).toBeInTheDocument();
       });
     });
   });

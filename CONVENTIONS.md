@@ -13,7 +13,14 @@
 
 ### 테스트
 - 파일 위치: 컴포넌트 옆 co-located `*.test.tsx`
-- 구조: `describe(ComponentName)` + 내부 `test(...)`
+- 구조: `describe(ComponentName)` + 내부 `test(...)`. 테스트가 많아 상태·기능 단위 구분이 필요하면 `describe("그룹명")` 으로 중첩 그룹핑한다.
+  ```tsx
+  describe("ComponentName", () => {
+    describe("시트가 열리기 전 버튼 상태", () => { ... });
+    describe("시트가 열린 후", () => { ... });
+    describe("삭제", () => { ... });
+  });
+  ```
 - 쿼리: role 기반 (`getByRole`, `findByRole`)
 - 테스트명: 한국어 문장형
 - React import: 테스트 파일 최상단에 `// biome-ignore lint/correctness/noUnusedImports: need for proper rendering` 주석과 함께 추가 (`.test.tsx`만 해당)
@@ -44,6 +51,7 @@ await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { n
 
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
+- 공유 enum·타입: `src/types/` 에 정의한다. (예: `TodoStatus` enum → `src/types/emums.ts`)
 - 접근성: 인터랙티브 요소를 포함하는 리스트 항목은 `<section aria-label="{domain}-{id}">` 로 감싼다 (예: `agent-{id}`, `todo-{id}`)
 - Electron 경계: renderer는 Electron 모듈 직접 접근 금지 → preload API로 노출
 - 포맷: Biome (double quotes, 2-space indent)

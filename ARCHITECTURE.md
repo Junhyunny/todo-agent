@@ -34,7 +34,9 @@ frontend/src/
   components/ui/    # shadcn/ui 관리 컴포넌트  [수정 금지]
   repository/       # generated 클라이언트 named export 래퍼
   api/generated/    # orval 자동생성 Axios 클라이언트  [수정 금지]
-  lib/              # 공통 유틸리티
+  types/            # 공유 타입·enum 정의 (TodoStatus 등)
+  utils/            # 공통 유틸리티 (SSE 핸들러 등)
+  lib/              # 공통 유틸리티 (shadcn/ui 헬퍼)
 ```
 
 ### 데이터 흐름
