@@ -32,7 +32,7 @@ describe("AgentRegistrationDialog", () => {
     ).toBeInTheDocument();
   });
 
-  test("에이전트 이름 폼(form)이 보인다", async () => {
+  test("에이전트 이름, 설명, 시스템 프롬프트 폼이 보인다", async () => {
     render(<AgentRegistrationDialog />);
 
     await userEvent.click(
@@ -42,6 +42,7 @@ describe("AgentRegistrationDialog", () => {
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "설명" })).toBeInTheDocument();
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toBeInTheDocument();

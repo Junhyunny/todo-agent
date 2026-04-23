@@ -19,6 +19,7 @@ import {
 
 export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [open, setOpen] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
@@ -38,6 +39,7 @@ export const AgentRegistrationDialog = () => {
   useEffect(() => {
     if (open) {
       setName("");
+      setDescription("");
       setSystemPrompt("");
       setIsDuplicate(false);
     }
@@ -63,6 +65,11 @@ export const AgentRegistrationDialog = () => {
           onChange={(e) => setName(e.target.value)}
         />
         {isDuplicate && <p>동일한 이름의 에이전트가 존재합니다.</p>}
+        <Textarea
+          aria-label="설명"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
         <Textarea
           aria-label="시스템 프롬프트"
           value={systemPrompt}
