@@ -420,26 +420,33 @@ getByRole("textbox", { name: "에이전트 이름" })
 
 **멀티셀렉트 콤보박스 (`shadcn/ui Combobox`)**
 여러 값을 선택하는 드롭다운은 shadcn/ui `Combobox`의 `multiple` 모드를 사용한다. `useComboboxAnchor()`로 앵커를 생성하고 `ComboboxChips`와 `ComboboxContent`에 연결해 드롭다운 위치를 정렬한다.
-```tsx
-const [selectedTools, setSelectedTools] = useState<string[]>([]);
-const anchor = useComboboxAnchor();
 
+다이얼로그 폼에 직접 인라인으로 작성하지 않고 **별도 컴포넌트로 추출**한다. 부모 컴포넌트는 `id`, `value`, `onValueChange`만 전달한다.
+```tsx
+// ToolListComboBox.tsx (별도 파일로 분리)
+type Props = { id: string; value: string[]; onValueChange: (v: string[]) => void; };
+const TOOLS = ["웹 검색(web search)"] as const;
+
+export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
+  const anchor = useComboboxAnchor();
+  return (
+    <Combobox multiple value={value} onValueChange={onValueChange}>
+      <ComboboxChips ref={anchor}>
+        {value.map((tool) => <ComboboxChip key={tool}>{tool}</ComboboxChip>)}
+        <ComboboxChipsInput id={id} />
+      </ComboboxChips>
+      <ComboboxContent anchor={anchor}>
+        <ComboboxList>
+          {TOOLS.map((tool) => <ComboboxItem key={tool} value={tool}>{tool}</ComboboxItem>)}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+};
+
+// 다이얼로그 내 사용
 <Label htmlFor="agent-tools">도구 리스트</Label>
-<Combobox multiple value={selectedTools} onValueChange={(v) => setSelectedTools(v)}>
-  <ComboboxChips ref={anchor}>
-    {selectedTools.map((tool) => (
-      <ComboboxChip key={tool} value={tool}>{tool}</ComboboxChip>
-    ))}
-    <ComboboxChipsInput id="agent-tools" />
-  </ComboboxChips>
-  <ComboboxContent anchor={anchor}>
-    <ComboboxList>
-      {TOOLS.map((tool) => (
-        <ComboboxItem key={tool} value={tool}>{tool}</ComboboxItem>
-      ))}
-    </ComboboxList>
-  </ComboboxContent>
-</Combobox>
+<ToolListComboBox id="agent-tools" value={selectedTools} onValueChange={setSelectedTools} />
 ```
 다이얼로그가 열릴 때 선택값을 초기화하려면 `useEffect([open])` 안에서 `setSelectedTools([])`를 호출한다.
 
