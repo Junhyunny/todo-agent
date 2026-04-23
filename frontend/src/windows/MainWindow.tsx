@@ -46,17 +46,21 @@ export const MainWindow = () => {
   };
 
   return (
-    <div>
-      <AgentRegistrationDialog />
-      <AgentListSheet />
-      <TodoRegistrationDialog onSave={handleTodoSave} />
-      {todos.map((todo) => (
-        <TodoStatusSheet
-          key={todo.id}
-          todo={todo}
-          onDelete={handleTodoDelete}
-        />
-      ))}
+    <div className="flex flex-col h-screen">
+      <section aria-label="버튼 영역" className="flex-none">
+        <AgentRegistrationDialog />
+        <AgentListSheet />
+        <TodoRegistrationDialog onSave={handleTodoSave} />
+      </section>
+      <section aria-label="TODO 목록" className="flex-1 overflow-y-auto">
+        {todos.map((todo) => (
+          <TodoStatusSheet
+            key={todo.id}
+            todo={todo}
+            onDelete={handleTodoDelete}
+          />
+        ))}
+      </section>
     </div>
   );
 };

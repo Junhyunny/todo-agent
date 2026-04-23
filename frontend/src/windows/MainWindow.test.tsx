@@ -58,22 +58,26 @@ describe("MainWindow", () => {
 
   test("메인 화면에서 TODO 등록 버튼이 보인다", () => {
     render(<MainWindow />);
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
     expect(
-      screen.getByRole("button", { name: "TODO 등록" }),
+      within(buttonArea).getByRole("button", { name: "TODO 등록" }),
     ).toBeInTheDocument();
   });
 
   test("메인 화면에서 + 버튼이 렌더링된다", () => {
     render(<MainWindow />);
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
     expect(
-      screen.getByRole("button", { name: "에이전트 등록" }),
+      within(buttonArea).getByRole("button", { name: "에이전트 등록" }),
     ).toBeInTheDocument();
   });
 
   test("화면에서 에이전트 아이콘이 + 버튼 오른쪽에 렌더링된다", () => {
     render(<MainWindow />);
-
-    const agentButton = screen.getByRole("button", { name: "agent" });
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+    const agentButton = within(buttonArea).getByRole("button", {
+      name: "agent",
+    });
     expect(
       within(agentButton).getByRole("img", { name: "agent-icon" }),
     ).toBeInTheDocument();
@@ -81,9 +85,9 @@ describe("MainWindow", () => {
 
   test("+ 버튼을 클릭하면 에이전트 이름·시스템프롬프트 입력 필드와 저장·취소 버튼이 포함된 다이얼로그가 열린다", async () => {
     render(<MainWindow />);
-
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
     await userEvent.click(
-      screen.getByRole("button", { name: "에이전트 등록" }),
+      within(buttonArea).getByRole("button", { name: "에이전트 등록" }),
     );
     expect(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
@@ -102,8 +106,10 @@ describe("MainWindow", () => {
     ]);
 
     render(<MainWindow />);
-
-    await userEvent.click(screen.getByRole("button", { name: "agent" }));
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+    await userEvent.click(
+      within(buttonArea).getByRole("button", { name: "agent" }),
+    );
 
     const dialog = screen.getByRole("dialog");
     expect(await within(dialog).findByText("에이전트A")).toBeInTheDocument();
@@ -117,8 +123,8 @@ describe("MainWindow", () => {
     ]);
 
     render(<MainWindow />);
-
-    expect(await screen.findByText("할 일 A")).toBeInTheDocument();
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    expect(await within(todoList).findByText("할 일 A")).toBeInTheDocument();
     expect(mockGetTodos).toHaveBeenCalledTimes(1);
   });
 
@@ -136,7 +142,10 @@ describe("MainWindow", () => {
     });
 
     render(<MainWindow />);
-    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+    await userEvent.click(
+      within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+    );
     const dialog = screen.getByRole("dialog");
     await userEvent.type(
       within(dialog).getByRole("textbox", { name: "제목" }),
@@ -148,7 +157,8 @@ describe("MainWindow", () => {
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
 
-    expect(await screen.findByText("새 할 일")).toBeInTheDocument();
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    expect(await within(todoList).findByText("새 할 일")).toBeInTheDocument();
   });
 
   test("저장 후 TODO 항목 오른쪽에 회색 대기 중 아이콘이 노출된다", async () => {
@@ -165,7 +175,10 @@ describe("MainWindow", () => {
     });
 
     render(<MainWindow />);
-    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+    await userEvent.click(
+      within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+    );
     const dialog = screen.getByRole("dialog");
     await userEvent.type(
       within(dialog).getByRole("textbox", { name: "제목" }),
@@ -177,8 +190,11 @@ describe("MainWindow", () => {
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
 
-    await screen.findByText("새 할 일");
-    const todoSection = screen.getByRole("button", { name: "todo-1" });
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("새 할 일");
+    const todoSection = within(todoList).getByRole("button", {
+      name: "todo-1",
+    });
     expect(within(todoSection).getByLabelText("대기 중")).toBeInTheDocument();
   });
 
@@ -199,7 +215,10 @@ describe("MainWindow", () => {
     });
 
     render(<MainWindow />);
-    await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+    const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+    await userEvent.click(
+      within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+    );
     const dialog = screen.getByRole("dialog");
     await userEvent.type(
       within(dialog).getByRole("textbox", { name: "제목" }),
@@ -211,7 +230,8 @@ describe("MainWindow", () => {
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
 
-    await screen.findByText("새 할 일");
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("새 할 일");
     expect(mockSseHandler).toHaveBeenCalledWith(
       "http://127.0.0.1:8000/api/todos/1/events",
       expect.any(Function),
@@ -223,9 +243,12 @@ describe("MainWindow", () => {
       { id: "1", title: "할 일 A", content: "내용 A", status: "pending" },
     ]);
     render(<MainWindow />);
-    await screen.findByText("할 일 A");
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("할 일 A");
 
-    await userEvent.click(screen.getByRole("button", { name: "todo-1" }));
+    await userEvent.click(
+      within(todoList).getByRole("button", { name: "todo-1" }),
+    );
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
 
@@ -239,14 +262,17 @@ describe("MainWindow", () => {
       ])
       .mockResolvedValueOnce([]);
     render(<MainWindow />);
-    await screen.findByText("할 일 A");
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("할 일 A");
 
-    await userEvent.click(screen.getByRole("button", { name: "todo-1" }));
+    await userEvent.click(
+      within(todoList).getByRole("button", { name: "todo-1" }),
+    );
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
 
     await waitFor(() => {
-      expect(screen.queryByText("할 일 A")).not.toBeInTheDocument();
+      expect(within(todoList).queryByText("할 일 A")).not.toBeInTheDocument();
     });
   });
 
@@ -284,7 +310,10 @@ describe("MainWindow", () => {
         ]);
 
       render(<MainWindow />);
-      await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+      const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+      await userEvent.click(
+        within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+      );
       const dialog = screen.getByRole("dialog");
       await userEvent.type(
         within(dialog).getByRole("textbox", { name: "제목" }),
@@ -297,7 +326,8 @@ describe("MainWindow", () => {
       await userEvent.click(
         within(dialog).getByRole("button", { name: "저장" }),
       );
-      await screen.findByText("새 할 일");
+      const todoList = screen.getByRole("region", { name: "TODO 목록" });
+      await within(todoList).findByText("새 할 일");
 
       let callbackResult = false;
       await act(async () => {
@@ -314,7 +344,7 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(false);
         expect(mockGetTodos).toHaveBeenCalledTimes(3);
-        expect(screen.getByLabelText("작업 중")).toBeInTheDocument();
+        expect(within(todoList).getByLabelText("작업 중")).toBeInTheDocument();
       });
     });
 
@@ -336,7 +366,10 @@ describe("MainWindow", () => {
         ]);
 
       render(<MainWindow />);
-      await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+      const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+      await userEvent.click(
+        within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+      );
       const dialog = screen.getByRole("dialog");
       await userEvent.type(
         within(dialog).getByRole("textbox", { name: "제목" }),
@@ -349,7 +382,8 @@ describe("MainWindow", () => {
       await userEvent.click(
         within(dialog).getByRole("button", { name: "저장" }),
       );
-      await screen.findByText("새 할 일");
+      const todoList = screen.getByRole("region", { name: "TODO 목록" });
+      await within(todoList).findByText("새 할 일");
 
       let callbackResult = false;
       await act(async () => {
@@ -366,7 +400,9 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(true);
         expect(mockGetTodos).toHaveBeenCalledTimes(3);
-        expect(screen.getByLabelText("작업 완료")).toBeInTheDocument();
+        expect(
+          within(todoList).getByLabelText("작업 완료"),
+        ).toBeInTheDocument();
       });
     });
 
@@ -386,7 +422,10 @@ describe("MainWindow", () => {
         ]);
 
       render(<MainWindow />);
-      await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+      const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+      await userEvent.click(
+        within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+      );
       const dialog = screen.getByRole("dialog");
       await userEvent.type(
         within(dialog).getByRole("textbox", { name: "제목" }),
@@ -399,7 +438,8 @@ describe("MainWindow", () => {
       await userEvent.click(
         within(dialog).getByRole("button", { name: "저장" }),
       );
-      await screen.findByText("새 할 일");
+      const todoList = screen.getByRole("region", { name: "TODO 목록" });
+      await within(todoList).findByText("새 할 일");
 
       let callbackResult = false;
       await act(async () => {
@@ -416,7 +456,9 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(true);
         expect(mockGetTodos).toHaveBeenCalledTimes(3);
-        expect(screen.getByLabelText("에이전트 할당 실패")).toBeInTheDocument();
+        expect(
+          within(todoList).getByLabelText("에이전트 할당 실패"),
+        ).toBeInTheDocument();
       });
     });
 
@@ -431,7 +473,10 @@ describe("MainWindow", () => {
         ]);
 
       render(<MainWindow />);
-      await userEvent.click(screen.getByRole("button", { name: "TODO 등록" }));
+      const buttonArea = screen.getByRole("region", { name: "버튼 영역" });
+      await userEvent.click(
+        within(buttonArea).getByRole("button", { name: "TODO 등록" }),
+      );
       const dialog = screen.getByRole("dialog");
       await userEvent.type(
         within(dialog).getByRole("textbox", { name: "제목" }),
@@ -444,7 +489,8 @@ describe("MainWindow", () => {
       await userEvent.click(
         within(dialog).getByRole("button", { name: "저장" }),
       );
-      await screen.findByText("새 할 일");
+      const todoList = screen.getByRole("region", { name: "TODO 목록" });
+      await within(todoList).findByText("새 할 일");
 
       let callbackResult = false;
       await act(async () => {
@@ -461,7 +507,7 @@ describe("MainWindow", () => {
       await waitFor(() => {
         expect(callbackResult).toEqual(false);
         expect(mockGetTodos).toHaveBeenCalledTimes(2);
-        expect(screen.getByLabelText("대기 중")).toBeInTheDocument();
+        expect(within(todoList).getByLabelText("대기 중")).toBeInTheDocument();
       });
     });
   });

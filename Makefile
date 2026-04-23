@@ -5,12 +5,12 @@ start-copilot:
 	copilot \
   		--allow-tool='shell(git:*)' \
   		--allow-tool='write' \
-		--allow-tool='tracker-boot-mcp(tb_get_story)' \
-		--allow-tool='tracker-boot-mcp(tb_get_story_tasks)' \
-		--allow-tool='tracker-boot-mcp(tb_get_story_comments)' \
-		--allow-tool='tracker-boot-mcp(tb_batch_create_tasks)' \
-		--allow-tool='tracker-boot-mcp(tb_update_story_status)' \
-		--allow-tool='tracker-boot-mcp(tb_update_task)' \
+		--allow-tool='tracker-boot-server(tb_get_story)' \
+		--allow-tool='tracker-boot-server(tb_get_story_tasks)' \
+		--allow-tool='tracker-boot-server(tb_get_story_comments)' \
+		--allow-tool='tracker-boot-server(tb_batch_create_tasks)' \
+		--allow-tool='tracker-boot-server(tb_update_story_status)' \
+		--allow-tool='tracker-boot-server(tb_update_task)' \
 		--deny-tool='shell(git push)' \
   		--deny-tool='shell(sudo)'
 		$(RESUME_OPT)
