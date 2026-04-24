@@ -26,6 +26,19 @@ describe("AgentEditDialog", () => {
     });
   });
 
+  test("다이얼로그를 열면 이름, 설명, 시스템 프롬프트 폼이 보인다", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    expect(
+      screen.getByRole("textbox", { name: "에이전트 이름" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "설명" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "시스템 프롬프트" }),
+    ).toBeInTheDocument();
+  });
+
   test("다이얼로그를 열면 에이전트 이름이 채워져 있다.", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));

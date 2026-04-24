@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { updateAgent } from "@/repository/agent-repository.ts";
 
@@ -22,6 +23,7 @@ export const AgentEditDialog = ({
   onSave: () => void;
 }) => {
   const [name, setName] = useState(agent.name);
+  const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
   const [open, setOpen] = useState(false);
 
@@ -33,6 +35,7 @@ export const AgentEditDialog = ({
   useEffect(() => {
     if (open) {
       setName(agent.name);
+      setDescription("");
       setSystemPrompt(agent.system_prompt);
     }
   }, [open, agent]);
@@ -50,15 +53,23 @@ export const AgentEditDialog = ({
         <DialogHeader>
           <DialogTitle>에이전트 수정</DialogTitle>
         </DialogHeader>
+        <Label htmlFor="agent-edit-name">에이전트 이름</Label>
         <Input
           type="text"
-          aria-label="에이전트 이름"
+          id="agent-edit-name"
           value={name}
           disabled
           onChange={(e) => setName(e.target.value)}
         />
+        <Label htmlFor="agent-edit-describe">설명</Label>
         <Textarea
-          aria-label="시스템 프롬프트"
+          id="agent-edit-describe"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <Label htmlFor="agent-edit-system-prompt">시스템 프롬프트</Label>
+        <Textarea
+          id="agent-edit-system-prompt"
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
