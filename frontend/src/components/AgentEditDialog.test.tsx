@@ -26,6 +26,22 @@ describe("AgentEditDialog", () => {
     });
   });
 
+  test("X 버튼이 보인다", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
+  });
+
+  test("X 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
+    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   test("다이얼로그를 열면 이름, 설명, 시스템 프롬프트 폼이 보인다", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
@@ -55,15 +71,6 @@ describe("AgentEditDialog", () => {
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toHaveValue("테스트 프롬프트");
-  });
-
-  test("취소 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
-    await userEvent.click(screen.getByRole("button", { name: "수정" }));
-
-    await userEvent.click(screen.getByRole("button", { name: "취소" }));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   test("다이얼로그를 열면 '에이전트 수정' 타이틀이 보인다.", async () => {
@@ -120,7 +127,7 @@ describe("AgentEditDialog", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  test("취소 버튼을 누른 후 다시 모달을 열면 이전 값이 보인다", async () => {
+  test("X 버튼을 누른 후 다시 모달을 열면 이전 값이 보인다", async () => {
     render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
@@ -130,7 +137,7 @@ describe("AgentEditDialog", () => {
     await userEvent.clear(promptInput);
     await userEvent.type(promptInput, "변경된 테스트 프롬프트");
 
-    await userEvent.click(screen.getByRole("button", { name: "취소" }));
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
 
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 

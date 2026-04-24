@@ -49,7 +49,7 @@ export const AgentEditDialog = ({
           </Button>
         }
       />
-      <DialogContent showCloseButton={false}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>에이전트 수정</DialogTitle>
         </DialogHeader>
@@ -73,7 +73,6 @@ export const AgentEditDialog = ({
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
         />
-        <DialogClose render={<Button variant="outline" />}>취소</DialogClose>
         <DialogClose render={<Button />} onClick={() => void handleSave()}>
           저장
         </DialogClose>
