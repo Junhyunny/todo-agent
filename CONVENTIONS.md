@@ -25,6 +25,17 @@
 - 테스트명: 한국어 문장형
 - React import: 테스트 파일 최상단에 `// biome-ignore lint/correctness/noUnusedImports: need for proper rendering` 주석과 함께 추가 (`.test.tsx`만 해당)
 
+**테스트 환경 설정 — `vitest-setup.ts`**
+`@base-ui/react` 컴포넌트(Tooltip, Combobox 등)를 테스트하려면 `ResizeObserver`를 모킹해야 한다. JSDOM에 기본 구현이 없어 런타임 오류가 발생한다.
+```ts
+// vitest-setup.ts
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+```
+
 **Mock — `vi.hoisted` 패턴**
 `vi.mock`은 호이스팅되므로 블록 바깥 변수를 참조할 수 없다. 반드시 `vi.hoisted`로 감싼다.
 ```ts
@@ -449,6 +460,46 @@ export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
 <ToolListComboBox id="agent-tools" value={selectedTools} onValueChange={setSelectedTools} />
 ```
 다이얼로그가 열릴 때 선택값을 초기화하려면 `useEffect([open])` 안에서 `setSelectedTools([])`를 호출한다.
+
+**툴팁 (shadcn Tooltip)**
+`TooltipProvider`를 `App.tsx`에 전역으로 배치한다. 툴팁이 포함된 컴포넌트를 테스트할 때는 `TooltipProvider`로 컴포넌트를 감싸야 한다.
+
+라벨 옆 도움말 아이콘 패턴:
+- 라벨과 툴팁 아이콘을 `<div className="flex items-center gap-1">`로 묶는다
+- `TooltipTrigger`에 `aria-label="{필드명} 도움말"` 지정
+- `closeOnClick={false}` 필수: 기본값이 `true`라 클릭 시 툴팁이 즉시 닫힌다
+```tsx
+// App.tsx 전역 배치
+<TooltipProvider>
+  <HashRouter>...</HashRouter>
+</TooltipProvider>
+
+// 컴포넌트 내 사용
+<div className="flex items-center gap-1">
+  <Label htmlFor="agent-describe">설명</Label>
+  <Tooltip>
+    <TooltipTrigger aria-label="설명 도움말" closeOnClick={false}>
+      <CircleHelp size={16} />
+    </TooltipTrigger>
+    <TooltipContent>도움말 내용</TooltipContent>
+  </Tooltip>
+</div>
+```
+
+테스트에서는 `src/tests/withProviders.tsx`의 `withTooltipProvider()`를 사용해 컴포넌트를 감싼다. `userEvent.click()`으로 툴팁을 열 수 있다 (`pointerenter` 이벤트가 click 이전에 발생하기 때문).
+```tsx
+// src/tests/withProviders.tsx
+export const withTooltipProvider = (children: ReactNode) => (
+  <TooltipProvider>{children}</TooltipProvider>
+);
+
+// 테스트에서 사용
+const renderWithTooltip = () =>
+  render(withTooltipProvider(<MyComponent />));
+
+await userEvent.click(screen.getByRole("button", { name: "설명 도움말" }));
+expect(await screen.findByText("도움말 내용")).toBeInTheDocument();
+```
 
 **shadcn Combobox 테스트 — 팝업 열기**
 `userEvent.click(screen.getByRole("combobox"))`는 팝업을 열지 않는다. `@base-ui/react`의 `handleInputPress`가 클릭 대상이 인터랙티브 요소(`input`)일 때 조기 반환하기 때문이다. 팝업을 열려면 `[data-slot="combobox-chips"]` 컨테이너에 `fireEvent.mouseDown`을 사용한다.

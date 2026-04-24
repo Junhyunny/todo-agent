@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { TooltipProvider } from "@/components/ui/tooltip.tsx";
+import { withTooltipProvider } from "@/tests/withProviders.tsx";
 import { AgentRegistrationDialog } from "./AgentRegistrationDialog.tsx";
 
 const mockCreateAgent = vi.hoisted(() => vi.fn());
@@ -11,6 +13,9 @@ vi.mock("../repository/agent-repository", () => ({
   createAgent: mockCreateAgent,
   existsAgentByName: mockExistsAgentByName,
 }));
+
+const renderWithTooltip = () =>
+  render(withTooltipProvider(<AgentRegistrationDialog />));
 
 describe("AgentRegistrationDialog", () => {
   beforeEach(() => {
@@ -21,7 +26,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("에이전트 등록 타이틀이 보인다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -33,7 +38,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("에이전트 이름, 설명, 시스템 프롬프트 폼이 보인다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -49,7 +54,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼이 보인다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -59,7 +64,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("X 버튼이 보인다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -69,7 +74,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("초기 상태에서 저장 버튼이 비활성화 상태이다.", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -79,7 +84,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("이름만 입력하면 저장 버튼이 비활성화 상태이다.", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -93,7 +98,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("프롬프트만 입력하면 저장 버튼이 비활성화 상태이다.", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -107,7 +112,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("이름과 프롬프트를 모두 입력하면 저장 버튼이 활성화 상태이다.", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -125,7 +130,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -144,7 +149,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("X 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -159,7 +164,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 에이전트 정보를 저장할 수 있다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -181,7 +186,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("어떤 값을 입력 후 저장 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -209,7 +214,7 @@ describe("AgentRegistrationDialog", () => {
   });
 
   test("어떤 값을 입력 후 X 버튼을 클릭 후 다시 열면 입력 값이 초기화되어 있다", async () => {
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -238,7 +243,7 @@ describe("AgentRegistrationDialog", () => {
 
   test("중복된 이름 입력 시 안내 문구가 표시된다", async () => {
     mockExistsAgentByName.mockResolvedValue(true);
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -255,7 +260,7 @@ describe("AgentRegistrationDialog", () => {
 
   describe("도구 리스트", () => {
     test("도구 리스트 라벨과 콤보박스가 보인다", async () => {
-      render(<AgentRegistrationDialog />);
+      renderWithTooltip();
 
       await userEvent.click(
         screen.getByRole("button", { name: "에이전트 등록" }),
@@ -266,7 +271,7 @@ describe("AgentRegistrationDialog", () => {
     });
 
     test("도구 리스트 콤보박스를 클릭하면 웹 검색(web search) 항목이 표시된다", async () => {
-      render(<AgentRegistrationDialog />);
+      renderWithTooltip();
 
       await userEvent.click(
         screen.getByRole("button", { name: "에이전트 등록" }),
@@ -286,7 +291,7 @@ describe("AgentRegistrationDialog", () => {
 
   test("중복된 이름 입력 시 저장 버튼이 비활성화된다", async () => {
     mockExistsAgentByName.mockResolvedValue(true);
-    render(<AgentRegistrationDialog />);
+    renderWithTooltip();
 
     await userEvent.click(
       screen.getByRole("button", { name: "에이전트 등록" }),
@@ -301,5 +306,67 @@ describe("AgentRegistrationDialog", () => {
     );
 
     expect(await screen.findByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
+  describe("설명 툴팁", () => {
+    test("설명 라벨 옆에 물음표 아이콘이 보인다", async () => {
+      renderWithTooltip();
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+
+      expect(
+        screen.getByRole("button", { name: "설명 도움말" }),
+      ).toBeInTheDocument();
+    });
+
+    test("물음표 아이콘을 클릭하면 툴팁 내용이 보인다", async () => {
+      renderWithTooltip();
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "설명 도움말" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "에이전트가 어떤 키워드에 실행되는지, 어떤 동작을 수행할지 간략히 적어주세요.",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("시스템 프롬프트 툴팁", () => {
+    test("시스템 프롬프트 라벨 옆에 물음표 아이콘이 보인다", async () => {
+      renderWithTooltip();
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+
+      expect(
+        screen.getByRole("button", { name: "시스템 프롬프트 도움말" }),
+      ).toBeInTheDocument();
+    });
+
+    test("물음표 아이콘을 클릭하면 툴팁 내용이 보인다", async () => {
+      renderWithTooltip();
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 등록" }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "시스템 프롬프트 도움말" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "에이전트가 어떤 동작을 수행해야 할지 구체적으로 적어주세요.",
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });

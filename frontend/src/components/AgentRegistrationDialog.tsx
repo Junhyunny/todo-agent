@@ -1,4 +1,4 @@
-import { UserPlus } from "lucide-react";
+import { CircleHelp, UserPlus } from "lucide-react";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React, { useEffect, useState } from "react";
 import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
@@ -14,6 +14,11 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
 import {
   createAgent,
   existsAgentByName,
@@ -70,13 +75,37 @@ export const AgentRegistrationDialog = () => {
           onChange={(e) => setName(e.target.value)}
         />
         {isDuplicate && <p>동일한 이름의 에이전트가 존재합니다.</p>}
-        <Label htmlFor="agent-describe">설명</Label>
+        <div className="flex items-center gap-1">
+          <Label htmlFor="agent-describe">설명</Label>
+          <Tooltip>
+            <TooltipTrigger aria-label="설명 도움말" closeOnClick={false}>
+              <CircleHelp size={16} />
+            </TooltipTrigger>
+            <TooltipContent>
+              에이전트가 어떤 키워드에 실행되는지, 어떤 동작을 수행할지 간략히
+              적어주세요.
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <Textarea
           id="agent-describe"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Label htmlFor="agent-system-prompt">시스템 프롬프트</Label>
+        <div className="flex items-center gap-1">
+          <Label htmlFor="agent-system-prompt">시스템 프롬프트</Label>
+          <Tooltip>
+            <TooltipTrigger
+              aria-label="시스템 프롬프트 도움말"
+              closeOnClick={false}
+            >
+              <CircleHelp size={16} />
+            </TooltipTrigger>
+            <TooltipContent>
+              에이전트가 어떤 동작을 수행해야 할지 구체적으로 적어주세요.
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <Textarea
           id="agent-system-prompt"
           value={systemPrompt}
