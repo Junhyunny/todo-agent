@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { TooltipProvider } from "@/components/ui/tooltip.tsx";
 import { withTooltipProvider } from "@/tests/withProviders.tsx";
 import { AgentRegistrationDialog } from "./AgentRegistrationDialog.tsx";
 
@@ -83,6 +82,47 @@ describe("AgentRegistrationDialog", () => {
     expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
   });
 
+  test.each([
+    { inputCases: [] },
+    { inputCases: [{ name: "에이전트 이름", value: "테스트 에이전트" }] },
+    { inputCases: [{ name: "설명", value: "테스트 설명" }] },
+    { inputCases: [{ name: "시스템 프롬프트", value: "테스트 프롬프트" }] },
+    {
+      inputCases: [
+        { name: "에이전트 이름", value: "테스트 에이전트" },
+        { name: "설명", value: "테스트 설명" },
+      ],
+    },
+    {
+      inputCases: [
+        { name: "에이전트 이름", value: "테스트 에이전트" },
+        { name: "시스템 프롬프트", value: "테스트 프롬프트" },
+      ],
+    },
+    {
+      inputCases: [
+        { name: "설명", value: "테스트 설명" },
+        { name: "시스템 프롬프트", value: "테스트 프롬프트" },
+      ],
+    },
+  ])("필수 값을 입력하지 않으면 저장 버튼이 비활성화 상태이다.", async ({
+    inputCases,
+  }) => {
+    renderWithTooltip();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 등록" }),
+    );
+    for (const targetInput of inputCases) {
+      await userEvent.type(
+        screen.getByRole("textbox", { name: targetInput.name }),
+        targetInput.value,
+      );
+    }
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+  });
+
   test("이름만 입력하면 저장 버튼이 비활성화 상태이다.", async () => {
     renderWithTooltip();
 
@@ -111,7 +151,7 @@ describe("AgentRegistrationDialog", () => {
     expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
   });
 
-  test("이름과 프롬프트를 모두 입력하면 저장 버튼이 활성화 상태이다.", async () => {
+  test("이름, 설명, 시스템 프롬프트를 모두 입력하면 저장 버튼이 활성화 상태이다.", async () => {
     renderWithTooltip();
 
     await userEvent.click(
@@ -120,6 +160,10 @@ describe("AgentRegistrationDialog", () => {
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
@@ -138,6 +182,10 @@ describe("AgentRegistrationDialog", () => {
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
@@ -174,6 +222,10 @@ describe("AgentRegistrationDialog", () => {
       "테스트 에이전트",
     );
     await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
+    );
+    await userEvent.type(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
       "테스트 시스템 프롬프트",
     );
@@ -194,6 +246,10 @@ describe("AgentRegistrationDialog", () => {
     await userEvent.type(
       screen.getByRole("textbox", { name: "에이전트 이름" }),
       "테스트 에이전트",
+    );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
     );
     await userEvent.type(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),

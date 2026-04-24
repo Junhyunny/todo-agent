@@ -60,6 +60,31 @@ await userEvent.click(within(agentItem).getByRole("button", { name: "삭제" }))
 await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "삭제" })); // 확인
 ```
 
+**`test.each` — 필수 필드 누락 조합 검증**
+필수 입력 필드가 여러 개이고 각 누락 조합이 동일한 결과(버튼 비활성화 등)를 내야 할 때 `test.each`로 파라미터화한다. `inputCases` 배열로 입력할 필드 목록을 정의하고 반복 입력한다.
+```tsx
+test.each([
+  { inputCases: [] },                                                          // 모두 미입력
+  { inputCases: [{ name: "에이전트 이름", value: "..." }] },                   // 이름만
+  { inputCases: [{ name: "설명", value: "..." }] },                            // 설명만
+  { inputCases: [{ name: "시스템 프롬프트", value: "..." }] },                 // 프롬프트만
+  { inputCases: [{ name: "에이전트 이름", value: "..." }, { name: "설명", value: "..." }] },
+  { inputCases: [{ name: "에이전트 이름", value: "..." }, { name: "시스템 프롬프트", value: "..." }] },
+  { inputCases: [{ name: "설명", value: "..." }, { name: "시스템 프롬프트", value: "..." }] },
+])("필수 값을 입력하지 않으면 저장 버튼이 비활성화 상태이다.", async ({ inputCases }) => {
+  renderWithTooltip();
+  await userEvent.click(screen.getByRole("button", { name: "에이전트 등록" }));
+  for (const targetInput of inputCases) {
+    await userEvent.type(
+      screen.getByRole("textbox", { name: targetInput.name }),
+      targetInput.value,
+    );
+  }
+  expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+});
+```
+`test.each`는 여러 케이스가 하나의 assertion 패턴으로 수렴할 때만 쓴다. 케이스마다 assertion이 다르면 개별 `test()`로 분리한다.
+
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
 - 공유 enum·타입: `src/types/` 에 정의한다. (예: `TodoStatus` enum → `src/types/enums.ts`)

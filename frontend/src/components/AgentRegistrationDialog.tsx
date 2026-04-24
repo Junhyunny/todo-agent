@@ -118,7 +118,7 @@ export const AgentRegistrationDialog = () => {
           onValueChange={setSelectedTools}
         />
         <DialogClose
-          render={<Button disabled={!name || !systemPrompt || isDuplicate} />}
+          render={<Button disabled={!name || !description || !systemPrompt || isDuplicate} />}
           onClick={() => void handleSave()}
         >
           저장
