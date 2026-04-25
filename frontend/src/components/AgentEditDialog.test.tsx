@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
@@ -125,6 +125,32 @@ describe("AgentEditDialog", () => {
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  describe("도구 리스트", () => {
+    test("도구 리스트 라벨과 콤보박스가 보인다", async () => {
+      render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      expect(screen.getByText("도구 리스트")).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
+
+    test("도구 리스트 콤보박스를 클릭하면 웹 검색(web search) 항목이 표시된다", async () => {
+      render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      const comboboxInput = screen.getByRole("combobox");
+      const chipsContainer = comboboxInput.closest(
+        '[data-slot="combobox-chips"]',
+      );
+      expect(chipsContainer).toBeInTheDocument();
+      fireEvent.mouseDown(chipsContainer as Element);
+
+      expect(
+        await screen.findByRole("option", { name: "웹 검색(web search)" }),
+      ).toBeInTheDocument();
+    });
   });
 
   test("X 버튼을 누른 후 다시 모달을 열면 이전 값이 보인다", async () => {

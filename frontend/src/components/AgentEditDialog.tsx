@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
@@ -25,6 +26,7 @@ export const AgentEditDialog = ({
   const [name, setName] = useState(agent.name);
   const [description, setDescription] = useState("");
   const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
 
   const handleSave = async () => {
@@ -37,6 +39,7 @@ export const AgentEditDialog = ({
       setName(agent.name);
       setDescription("");
       setSystemPrompt(agent.system_prompt);
+      setSelectedTools([]);
     }
   }, [open, agent]);
 
@@ -72,6 +75,12 @@ export const AgentEditDialog = ({
           id="agent-edit-system-prompt"
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
+        />
+        <Label htmlFor="agent-edit-tools">도구 리스트</Label>
+        <ToolListComboBox
+          id="agent-edit-tools"
+          value={selectedTools}
+          onValueChange={setSelectedTools}
         />
         <DialogClose render={<Button />} onClick={() => void handleSave()}>
           저장
