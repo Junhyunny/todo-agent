@@ -1,8 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { withTooltipProvider } from "@/tests/withProviders.tsx";
 import { AgentEditDialog } from "./AgentEditDialog.tsx";
 
 const mockUpdateAgent = vi.hoisted(() => vi.fn());
@@ -16,6 +17,11 @@ const agent = {
   system_prompt: "테스트 프롬프트",
 };
 
+const renderWithTooltip = (onSave = vi.fn()) =>
+  render(
+    withTooltipProvider(<AgentEditDialog agent={agent} onSave={onSave} />),
+  );
+
 describe("AgentEditDialog", () => {
   beforeEach(() => {
     mockUpdateAgent.mockClear();
@@ -27,14 +33,14 @@ describe("AgentEditDialog", () => {
   });
 
   test("X 버튼이 보인다", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
   });
 
   test("X 버튼을 클릭하면 다이얼로그가 닫힌다", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     await userEvent.click(screen.getByRole("button", { name: "Close" }));
@@ -43,7 +49,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("다이얼로그를 열면 이름, 설명, 시스템 프롬프트 폼이 보인다", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(
@@ -56,7 +62,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("다이얼로그를 열면 에이전트 이름이 채워져 있다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(screen.getByRole("textbox", { name: "에이전트 이름" })).toHaveValue(
@@ -65,7 +71,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("다이얼로그를 열면 시스템 프롬프트가 채워져 있다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(
@@ -74,7 +80,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("다이얼로그를 열면 '에이전트 수정' 타이틀이 보인다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(
@@ -83,7 +89,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("이름 입력 필드가 비활성화 상태이다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     expect(
@@ -92,7 +98,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 updateAgent를 호출한다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     const promptInput = screen.getByRole("textbox", {
@@ -110,7 +116,7 @@ describe("AgentEditDialog", () => {
 
   test("저장 버튼을 클릭하면 onSave 콜백을 호출한다.", async () => {
     const onSave = vi.fn();
-    render(<AgentEditDialog agent={agent} onSave={onSave} />);
+    renderWithTooltip(onSave);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
@@ -119,7 +125,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
@@ -129,7 +135,7 @@ describe("AgentEditDialog", () => {
 
   describe("도구 리스트", () => {
     test("도구 리스트 라벨과 콤보박스가 보인다", async () => {
-      render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+      renderWithTooltip();
       await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
       expect(screen.getByText("도구 리스트")).toBeInTheDocument();
@@ -137,7 +143,7 @@ describe("AgentEditDialog", () => {
     });
 
     test("도구 리스트 콤보박스를 클릭하면 웹 검색(web search) 항목이 표시된다", async () => {
-      render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+      renderWithTooltip();
       await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
       const comboboxInput = screen.getByRole("combobox");
@@ -145,7 +151,7 @@ describe("AgentEditDialog", () => {
         '[data-slot="combobox-chips"]',
       );
       expect(chipsContainer).toBeInTheDocument();
-      fireEvent.mouseDown(chipsContainer as Element);
+      await userEvent.click(chipsContainer as Element);
 
       expect(
         await screen.findByRole("option", { name: "웹 검색(web search)" }),
@@ -154,7 +160,7 @@ describe("AgentEditDialog", () => {
   });
 
   test("X 버튼을 누른 후 다시 모달을 열면 이전 값이 보인다", async () => {
-    render(<AgentEditDialog agent={agent} onSave={vi.fn()} />);
+    renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
     const promptInput = screen.getByRole("textbox", {
@@ -170,5 +176,55 @@ describe("AgentEditDialog", () => {
     expect(
       screen.getByRole("textbox", { name: "시스템 프롬프트" }),
     ).toHaveValue("테스트 프롬프트");
+  });
+
+  describe("설명 툴팁", () => {
+    test("설명 라벨 옆에 물음표 아이콘이 보인다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      expect(
+        screen.getByRole("button", { name: "설명 도움말" }),
+      ).toBeInTheDocument();
+    });
+
+    test("물음표 아이콘을 클릭하면 툴팁 내용이 보인다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+      await userEvent.click(
+        screen.getByRole("button", { name: "설명 도움말" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "에이전트가 어떤 키워드에 실행되는지, 어떤 동작을 수행할지 간략히 적어주세요.",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("시스템 프롬프트 툴팁", () => {
+    test("시스템 프롬프트 라벨 옆에 물음표 아이콘이 보인다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      expect(
+        screen.getByRole("button", { name: "시스템 프롬프트 도움말" }),
+      ).toBeInTheDocument();
+    });
+
+    test("물음표 아이콘을 클릭하면 툴팁 내용이 보인다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+      await userEvent.click(
+        screen.getByRole("button", { name: "시스템 프롬프트 도움말" }),
+      );
+
+      expect(
+        await screen.findByText(
+          "에이전트가 어떤 동작을 수행해야 할지 구체적으로 적어주세요.",
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });
