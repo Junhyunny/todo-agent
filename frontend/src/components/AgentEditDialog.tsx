@@ -111,7 +111,10 @@ export const AgentEditDialog = ({
           value={selectedTools}
           onValueChange={setSelectedTools}
         />
-        <DialogClose render={<Button />} onClick={() => void handleSave()}>
+        <DialogClose
+          render={<Button disabled={!name || !description || !systemPrompt} />}
+          onClick={() => void handleSave()}
+        >
           저장
         </DialogClose>
       </DialogContent>

@@ -106,6 +106,10 @@ describe("AgentEditDialog", () => {
     });
     await userEvent.clear(promptInput);
     await userEvent.type(promptInput, "변경된 테스트 프롬프트");
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(mockUpdateAgent).toHaveBeenCalledWith("1", {
@@ -119,6 +123,10 @@ describe("AgentEditDialog", () => {
     renderWithTooltip(onSave);
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(onSave).toHaveBeenCalledOnce();
@@ -128,6 +136,10 @@ describe("AgentEditDialog", () => {
     renderWithTooltip();
     await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -200,6 +212,45 @@ describe("AgentEditDialog", () => {
           "에이전트가 어떤 키워드에 실행되는지, 어떤 동작을 수행할지 간략히 적어주세요.",
         ),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("저장 버튼 활성화 조건", () => {
+    test("다이얼로그를 열면 저장 버튼이 비활성화 상태이다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+    });
+
+    test.each([
+      { clearField: "설명" },
+      { clearField: "시스템 프롬프트" },
+    ])("필수 필드($clearField)를 지우면 저장 버튼이 비활성화 상태이다", async ({
+      clearField,
+    }) => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      await userEvent.type(
+        screen.getByRole("textbox", { name: "설명" }),
+        "테스트 설명",
+      );
+      await userEvent.clear(screen.getByRole("textbox", { name: clearField }));
+
+      expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+    });
+
+    test("설명을 입력하면 저장 버튼이 활성화 상태이다", async () => {
+      renderWithTooltip();
+      await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      await userEvent.type(
+        screen.getByRole("textbox", { name: "설명" }),
+        "테스트 설명",
+      );
+
+      expect(screen.getByRole("button", { name: "저장" })).toBeEnabled();
     });
   });
 

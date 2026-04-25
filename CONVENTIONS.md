@@ -85,6 +85,29 @@ test.each([
 ```
 `test.each`는 여러 케이스가 하나의 assertion 패턴으로 수렴할 때만 쓴다. 케이스마다 assertion이 다르면 개별 `test()`로 분리한다.
 
+**`test.each` — 수정 폼 비활성화 검증 (`clearField` 변형)**
+수정 폼은 일부 필드(name, systemPrompt)가 pre-filled로 시작한다. 이 경우 빈 필드(description)를 먼저 채워 "모두 입력된 상태"를 만든 뒤, `clearField`로 특정 필드를 지워 비활성화를 검증한다.
+```tsx
+test.each([
+  { clearField: "설명" },
+  { clearField: "시스템 프롬프트" },
+])(
+  "필수 필드($clearField)를 지우면 저장 버튼이 비활성화 상태이다",
+  async ({ clearField }) => {
+    renderWithTooltip();
+    await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+    // 빈 필드(description)를 채워 "모두 입력" 상태 만들기
+    await userEvent.type(screen.getByRole("textbox", { name: "설명" }), "테스트 설명");
+    // 특정 필드를 지워 비활성화 확인
+    await userEvent.clear(screen.getByRole("textbox", { name: clearField }));
+
+    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+  },
+);
+```
+`inputCases`(등록 폼)와 달리 케이스 수가 적다 — pre-filled 필드가 있어 "모두 미입력 조합"이 필요 없기 때문이다.
+
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
 - 공유 enum·타입: `src/types/` 에 정의한다. (예: `TodoStatus` enum → `src/types/enums.ts`)

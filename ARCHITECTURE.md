@@ -37,6 +37,7 @@ frontend/src/
   types/            # 공유 타입·enum 정의 (TodoStatus 등)
   utils/            # 공통 유틸리티 (SSE 핸들러 등)
   lib/              # 공통 유틸리티 (shadcn/ui 헬퍼)
+  tests/            # 테스트 전용 유틸리티 (Provider 래퍼 등)
 ```
 
 ### 데이터 흐름

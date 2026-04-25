@@ -143,6 +143,10 @@ describe("AgentListSheet", () => {
     await userEvent.click(
       within(agentItem).getByRole("button", { name: "수정" }),
     );
+    await userEvent.type(
+      screen.getByRole("textbox", { name: "설명" }),
+      "테스트 설명",
+    );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(mockGetAgents).toHaveBeenCalledTimes(2);
