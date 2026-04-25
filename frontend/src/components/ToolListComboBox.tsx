@@ -1,5 +1,6 @@
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
-import React from "react";
+import React, { useEffect, useState } from "react";
+import type { ToolResponse } from "@/api/generated/agents";
 import {
   Combobox,
   ComboboxChip,
@@ -10,6 +11,7 @@ import {
   ComboboxList,
   useComboboxAnchor,
 } from "@/components/ui/combobox.tsx";
+import { getTools } from "@/repository/tool-repository";
 
 type Props = {
   id: string;
@@ -17,10 +19,14 @@ type Props = {
   onValueChange: (newValues: string[]) => void;
 };
 
-const TOOLS = ["웹 검색(web search)"] as const;
-
 export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
   const anchor = useComboboxAnchor();
+  const [tools, setTools] = useState<ToolResponse[]>([]);
+
+  useEffect(() => {
+    getTools().then(setTools);
+  }, []);
+
   return (
     <Combobox multiple value={value} onValueChange={onValueChange}>
       <ComboboxChips ref={anchor}>
@@ -31,9 +37,9 @@ export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
       </ComboboxChips>
       <ComboboxContent anchor={anchor}>
         <ComboboxList>
-          {TOOLS.map((tool) => (
-            <ComboboxItem key={tool} value={tool}>
-              {tool}
+          {tools.map((tool) => (
+            <ComboboxItem key={tool.id} value={tool.name}>
+              {tool.name}
             </ComboboxItem>
           ))}
         </ComboboxList>

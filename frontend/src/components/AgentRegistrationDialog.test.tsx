@@ -13,6 +13,11 @@ vi.mock("../repository/agent-repository", () => ({
   existsAgentByName: mockExistsAgentByName,
 }));
 
+const mockGetTools = vi.hoisted(() => vi.fn());
+vi.mock("../repository/tool-repository", () => ({
+  getTools: mockGetTools,
+}));
+
 const renderWithTooltip = () =>
   render(withTooltipProvider(<AgentRegistrationDialog />));
 
@@ -22,6 +27,8 @@ describe("AgentRegistrationDialog", () => {
     mockCreateAgent.mockResolvedValue({});
     mockExistsAgentByName.mockClear();
     mockExistsAgentByName.mockResolvedValue(false);
+    mockGetTools.mockClear();
+    mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
   });
 
   test("에이전트 등록 타이틀이 보인다", async () => {

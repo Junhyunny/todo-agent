@@ -47,6 +47,11 @@ export interface TodoResponse {
   result?: string | null;
 }
 
+export interface ToolResponse {
+  id: string;
+  name: string;
+}
+
 export type ExistsAgentApiAgentsExistsGetParams = {
   name: string;
 };
@@ -144,6 +149,15 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
     return axiosInstance.get(`/api/todos/${todoId}/events`, options);
   };
 
+  /**
+   * @summary Get Tools
+   */
+  const getToolsApiToolsGet = (
+    options?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<ToolResponse[]>> => {
+    return axiosInstance.get(`/api/tools`, options);
+  };
+
   return {
     getAgentsApiAgentsGet,
     createAgentApiAgentsPost,
@@ -154,6 +168,7 @@ export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
     createTodoApiTodosPost,
     deleteTodoApiTodosTodoIdDelete,
     todoEventsApiTodosTodoIdEventsGet,
+    getToolsApiToolsGet,
   };
 };
 export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
@@ -165,3 +180,4 @@ export type GetTodosApiTodosGetResult = AxiosResponse<TodoResponse[]>;
 export type CreateTodoApiTodosPostResult = AxiosResponse<TodoResponse>;
 export type DeleteTodoApiTodosTodoIdDeleteResult = AxiosResponse<void>;
 export type TodoEventsApiTodosTodoIdEventsGetResult = AxiosResponse<unknown>;
+export type GetToolsApiToolsGetResult = AxiosResponse<ToolResponse[]>;

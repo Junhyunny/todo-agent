@@ -192,6 +192,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/tools:
+    get:
+      summary: Get Tools
+      operationId: get_tools_api_tools_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ToolResponse'
+                type: array
+                title: Response Get Tools Api Tools Get
 components:
   schemas:
     AgentRequest:
@@ -279,6 +293,20 @@ components:
       - content
       - status
       title: TodoResponse
+    ToolResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - id
+      - name
+      title: ToolResponse
     ValidationError:
       properties:
         loc:

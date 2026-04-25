@@ -11,6 +11,11 @@ vi.mock("../repository/agent-repository", () => ({
   updateAgent: mockUpdateAgent,
 }));
 
+const mockGetTools = vi.hoisted(() => vi.fn());
+vi.mock("../repository/tool-repository", () => ({
+  getTools: mockGetTools,
+}));
+
 const agent = {
   id: "1",
   name: "테스트 에이전트",
@@ -30,6 +35,8 @@ describe("AgentEditDialog", () => {
       name: "테스트 에이전트",
       system_prompt: "테스트 프롬프트",
     });
+    mockGetTools.mockClear();
+    mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
   });
 
   test("X 버튼이 보인다", async () => {

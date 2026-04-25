@@ -11,6 +11,7 @@ from listeners.assignment_listener import run_assignment_listener
 from routers.agent_router import router as agent_router
 from routers.sse_router import router as sse_router
 from routers.todo_router import router as todo_router
+from routers.tool_router import router as tool_router
 from services.orchestration_service import OrchestrationService
 from sse.manager import get_sse_manager
 
@@ -41,6 +42,7 @@ app.add_middleware(
 app.include_router(agent_router)
 app.include_router(todo_router)
 app.include_router(sse_router)
+app.include_router(tool_router)
 
 if "__main__" == __name__:
   import uvicorn

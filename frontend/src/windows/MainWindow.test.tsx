@@ -24,6 +24,11 @@ vi.mock("../repository/todo-repository", () => ({
   deleteTodo: mockDeleteTodo,
 }));
 
+const mockGetTools = vi.hoisted(() => vi.fn());
+vi.mock("../repository/tool-repository", () => ({
+  getTools: mockGetTools,
+}));
+
 let capturedEventSources: MockEventSource[] = [];
 
 class MockEventSource {
@@ -54,6 +59,8 @@ describe("MainWindow", () => {
     mockCreateTodo.mockResolvedValue({});
     mockDeleteTodo.mockClear();
     mockDeleteTodo.mockResolvedValue(undefined);
+    mockGetTools.mockClear();
+    mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
   });
 
   test("메인 화면에서 TODO 등록 버튼이 보인다", () => {

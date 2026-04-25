@@ -14,11 +14,17 @@ vi.mock("../repository/agent-repository", () => ({
   deleteAgent: mockDeleteAgent,
 }));
 
+const mockGetTools = vi.hoisted(() => vi.fn());
+vi.mock("../repository/tool-repository", () => ({
+  getTools: mockGetTools,
+}));
+
 describe("AgentListSheet", () => {
   beforeEach(() => {
     mockGetAgents.mockClear();
     mockUpdateAgent.mockClear();
     mockDeleteAgent.mockClear();
+    mockGetTools.mockClear();
     mockGetAgents.mockResolvedValue([]);
     mockUpdateAgent.mockResolvedValue({
       id: "1",
@@ -26,6 +32,7 @@ describe("AgentListSheet", () => {
       system_prompt: "프롬프트A",
     });
     mockDeleteAgent.mockResolvedValue(undefined);
+    mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
   });
 
   test("시트를 열 수 있는 버튼이 보인다.", () => {
