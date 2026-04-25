@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { TodoResponse } from "@/api/generated/agents.ts";
+import { AgentReassignDialog } from "@/components/AgentReassignDialog.tsx";
 import { AgentTaskResultDialog } from "@/components/AgentTaskResultDialog.tsx";
 import { TodoDeleteDialog } from "@/components/TodoDeleteDialog.tsx";
 import { TodoStatusSection } from "@/components/TodoStatusSection.tsx";
@@ -55,6 +56,8 @@ export const TodoStatusSheet = ({ todo, onDelete }: Props) => {
                 status={todo.status}
                 result={todo.result}
               />
+            ) : todo.status === TodoStatus.FAILED ? (
+              <AgentReassignDialog failureReason={todo.result} />
             ) : (
               <div className="flex items-center gap-2">
                 <TodoStatusSection

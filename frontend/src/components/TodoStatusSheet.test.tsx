@@ -30,6 +30,12 @@ const mockFailedTodo = {
   status: "failed",
 };
 
+const mockFailedTodoWithReason = {
+  ...mockTodo,
+  status: "failed",
+  result: "적합한 에이전트를 찾지 못했습니다",
+};
+
 describe("TodoStatusSheet", () => {
   describe("시트가 열리기 전 버튼 상태", () => {
     test("에이전트가 할당된 TODO 항목에는 spinner 아이콘이 보인다", () => {
@@ -185,6 +191,38 @@ describe("TodoStatusSheet", () => {
       );
 
       expect(screen.getByRole("button", { name: "닫기" })).toBeInTheDocument();
+    });
+
+    test("할당 실패 영역을 탭하면 에이전트 재할당 다이얼로그가 열린다", async () => {
+      render(<TodoStatusSheet todo={mockFailedTodo} />);
+
+      await userEvent.click(
+        screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 재할당" }),
+      );
+
+      expect(
+        screen.getByRole("heading", { name: "에이전트 다시 할당" }),
+      ).toBeInTheDocument();
+    });
+
+    test("에이전트 재할당 다이얼로그에 할당 실패 이유가 보인다", async () => {
+      render(<TodoStatusSheet todo={mockFailedTodoWithReason} />);
+
+      await userEvent.click(
+        screen.getByRole("button", {
+          name: `todo-${mockFailedTodoWithReason.id}`,
+        }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 재할당" }),
+      );
+
+      expect(
+        screen.getByText("적합한 에이전트를 찾지 못했습니다"),
+      ).toBeInTheDocument();
     });
 
     test("할당 실패 상태에서 실패 아이콘과 메시지가 보인다", async () => {
