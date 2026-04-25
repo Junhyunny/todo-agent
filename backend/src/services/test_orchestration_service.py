@@ -54,7 +54,7 @@ async def test_select_and_assign_OrchestrationAgent_ainvoke_함수를_호출한�
 ) -> None:
   mock_todo_repo.find_by_id.return_value = todo
   mock_agent_repo.get_all.return_value = [agent]
-  mock_orchestration_agent.ainvoke.return_value = TargetAgent(name="검색 에이전트", system_prompt="웹 검색 담당")
+  mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="검색 에이전트", system_prompt="웹 검색 담당"), "이유")
 
   with (
     patch("services.orchestration_service.get_task_agent", return_value=mock_task_agent),
@@ -78,7 +78,7 @@ async def test_select_and_assign_에이전트를_할당하고_AgentEntity를_반
 ) -> None:
   mock_todo_repo.find_by_id.return_value = todo
   mock_agent_repo.get_all.return_value = [agent]
-  mock_orchestration_agent.ainvoke.return_value = TargetAgent(name="검색 에이전트", system_prompt="웹 검색 담당")
+  mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="검색 에이전트", system_prompt="웹 검색 담당"), "이유")
 
   with (
     patch("services.orchestration_service.get_task_agent", return_value=mock_task_agent),
@@ -207,25 +207,7 @@ async def test_execute_and_complete_todo가_없으면_예외가_발생한다(
       await sut.execute_and_complete(todo_id, agent)
 
 
-async def test_fail_assignment_레포지토리_fail_todo_함수를_호출한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_todo_repo: AsyncMock,
-  mock_agent_repo: AsyncMock,
-) -> None:
-  with (
-    patch("services.orchestration_service.get_task_agent", return_value=mock_task_agent),
-    patch("services.orchestration_service.async_session_factory", fake_session_factory),
-    patch("services.orchestration_service.TodoRepository", return_value=mock_todo_repo),
-    patch("services.orchestration_service.AgentRepository", return_value=mock_agent_repo),
-  ):
-    sut = OrchestrationService(agent=mock_orchestration_agent)
-    await sut.fail_assignment(todo_id)
-
-  mock_todo_repo.fail_todo.assert_called_once_with(uuid.UUID(todo_id))
-
-
-async def test_select_and_assign_에이전트_없으면_fail_assignment를_호출한다(
+async def test_select_and_assign_에이전트가_없으면_실패_이유와_함께_fail_todo를_호출한다(
   mock_orchestration_agent: AsyncMock,
   mock_task_agent: AsyncMock,
   mock_todo_repo: AsyncMock,
@@ -243,4 +225,48 @@ async def test_select_and_assign_에이전트_없으면_fail_assignment를_호�
     sut = OrchestrationService(agent=mock_orchestration_agent)
     await sut.select_and_assign(todo_id)
 
-  mock_todo_repo.fail_todo.assert_called_once_with(uuid.UUID(todo_id))
+  mock_todo_repo.fail_todo.assert_called_once_with(uuid.UUID(todo_id), reason="할당 가능한 에이전트가 없습니다")
+
+
+async def test_select_and_assign_오케스트레이션_결과가_None이면_LLM_이유와_함께_fail_todo를_호출한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_task_agent: AsyncMock,
+  mock_todo_repo: AsyncMock,
+  mock_agent_repo: AsyncMock,
+) -> None:
+  mock_todo_repo.find_by_id.return_value = todo
+  mock_agent_repo.get_all.return_value = [agent]
+  mock_orchestration_agent.ainvoke.return_value = (None, "처리 불가능한 요청")
+
+  with (
+    patch("services.orchestration_service.get_task_agent", return_value=mock_task_agent),
+    patch("services.orchestration_service.async_session_factory", fake_session_factory),
+    patch("services.orchestration_service.TodoRepository", return_value=mock_todo_repo),
+    patch("services.orchestration_service.AgentRepository", return_value=mock_agent_repo),
+  ):
+    sut = OrchestrationService(agent=mock_orchestration_agent)
+    await sut.select_and_assign(todo_id)
+
+  mock_todo_repo.fail_todo.assert_called_once_with(uuid.UUID(todo_id), reason="처리 불가능한 요청")
+
+
+async def test_select_and_assign_선택된_에이전트가_없으면_LLM_이유와_함께_fail_todo를_호출한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_task_agent: AsyncMock,
+  mock_todo_repo: AsyncMock,
+  mock_agent_repo: AsyncMock,
+) -> None:
+  mock_todo_repo.find_by_id.return_value = todo
+  mock_agent_repo.get_all.return_value = [agent]
+  mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="없는에이전트", system_prompt="없음"), "이유")
+
+  with (
+    patch("services.orchestration_service.get_task_agent", return_value=mock_task_agent),
+    patch("services.orchestration_service.async_session_factory", fake_session_factory),
+    patch("services.orchestration_service.TodoRepository", return_value=mock_todo_repo),
+    patch("services.orchestration_service.AgentRepository", return_value=mock_agent_repo),
+  ):
+    sut = OrchestrationService(agent=mock_orchestration_agent)
+    await sut.select_and_assign(todo_id)
+
+  mock_todo_repo.fail_todo.assert_called_once_with(uuid.UUID(todo_id), reason="이유")

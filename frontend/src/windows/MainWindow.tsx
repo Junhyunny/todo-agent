@@ -45,7 +45,7 @@ export const MainWindow = () => {
   const handleTodoSave = (todoId: string) => {
     void fetchTodos();
     sseHandler(`${__API_BASE_URL__}/api/todos/${todoId}/events`, async (e) => {
-      const data = JSON.parse(e.data) as { type: string; agent_name: string };
+      const data = JSON.parse(e.data) as { type: string };
       if (isRefetch(data.type)) {
         await fetchTodos();
         return isSyncFinished(data.type);

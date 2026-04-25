@@ -58,7 +58,7 @@ async def test_run_assignment_listener_assigned_SSE_이벤트를_발행한다(mo
   await _run_once(queue, mock_orchestration_service, mock_sse_manager)
 
   calls = mock_sse_manager.publish.call_args_list
-  assert calls[0].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "assigned", "agent_name": "검색 에이전트"})
+  assert calls[0].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "assigned"})
 
 
 async def test_run_assignment_listener_작업을_실행한다(mock_orchestration_service: AsyncMock, mock_sse_manager: AsyncMock) -> None:
@@ -83,7 +83,7 @@ async def test_run_assignment_listener_completed_SSE_이벤트를_발행한다(m
   await _run_once(queue, mock_orchestration_service, mock_sse_manager)
 
   calls = mock_sse_manager.publish.call_args_list
-  assert calls[1].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "completed", "agent_name": "검색 에이전트"})
+  assert calls[1].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "completed"})
 
 
 async def test_run_assignment_listener_에이전트를_선택하지_못하면_작업을_실행하지_않는다(
@@ -111,4 +111,19 @@ async def test_run_assignment_listener_에이전트를_선택하지_못하면_fa
 
   calls = mock_sse_manager.publish.call_args_list
   assert len(calls) == 1
-  assert calls[0].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "failed", "agent_name": ""})
+  assert calls[0].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "failed"})
+
+
+async def test_run_assignment_listener_예외_발생시_failed_SSE_이벤트를_발행한다(
+  mock_orchestration_service: AsyncMock, mock_sse_manager: AsyncMock
+) -> None:
+  todo_id = str(uuid.uuid4())
+  mock_orchestration_service.select_and_assign.return_value = agent
+  mock_orchestration_service.execute_and_complete.side_effect = Exception("예기치 않은 오류")
+  queue: asyncio.Queue[str] = asyncio.Queue()
+  await queue.put(todo_id)
+
+  await _run_once(queue, mock_orchestration_service, mock_sse_manager)
+
+  calls = mock_sse_manager.publish.call_args_list
+  assert calls[-1].args == (TODO_STATUS_CHANNEL(todo_id), {"type": "failed"})

@@ -6,8 +6,8 @@ from services.orchestration_service import OrchestrationService
 from sse.manager import SSEManager
 
 
-def create_assignment_message(type: str, agent_name: str) -> dict[str, str]:
-  return {"type": type, "agent_name": agent_name}
+def assignment_message(type: str) -> dict[str, str]:
+  return {"type": type}
 
 
 async def run_assignment_listener(
@@ -21,12 +21,12 @@ async def run_assignment_listener(
     try:
       agent = await orchestration_service.select_and_assign(todo_id)
       if agent is None:
-        await sse_manager.publish(channel_name, create_assignment_message(TodoStatus.FAILED.value, agent_name=""))
+        await sse_manager.publish(channel_name, assignment_message(TodoStatus.FAILED.value))
         continue
-      await sse_manager.publish(channel_name, create_assignment_message(TodoStatus.ASSIGNED.value, agent_name=agent.name))
+      await sse_manager.publish(channel_name, assignment_message(TodoStatus.ASSIGNED.value))
       await orchestration_service.execute_and_complete(todo_id, agent)
-      await sse_manager.publish(channel_name, create_assignment_message(TodoStatus.COMPLETED.value, agent_name=agent.name))
+      await sse_manager.publish(channel_name, assignment_message(TodoStatus.COMPLETED.value))
     except Exception:
-      pass
+      await sse_manager.publish(channel_name, assignment_message(TodoStatus.FAILED.value))
     finally:
       assign_que.task_done()

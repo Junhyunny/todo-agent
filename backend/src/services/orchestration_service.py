@@ -14,42 +14,46 @@ class OrchestrationService:
     self.agent = agent
     self.task_agent: TaskAgent = get_task_agent()
 
-  async def fail_assignment(self, todo_id: str) -> None:
+  async def __fail_assignment(self, todo_id: str, reason: str | None = None) -> None:
     async with async_session_factory() as session:
       todo_repo = TodoRepository(session=session)
-      await todo_repo.fail_todo(UUID(todo_id))
+      await todo_repo.fail_todo(UUID(todo_id), reason=reason)
 
   async def select_and_assign(self, todo_id: str) -> AgentEntity | None:
-    async with async_session_factory() as session:
-      todo_repo = TodoRepository(session=session)
-      agent_repo = AgentRepository(session=session)
+    try:
+      async with async_session_factory() as session:
+        todo_repo = TodoRepository(session=session)
+        agent_repo = AgentRepository(session=session)
 
-      todo = await todo_repo.find_by_id(UUID(todo_id))
-      agents = list(await agent_repo.get_all())
+        todo = await todo_repo.find_by_id(UUID(todo_id))
+        agents = list(await agent_repo.get_all())
 
-      if not todo or not agents:
-        if todo:
-          await self.fail_assignment(todo_id)
-        return None
+        if not todo or not agents:
+          if todo:
+            await self.__fail_assignment(todo_id, reason="할당 가능한 에이전트가 없습니다")
+          return None
 
-      agent_list = [{a.name: a.system_prompt} for a in agents]
-      user_message = {
-        "TODO 정보": {"제목": todo.title, "내용": todo.content},
-        "사용 가능한 에이전트": agent_list,
-      }
-      print(user_message)
-      result = await self.agent.ainvoke(json.dumps(user_message))
-      if result is None:
-        await self.fail_assignment(todo_id)
-        return None
+        agent_list = [{a.name: a.system_prompt} for a in agents]
+        user_message = {
+          "TODO 정보": {"제목": todo.title, "내용": todo.content},
+          "사용 가능한 에이전트": agent_list,
+        }
+        print(user_message)
+        result, reason = await self.agent.ainvoke(json.dumps(user_message))
+        if result is None:
+          await self.__fail_assignment(todo_id, reason=reason)
+          return None
 
-      selected = next((a for a in agents if a.name == result.name), None)
-      if selected is None:
-        await self.fail_assignment(todo_id)
-        return None
+        selected = next((a for a in agents if a.name == result.name), None)
+        if selected is None:
+          await self.__fail_assignment(todo_id, reason=reason)
+          return None
 
-      await todo_repo.assign_agent(UUID(todo_id), agent_name=selected.name)
-      return selected
+        await todo_repo.assign_agent(UUID(todo_id), agent_name=selected.name)
+        return selected
+    except Exception as e:
+      await self.__fail_assignment(todo_id, reason=str(e))
+      return None
 
   async def execute_and_complete(self, todo_id: str, agent: AgentEntity) -> None:
     async with async_session_factory() as session:

@@ -23,13 +23,13 @@ class OrchestrationAgent:
     self.name = "OrchestrationAgent"
     self.agent = create_agent(model=get_llm(), system_prompt=SYSTEM_PROMPT, response_format=OrchestrationAgentMessage)
 
-  async def ainvoke(self, user_message: str) -> TargetAgent | None:
+  async def ainvoke(self, user_message: str) -> tuple[TargetAgent | None, str]:
     result = await self.agent.ainvoke({"messages": [{"role": "user", "content": user_message}]})  # type: ignore[arg-type]
     structured: OrchestrationAgentMessage = result["structured_response"]
     print(structured)
     if not structured.is_applicable or structured.result is None:
-      return None
-    return structured.result
+      return None, structured.reason
+    return structured.result, structured.reason
 
 
 def get_orchestration_agent() -> OrchestrationAgent:

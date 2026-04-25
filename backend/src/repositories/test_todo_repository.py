@@ -157,6 +157,20 @@ async def test_fail_todo_상태를_failed로_변경한다(setup_test_db: AsyncSe
   assert result.status == TodoStatus.FAILED
 
 
+async def test_fail_todo_실패_이유를_result에_저장한다(setup_test_db: AsyncSession) -> None:
+  session = setup_test_db
+  todo_id = str(uuid.uuid4())
+  session.add(TodoEntity(id=todo_id, title="할 일", content="내용", status=TodoStatus.PENDING.value))
+  await session.commit()
+  sut = TodoRepository(session=session)
+
+  await sut.fail_todo(uuid.UUID(todo_id), reason="할당 가능한 에이전트가 없습니다")
+
+  result = await sut.find_by_id(uuid.UUID(todo_id))
+  assert result is not None
+  assert result.result == "할당 가능한 에이전트가 없습니다"
+
+
 async def test_fail_todo_존재하지_않는_todo이면_예외가_발생한다(setup_test_db: AsyncSession) -> None:
   session = setup_test_db
   sut = TodoRepository(session=session)

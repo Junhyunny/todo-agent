@@ -59,9 +59,10 @@ class TodoRepository:
     model.result = result
     await self.session.commit()
 
-  async def fail_todo(self, todo_id: UUID) -> None:
+  async def fail_todo(self, todo_id: UUID, reason: str | None = None) -> None:
     model = await self.find_by_id(todo_id)
     if not model:
       raise RuntimeError("not found")
     model.status = TodoStatus.FAILED
+    model.result = reason
     await self.session.commit()
