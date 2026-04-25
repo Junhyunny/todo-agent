@@ -7,10 +7,11 @@
 ## 파일 위치
 
 ```text
-ARCHITECTURE.md
+ARCHITECTURE-{AREA}.md   # 다중 영역 (예: ARCHITECTURE-FRONTEND.md, ARCHITECTURE-LAMBDA.md)
+ARCHITECTURE.md          # 단일 영역 (루트에 빌드 파일이 바로 있는 경우)
 ```
 
-프로젝트 루트에 위치하며, AI 에이전트가 탐색 없이 프로젝트 구조를 파악할 수 있는 **단일 지형도**다.
+프로젝트 루트에 위치하며, AI 에이전트가 탐색 없이 해당 영역의 구조를 파악할 수 있는 **영역별 지형도**다.
 
 ---
 

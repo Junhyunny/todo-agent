@@ -7,10 +7,11 @@
 ## 파일 위치
 
 ```text
-CONVENTIONS.md
+CONVENTIONS-{AREA}.md   # 다중 영역 (예: CONVENTIONS-FRONTEND.md, CONVENTIONS-LAMBDA.md)
+CONVENTIONS.md          # 단일 영역 (루트에 빌드 파일이 바로 있는 경우)
 ```
 
-프로젝트 루트 기준이며, 프로젝트의 공유 규칙 문서로 유지한다.
+프로젝트 루트에 위치하며, 영역별 공유 규칙 문서로 유지한다.
 
 ---
 

@@ -9,7 +9,7 @@
     "sync-architecture": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "70ac85c25b5b9ec3d5388f75b60035f33e7285f8f9a5c98c870518fc3e0264ca"
+      "computedHash": "815aa0e23a554992535a010968957d0f2ba07712019d15e4ea1e1348325e5e81"
     },
     "sync-coding-conventions": {
       "source": "junhyunny/skills",
@@ -19,7 +19,7 @@
     "sync-conventions": {
       "source": "junhyunny/skills",
       "sourceType": "github",
-      "computedHash": "185bd616c1997ea2aac41eb5ec5e7ba88b26619d57cd9eb2c6365a1237a706fb"
+      "computedHash": "7eecf58e0450d847659f0d85106cf5d06f43247b25c8115fb5a929eac08ac038"
     },
     "sync-tech-stack": {
       "source": "junhyunny/skills",
