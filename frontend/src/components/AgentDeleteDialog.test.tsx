@@ -38,13 +38,24 @@ describe("AgentDeleteDialog", () => {
     expect(screen.getByText("삭제하겠습니까?")).toBeInTheDocument();
   });
 
-  test("취소 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
+  test("취소 버튼이 보이지 않는다.", async () => {
     render(<AgentDeleteDialog agent={agent} onDelete={vi.fn()} />);
 
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
-    await userEvent.click(screen.getByRole("button", { name: "취소" }));
 
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "취소" }),
+    ).not.toBeInTheDocument();
+  });
+
+  test("다이얼로그 상단에 X 버튼이 보인다.", async () => {
+    render(<AgentDeleteDialog agent={agent} onDelete={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "삭제" }));
+
+    expect(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Close" }),
+    ).toBeInTheDocument();
   });
 
   test("확인 버튼을 클릭하면 deleteAgent를 호출하고 onDelete 콜백을 실행한다", async () => {

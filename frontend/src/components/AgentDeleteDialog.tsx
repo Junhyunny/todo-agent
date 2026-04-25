@@ -4,7 +4,6 @@ import type { AgentResponse } from "@/api/generated/agents.ts";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
@@ -35,9 +34,8 @@ export const AgentDeleteDialog = ({
           </Button>
         }
       />
-      <DialogContent showCloseButton={false}>
+      <DialogContent>
         <p>삭제하겠습니까?</p>
-        <DialogClose render={<Button variant="outline" />}>취소</DialogClose>
         <Button variant="destructive" onClick={handleDelete}>
           삭제
         </Button>
