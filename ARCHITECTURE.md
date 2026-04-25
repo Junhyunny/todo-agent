@@ -91,7 +91,7 @@ backend/src/
   routers/            # HTTP 엔드포인트 핸들러
   services/           # 비즈니스 로직 (orchestration_service 포함)
   repositories/       # DB 접근 (AsyncSession)
-  entities/           # SQLAlchemy ORM 엔티티 ({Domain}Entity)
+  entities/           # SQLAlchemy ORM 엔티티 ({Domain}Entity, 관계 매핑 엔티티 포함)
   schemas/            # Pydantic API 스키마 ({Domain}Request / {Domain}Response)
   models/             # LLM 관련 데이터 모델 (structured output 스키마)
   agents/             # LangChain 에이전트 (OrchestrationAgent, LLM 팩토리)
@@ -115,31 +115,17 @@ HTTP Request
 TODO 등록 시 비동기 에이전트 할당·실행 흐름:
 
 ```
-POST /api/todos
-  → TodoService.create_todo()
-      → TodoRepository.create()        # DB 저장 (status: pending)
-      → AssignmentPublisher.publish()  # asyncio.Queue에 todo_id 적재
-      → TodoResponse 즉시 반환
+POST /api/todos → TodoService → TodoRepository.create() → AssignmentPublisher.publish() → 즉시 응답
 
 [백그라운드: AssignmentListener]
-  Queue.get(todo_id)
-  → OrchestrationService.select_and_assign(todo_id)
-      → TodoRepository.find_by_id()       # 내부에서 async_session_factory 사용
-      → AgentRepository.get_all()
-      → OrchestrationAgent.ainvoke()      # LangChain structured output → 에이전트 선택
-      → (에이전트 없거나 선택 실패) OrchestrationService.fail_assignment()
-          → TodoRepository.fail_todo()    # status: failed
-          → AgentEntity | None 반환
-  → (None이면) SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "failed", ...}) → 루프 계속
-  → SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "assigned", ...})
-  → OrchestrationService.execute_and_complete(todo_id, agent)
-      → TodoRepository.find_by_id()       # 내부에서 async_session_factory 사용
-      → TaskAgent.ainvoke()               # system_prompt + todo 내용 → LLM 응답
-      → TodoRepository.complete_todo()    # status: completed, result 저장
-  → SSEManager.publish(TODO_STATUS_CHANNEL(todo_id), {"type": "completed", ...})
+  → OrchestrationService.select_and_assign()
+      → 실패 시: fail_assignment() → SSEManager.publish("failed")
+  → SSEManager.publish("assigned")
+  → OrchestrationService.execute_and_complete()
+      → TaskAgent.ainvoke() → TodoRepository.complete_todo()
+  → SSEManager.publish("completed")
 
-GET /api/todos/{todo_id}/events  (SSE)
-  → SSEManager.subscribe(TODO_STATUS_CHANNEL(todo_id)) → stream until "completed" or "failed" 이벤트
+GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream until "completed"|"failed"
 ```
 
 ### DB 마이그레이션 워크플로우
@@ -165,20 +151,13 @@ Router → Service → Repository → AsyncSession (SQLite)
                                               ↘ SSEManager → SSE Router
 ```
 
-- **Router:** 요청 파싱, 응답 직렬화. `Depends(Service)`로 Service 주입
-- **Service:** 비즈니스 로직. `Depends(Repository)`로 Repository 주입. AssignmentPublisher도 주입받아 큐에 적재
-- **Repository:** DB CRUD. `Depends(get_session)`으로 `AsyncSession` 주입
-- **entities/:** `{Domain}Entity` (SQLAlchemy ORM). 신규 엔티티는 `entities/__init__.py`에 import해야 Alembic이 감지한다
-- **schemas/:** `{Domain}Request` / `{Domain}Response` (Pydantic). Router에서 요청·응답 직렬화에 사용
-- **models/:** LLM structured output 스키마 (`OrchestrationAgentMessage`, `TargetAgent`)
-- **agents/:** LangChain 에이전트 두 종류. `OrchestrationAgent` — `create_agent` + structured output으로 에이전트 선택. `TaskAgent` — `get_llm()` 직접 호출로 TODO 실행
-- **channels/:** `assignment_queue.py` (asyncio.Queue 싱글톤) + `channel_names.py` (채널 이름 생성 함수)
-- **pubs/:** Queue에 메시지를 적재하는 Publisher. Service 레이어에서 주입
-- **listeners/:** 큐를 소비해 `OrchestrationService`에 위임하고 SSE 이벤트를 발행하는 백그라운드 태스크. `app.py` lifespan에서 시작
-- **sse/:** in-memory pub/sub 매니저. 채널 이름(`TODO_STATUS_CHANNEL(todo_id)`)으로 구독/발행. SSE Router에서 구독, Listener에서 발행
-- **services/orchestration_service.py:** `OrchestrationAgent` 주입, `TaskAgent`는 팩토리(`get_task_agent()`)로 내부 생성. `async_session_factory`를 직접 호출해 per-operation 세션을 관리한다. `select_and_assign(todo_id)` → `AgentEntity | None` (에이전트 없거나 선택 실패 시 `fail_assignment()` 호출 후 `None` 반환), `fail_assignment(todo_id)` → `None` (status: failed 저장), `execute_and_complete(todo_id, agent)` → `None`
-
-DI는 FastAPI `Depends()`로 연결한다. `async_session_factory`는 모듈 레벨(전역) 생성, per-request `AsyncSession`을 yield한다.
+- **Router/Service/Repository:** `Depends()`로 DI 연결. Service는 AssignmentPublisher도 주입받아 큐 적재
+- **entities/:** SQLAlchemy ORM 엔티티. 관계 테이블은 `{Domain}MappingEntity`로 별도 파일 정의. 신규 엔티티는 `entities/__init__.py`에 import 필수 (Alembic 감지)
+- **schemas/:** `{Domain}Request` / `{Domain}Response` (Pydantic)
+- **agents/:** `OrchestrationAgent` — structured output으로 에이전트 선택. `TaskAgent` — `get_llm()` 직접 호출로 TODO 실행
+- **channels/:** asyncio.Queue 싱글톤 + 채널 이름 함수 (`TODO_STATUS_CHANNEL`)
+- **listeners/:** `app.py` lifespan에서 시작하는 백그라운드 태스크. `OrchestrationService`에 위임 후 SSE 발행
+- **services/orchestration_service.py:** `async_session_factory`를 직접 호출해 per-operation 세션 관리
 
 ### 경계
 

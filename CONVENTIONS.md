@@ -85,28 +85,7 @@ test.each([
 ```
 `test.each`는 여러 케이스가 하나의 assertion 패턴으로 수렴할 때만 쓴다. 케이스마다 assertion이 다르면 개별 `test()`로 분리한다.
 
-**`test.each` — 수정 폼 비활성화 검증 (`clearField` 변형)**
-수정 폼은 일부 필드(name, systemPrompt)가 pre-filled로 시작한다. 이 경우 빈 필드(description)를 먼저 채워 "모두 입력된 상태"를 만든 뒤, `clearField`로 특정 필드를 지워 비활성화를 검증한다.
-```tsx
-test.each([
-  { clearField: "설명" },
-  { clearField: "시스템 프롬프트" },
-])(
-  "필수 필드($clearField)를 지우면 저장 버튼이 비활성화 상태이다",
-  async ({ clearField }) => {
-    renderWithTooltip();
-    await userEvent.click(screen.getByRole("button", { name: "수정" }));
-
-    // 빈 필드(description)를 채워 "모두 입력" 상태 만들기
-    await userEvent.type(screen.getByRole("textbox", { name: "설명" }), "테스트 설명");
-    // 특정 필드를 지워 비활성화 확인
-    await userEvent.clear(screen.getByRole("textbox", { name: clearField }));
-
-    expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
-  },
-);
-```
-`inputCases`(등록 폼)와 달리 케이스 수가 적다 — pre-filled 필드가 있어 "모두 미입력 조합"이 필요 없기 때문이다.
+수정 폼은 pre-filled 필드가 있으므로 `clearField` 변형을 사용한다. 빈 필드를 채워 "모두 입력" 상태를 만든 뒤, 특정 필드를 `userEvent.clear()`로 지워 비활성화를 검증한다.
 
 ### 소스 코드
 - 컴포넌트: 함수형 + named export
@@ -151,27 +130,6 @@ await waitFor(() => {
 ```
 콜백 반환값이 `true`면 SSE 연결 종료, `false`면 유지 (`sseHandler` 계약).
 
-**EventSource 직접 교체 패턴 (필요 시)**
-`sseHandler`를 우회해 `EventSource` 자체를 테스트해야 할 때만 사용한다.
-```ts
-let capturedEventSources: MockEventSource[] = [];
-
-class MockEventSource {
-  url: string;
-  onmessage: ((e: MessageEvent) => void) | null = null;
-  onerror: (() => void) | null = null;
-  close = vi.fn();
-  constructor(url: string) {
-    this.url = url;
-    capturedEventSources.push(this);
-  }
-}
-
-beforeEach(() => {
-  capturedEventSources = [];
-  vi.stubGlobal("EventSource", MockEventSource);
-});
-```
 
 ### 안티패턴
 | 금지 | 대안 |
@@ -217,6 +175,13 @@ beforeEach(() => {
 - 테스트 쌍으로 작성: "레포지토리 호출 검증" + "반환값 검증"
 - **"반환값 검증" 테스트는 반환 객체의 모든 공개 필드를 assert한다.** 스키마에 필드가 추가되면 해당 테스트도 함께 수정한다. 일부 필드만 검증하면 새 필드 누락을 감지하지 못한다.
 - **Repository mock 반환값은 반드시 ORM `Entity` 객체로 설정한다.** Pydantic `Response` 객체를 반환하면 Service 내부에서 UUID 변환(`uuid.UUID(result.id)` 등)이 실패한다. Service가 Entity→Response 변환을 담당한다.
+- **ORM 관계(`relationship`)가 있는 Entity를 mock으로 반환할 때**는 `make_*_entity()` factory helper를 정의해 관계 필드를 직접 초기화한다. SQLAlchemy lazy loading은 mock 환경에서 동작하지 않기 때문이다.
+```python
+def make_agent_entity(index: Number, agent_id: uuid.UUID, tool_ids: list[str] | None = None) -> AgentEntity:
+    entity = AgentEntity(id=str(agent_id), name=f"에이전트{index}", description=f"설명{index}", system_prompt=f"프롬프트{index}")
+    entity.tools = [AgentToolEntity(agent_id=str(agent_id), tool_id=tid) for tid in (tool_ids or [])]
+    return entity
+```
 - **Service가 내부적으로 `async_session_factory`를 호출하는 경우**, `fake_session_factory`로 패치하고 Repository 클래스는 `return_value=mock`으로 패치한다. 팩토리 함수(`get_task_agent` 등)도 동일하게 패치한다.
 ```python
 @asynccontextmanager
@@ -294,35 +259,14 @@ async def test_task_agent_LLM에게_메시지를_전달한다(mock_get_llm: Magi
 
 #### Listener 테스트
 - 네이밍: `test_함수명_한국어설명`
-- 무한 루프 함수는 `asyncio.Queue + queue.join()` 패턴으로 항목 하나 처리 후 `task.cancel()`로 종료
-- Listener가 Service에 위임하고 세션/레포를 직접 다루지 않으면, `_run_once`에 패치 없이 `OrchestrationService` + `SSEManager` mock만 주입한다
-```python
-async def _run_once(
-    queue: asyncio.Queue[str],
-    orchestration_service: OrchestrationService,
-    sse_manager: SSEManager,
-) -> None:
-    task = asyncio.create_task(run_assignment_listener(queue, orchestration_service, sse_manager))
-    await queue.join()
-    task.cancel()
-    await asyncio.gather(task, return_exceptions=True)
-```
-- Listener가 세션/레포를 직접 다루는 경우, `async_session_factory`를 `asynccontextmanager`로 패치하고 Repository 클래스는 `return_value=mock`으로 패치한다
+- 무한 루프: `asyncio.Queue + queue.join()`으로 항목 하나 처리 후 `task.cancel()`로 종료
+- Service에 위임하는 Listener: `OrchestrationService` + `SSEManager` mock 주입만으로 충분
+- 세션/레포를 직접 다루는 Listener: `async_session_factory`를 `asynccontextmanager`로 패치, Repository는 `return_value=mock`으로 패치
 
 #### SSE Router 테스트
-- `MagicMock(spec=SSEManager)`로 SSEManager를 교체하고 `subscribe`가 미리 채운 Queue를 반환하도록 설정
-- `"completed"` 이벤트가 스트림 종료를 트리거하므로 `await client.get(...)`으로 전체 응답을 수집 가능
-- 중간 이벤트("assigned" 등)도 스트리밍됨을 검증하려면 Queue에 순서대로 적재한다
-```python
-@pytest.fixture
-def mock_sse_manager():
-    q: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
-    q.put_nowait({"type": "assigned", "agent_name": "검색 에이전트"})
-    q.put_nowait({"type": "completed", "agent_name": "검색 에이전트"})
-    manager = MagicMock(spec=SSEManager)
-    manager.subscribe.return_value = q
-    return manager
-```
+- `MagicMock(spec=SSEManager)` + `subscribe`가 미리 채운 `asyncio.Queue` 반환하도록 설정
+- `"completed"` 이벤트가 스트림 종료를 트리거 → `await client.get()`으로 전체 응답 수집 가능
+- 중간 이벤트 검증 시 Queue에 순서대로 적재
 
 ### 소스 코드
 - 포맷: Ruff (import 정렬)
@@ -354,6 +298,18 @@ def mock_sse_manager():
   await sse_manager.publish(TODO_STATUS_CHANNEL(todo_id), {...})
   # 잘못된 예
   await sse_manager.publish(f"todo-{todo_id}", {...})
+  ```
+- **Service Entity→Response 변환**: 동일한 Entity→Response 매핑이 Service 여러 메서드에서 반복될 경우 `@staticmethod _to_response(entity)` 헬퍼로 추출한다.
+  ```python
+  @staticmethod
+  def _to_response(entity: AgentEntity) -> AgentResponse:
+      return AgentResponse(
+          id=UUID(entity.id),
+          name=entity.name,
+          description=entity.description,
+          system_prompt=entity.system_prompt,
+          tools=[t.tool_id for t in entity.tools],
+      )
   ```
 
 ---
@@ -400,30 +356,10 @@ vi.mock("../api/generated/agents", () => ({
 ## 다이얼로그 패턴
 
 **타이틀 구조**
-모든 다이얼로그는 `DialogHeader` + `DialogTitle`로 타이틀을 노출한다.
-```tsx
-<DialogContent>
-  <DialogHeader>
-    <DialogTitle>에이전트 등록</DialogTitle>
-  </DialogHeader>
-  ...
-</DialogContent>
-```
-테스트에서는 `getByRole("heading", { name: "..." })`으로 검증한다.
+모든 다이얼로그는 `DialogHeader` + `DialogTitle`로 타이틀을 노출한다. 테스트: `getByRole("heading", { name: "..." })`.
 
 **`DialogContent` 기본 X 버튼**
-`DialogContent`는 기본적으로 우측 상단 X 버튼(`showCloseButton=true`)을 렌더링한다. 명시적 취소 버튼 없이 X 버튼만으로 닫는 다이얼로그에서는 취소 버튼을 추가하지 않는다. X 버튼의 접근 가능한 이름은 `"Close"` (sr-only span)이므로 테스트에서 아래와 같이 쿼리한다.
-```tsx
-// X 버튼 존재 확인
-expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument();
-
-// 취소 버튼 미노출 확인
-expect(screen.queryByRole("button", { name: "취소" })).not.toBeInTheDocument();
-
-// X 버튼 클릭으로 닫기 확인
-await userEvent.click(screen.getByRole("button", { name: "Close" }));
-expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-```
+기본적으로 우측 상단 X 버튼(`showCloseButton=true`) 렌더링. 취소 버튼 없이 X만으로 닫는 경우 취소 버튼은 추가하지 않는다. X 버튼의 접근 가능 이름은 `"Close"` (sr-only span).
 
 **`DialogClose` 조건부 비활성화**
 저장 버튼을 조건부로 비활성화할 때는 `DialogClose`에 직접 `disabled`를 주지 않고 `render` prop의 `Button`에 전달한다.
@@ -438,19 +374,7 @@ disabled 상태의 HTML 버튼은 클릭 이벤트가 발생하지 않으므로 
 ```
 
 **비동기 닫기**
-비동기 작업 완료 후 다이얼로그를 프로그래매틱하게 닫을 때는 `useState`로 open 상태를 직접 관리한다.
-```tsx
-const [open, setOpen] = useState(false);
-
-const handleAction = () => {
-  someAsyncCall().then(() => {
-    setOpen(false);
-    onCallback();
-  });
-};
-
-return <Dialog open={open} onOpenChange={setOpen}>...</Dialog>;
-```
+비동기 작업 완료 후 프로그래매틱하게 닫을 때는 `useState`로 `open` 상태를 직접 관리한다.
 
 **폼 상태 초기화**
 다이얼로그가 열릴 때 폼 입력값을 초기화(또는 원래 값으로 복구)할 때는 `useEffect`로 `open`을 의존성으로 사용한다.
@@ -465,38 +389,43 @@ useEffect(() => {
 취소/저장 후 재오픈 시 이전 입력값이 남지 않도록 보장한다.
 
 **폼 라벨**
-폼에서 입력 필드에 라벨이 필요하면 `components/ui/label.tsx` (shadcn/ui `Label`)를 사용한다.
-`Label`의 `htmlFor`와 입력 요소의 `id`를 짝지어 접근성을 보장한다.
-```tsx
-<Label htmlFor="agent-name">에이전트 이름</Label>
-<Input id="agent-name" ... />
-```
-테스트에서는 라벨과 연결된 접근 가능한 이름으로 쿼리한다.
-```tsx
-getByRole("textbox", { name: "에이전트 이름" })
-```
-`aria-label` 대신 `Label` + `htmlFor`/`id` 조합을 우선한다.
+`Label` + `htmlFor`/`id` 조합으로 접근성 보장. `aria-label` 직접 사용 금지. 테스트: `getByRole("textbox", { name: "..." })`.
 
 **멀티셀렉트 콤보박스 (`shadcn/ui Combobox`)**
 여러 값을 선택하는 드롭다운은 shadcn/ui `Combobox`의 `multiple` 모드를 사용한다. `useComboboxAnchor()`로 앵커를 생성하고 `ComboboxChips`와 `ComboboxContent`에 연결해 드롭다운 위치를 정렬한다.
 
 다이얼로그 폼에 직접 인라인으로 작성하지 않고 **별도 컴포넌트로 추출**한다. 부모 컴포넌트는 `id`, `value`, `onValueChange`만 전달한다.
+
+선택지가 DB에서 관리되는 경우 정적 배열 대신 API에서 동적으로 로드한다. `value`는 표시 문자열이 아닌 **ID(UUID)**를 사용하고, 칩 표시는 `useMemo`로 만든 `Map<id, name>`으로 이름을 조회한다.
 ```tsx
 // ToolListComboBox.tsx (별도 파일로 분리)
-type Props = { id: string; value: string[]; onValueChange: (v: string[]) => void; };
-const TOOLS = ["웹 검색(web search)"] as const;
+type Props = { id: string; value: string[]; onValueChange: (newValues: string[]) => void; };
 
 export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
   const anchor = useComboboxAnchor();
+  const [tools, setTools] = useState<ToolResponse[]>([]);
+
+  useEffect(() => {
+    getTools().then(setTools);
+  }, []);
+
+  const toolMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const tool of tools) map.set(tool.id, tool.name);
+    return map;
+  }, [tools]);
+
   return (
-    <Combobox multiple value={value} onValueChange={onValueChange}>
+    <Combobox multiple value={value} onValueChange={(v) => onValueChange(v)}>
       <ComboboxChips ref={anchor}>
-        {value.map((tool) => <ComboboxChip key={tool}>{tool}</ComboboxChip>)}
+        {value.map((toolId) => (
+          <ComboboxChip key={toolId}>{toolMap.get(toolId) ?? "unknown tool"}</ComboboxChip>
+        ))}
         <ComboboxChipsInput id={id} />
       </ComboboxChips>
       <ComboboxContent anchor={anchor}>
         <ComboboxList>
-          {TOOLS.map((tool) => <ComboboxItem key={tool} value={tool}>{tool}</ComboboxItem>)}
+          {tools.map((tool) => <ComboboxItem key={tool.id} value={tool.id}>{tool.name}</ComboboxItem>)}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -534,20 +463,7 @@ export const ToolListComboBox = ({ id, value, onValueChange }: Props) => {
 </div>
 ```
 
-테스트에서는 `src/tests/withProviders.tsx`의 `withTooltipProvider()`를 사용해 컴포넌트를 감싼다. `userEvent.click()`으로 툴팁을 열 수 있다 (`pointerenter` 이벤트가 click 이전에 발생하기 때문).
-```tsx
-// src/tests/withProviders.tsx
-export const withTooltipProvider = (children: ReactNode) => (
-  <TooltipProvider>{children}</TooltipProvider>
-);
-
-// 테스트에서 사용
-const renderWithTooltip = () =>
-  render(withTooltipProvider(<MyComponent />));
-
-await userEvent.click(screen.getByRole("button", { name: "설명 도움말" }));
-expect(await screen.findByText("도움말 내용")).toBeInTheDocument();
-```
+테스트에서는 `src/tests/withProviders.tsx`의 `withTooltipProvider()`로 컴포넌트를 감싼다. `userEvent.click()`으로 툴팁을 열 수 있다 (`pointerenter`가 click 이전에 발생).
 
 **shadcn Combobox 테스트 — 팝업 열기**
 `userEvent.click(screen.getByRole("combobox"))`는 팝업을 열지 않는다. `@base-ui/react`의 `handleInputPress`가 클릭 대상이 인터랙티브 요소(`input`)일 때 조기 반환하기 때문이다. 팝업을 열려면 `[data-slot="combobox-chips"]` 컨테이너에 `fireEvent.mouseDown`을 사용한다.
