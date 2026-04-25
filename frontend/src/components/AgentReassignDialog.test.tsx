@@ -80,6 +80,28 @@ describe("AgentReassignDialog", () => {
     ).toBeInTheDocument();
   });
 
+  test("X 버튼을 클릭하면 에이전트 재할당 다이얼로그가 닫힌다", async () => {
+    render(<AgentReassignDialog failureReason={failureReason} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("에이전트 재할당 다이얼로그 외부 영역을 클릭하면 다이얼로그가 닫힌다", async () => {
+    render(<AgentReassignDialog failureReason={failureReason} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(document.body);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   test("할당 실패 이유가 없으면 이유 메시지가 보이지 않는다", async () => {
     render(<AgentReassignDialog />);
 
