@@ -7,79 +7,9 @@
 - 수정 금지 파일/폴더는 [수정 금지]로 명시한다.
 -->
 
-## 전체 구조
-
-Electron 데스크톱 앱으로, 두 개의 독립 프로세스를 수동으로 실행한다.
-
-- `make start-backend` — FastAPI + uvicorn (`127.0.0.1:8000`)
-- `make start-frontend` — Electron + Vite (React 렌더러)
-
-Renderer → Backend 통신은 HTTP(Axios)만 사용한다. Electron IPC는 현재 미사용이다.
-
----
-
-## Frontend (`frontend/src/`)
-
-### 디렉터리 구조
-
-```
-frontend/src/
-  main.ts           # Electron main process 진입점
-  preload.ts        # preload 브리지 (IPC 미사용)
-  renderer.ts       # 렌더러 진입점
-  main.tsx          # React 앱 마운트
-  App.tsx           # 라우터 루트 (HashRouter)
-  windows/          # 최상위 윈도우 컴포넌트
-  components/       # React UI 컴포넌트 (co-located *.test.tsx)
-  components/ui/    # shadcn/ui 관리 컴포넌트  [수정 금지]
-  repository/       # generated 클라이언트 named export 래퍼
-  api/generated/    # orval 자동생성 Axios 클라이언트  [수정 금지]
-  types/            # 공유 타입·enum 정의 (TodoStatus 등)
-  utils/            # 공통 유틸리티 (SSE 핸들러 등)
-  lib/              # 공통 유틸리티 (shadcn/ui 헬퍼)
-  tests/            # 테스트 전용 유틸리티 (Provider 래퍼 등)
-```
-
-### 데이터 흐름
-
-```
-FastAPI 엔드포인트 변경
-  → make generate-spec → spec/openapi.yaml  [수정 금지]
-  → npm run generate:api → src/api/generated/agents.ts  [수정 금지]
-  → src/repository/{domain}-repository.ts (named export 래퍼)
-  → components
-```
-
-렌더러 컴포넌트 내 API 호출 경로:
-
-```
-Component → repository/{domain}-repository.ts → api/generated/agents.ts → HTTP → Backend
-```
-
-> `api/generated/agents.ts`는 모든 도메인(agent, todo 등)의 API를 단일 파일로 생성한다.
-
-### 레이어 아키텍처
-
-```
-windows/ → components/ → repository/ → api/generated/
-```
-
-- **windows/:** 페이지 단위 최상위 컴포넌트. 라우터에서 직접 렌더링
-- **components/:** 기능 단위 UI 컴포넌트. 비즈니스 로직 없이 repository만 호출
-- **repository/:** generated 클라이언트를 래핑해 도메인 함수로 노출. 클래스 금지, named export만 사용
-- **api/generated/:** orval이 `spec/openapi.yaml`로부터 자동 생성. 직접 수정 금지
-
-### 경계
-
-| 금지 | 이유 | 대안 |
-|------|------|------|
-| `src/api/generated/` 직접 수정 | orval 자동생성 | `spec/openapi.yaml` 수정 후 `npm run generate:api` |
-| `src/components/ui/` 직접 수정 | shadcn/ui 관리 | `npx shadcn@latest add <name>` |
-| renderer에서 Electron 모듈 직접 import | Electron 경계 위반 | preload API 경유 |
-
----
-
 ## Backend (`backend/src/`)
+
+FastAPI 백엔드. Renderer → Backend 통신은 HTTP(Axios). 프론트엔드 구성은 ARCHITECTURE-FRONTEND.md 참조.
 
 ### 디렉터리 구조
 
@@ -103,6 +33,8 @@ backend/alembic/      # DB 마이그레이션 (versions/에 버전 파일 누적
 ```
 
 ### 데이터 흐름
+
+일반 요청:
 
 ```
 HTTP Request
@@ -135,11 +67,11 @@ GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream unti
 ```
 1. entities/ 엔티티 추가/변경
 2. entities/__init__.py에 엔티티 import (Alembic 감지 필요)
-3. alembic revision --autogenerate -m "<설명>"  # 마이그레이션 파일 생성
-4. cd backend && make migrate                    # alembic upgrade head 실행
+3. alembic revision --autogenerate -m "<설명>"
+4. cd backend && make migrate
 ```
 
-> 마이그레이션 없이 앱을 실행하면 테이블이 없어 런타임 오류가 발생한다.
+마이그레이션 없이 앱을 실행하면 테이블이 없어 런타임 오류가 발생한다.
 
 ### 레이어 아키텍처
 
@@ -158,6 +90,20 @@ Router → Service → Repository → AsyncSession (SQLite)
 - **channels/:** asyncio.Queue 싱글톤 + 채널 이름 함수 (`TODO_STATUS_CHANNEL`)
 - **listeners/:** `app.py` lifespan에서 시작하는 백그라운드 태스크. `OrchestrationService`에 위임 후 SSE 발행
 - **services/orchestration_service.py:** `async_session_factory`를 직접 호출해 per-operation 세션 관리
+
+### 풀스택 변경 범위 점검
+
+새 필드 렌더링·API 응답 변경·DB 컬럼 변경 시 아래 레이어를 전부 점검한다.
+
+| 레이어 | 확인 항목 |
+|--------|-----------|
+| `schemas/` | `{Domain}Response`에 필드 선언 |
+| `routers/` | `response_model` 올바름 |
+| `services/` | Response에 필드 매핑 |
+| `repositories/` | 필드 읽기·저장 |
+| `entities/` | 컬럼 존재 (없으면 마이그레이션) |
+
+백엔드 변경 후 `make generate-spec` → `npm run generate:api`로 프론트엔드 클라이언트를 재생성한다.
 
 ### 경계
 
