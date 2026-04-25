@@ -10,13 +10,17 @@ import axios from "axios";
 
 export interface AgentRequest {
   name: string;
+  description: string;
   system_prompt: string;
+  tools: string[];
 }
 
 export interface AgentResponse {
   id: string;
   name: string;
+  description: string;
   system_prompt: string;
+  tools: string[];
 }
 
 export type ValidationErrorCtx = { [key: string]: unknown };

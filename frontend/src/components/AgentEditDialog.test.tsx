@@ -19,7 +19,9 @@ vi.mock("../repository/tool-repository", () => ({
 const agent = {
   id: "1",
   name: "테스트 에이전트",
+  description: "테스트 설명",
   system_prompt: "테스트 프롬프트",
+  tools: ["1"],
 };
 
 const renderWithTooltip = (onSave = vi.fn()) =>
@@ -33,7 +35,9 @@ describe("AgentEditDialog", () => {
     mockUpdateAgent.mockResolvedValue({
       id: "1",
       name: "테스트 에이전트",
+      description: "테스트 설명",
       system_prompt: "테스트 프롬프트",
+      tools: [{ id: "1", name: "웹 검색(web search)" }],
     });
     mockGetTools.mockClear();
     mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
@@ -113,15 +117,21 @@ describe("AgentEditDialog", () => {
     });
     await userEvent.clear(promptInput);
     await userEvent.type(promptInput, "변경된 테스트 프롬프트");
-    await userEvent.type(
-      screen.getByRole("textbox", { name: "설명" }),
-      "테스트 설명",
-    );
+    const descriptionInput = screen.getByRole("textbox", { name: "설명" });
+    await userEvent.clear(descriptionInput);
+    await userEvent.type(descriptionInput, "변경된 테스트 설명");
+    const toolbar = screen.getByRole("toolbar");
+    await userEvent.click(toolbar);
+    const option = screen.getByRole("option", { name: "웹 검색(web search)" });
+    await userEvent.click(option);
+    await userEvent.click(screen.getByText("도구 리스트"));
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
     expect(mockUpdateAgent).toHaveBeenCalledWith("1", {
       name: "테스트 에이전트",
+      description: "변경된 테스트 설명",
       system_prompt: "변경된 테스트 프롬프트",
+      tools: [],
     });
   });
 
@@ -227,17 +237,19 @@ describe("AgentEditDialog", () => {
       renderWithTooltip();
       await userEvent.click(screen.getByRole("button", { name: "수정" }));
 
-      expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "저장" })).toBeEnabled();
     });
 
     test.each([
       { clearField: "설명" },
       { clearField: "시스템 프롬프트" },
-    ])("필수 필드($clearField)를 지우면 저장 버튼이 비활성화 상태이다", async ({
+    ])("다이얼로그를 열면 활성화 된 저장 버튼이 보이고, 필수 필드($clearField)를 지우면 저장 버튼이 비활성화 상태이다", async ({
       clearField,
     }) => {
       renderWithTooltip();
       await userEvent.click(screen.getByRole("button", { name: "수정" }));
+
+      expect(screen.getByRole("button", { name: "저장" })).toBeEnabled();
 
       await userEvent.type(
         screen.getByRole("textbox", { name: "설명" }),
@@ -246,18 +258,6 @@ describe("AgentEditDialog", () => {
       await userEvent.clear(screen.getByRole("textbox", { name: clearField }));
 
       expect(screen.getByRole("button", { name: "저장" })).toBeDisabled();
-    });
-
-    test("설명을 입력하면 저장 버튼이 활성화 상태이다", async () => {
-      renderWithTooltip();
-      await userEvent.click(screen.getByRole("button", { name: "수정" }));
-
-      await userEvent.type(
-        screen.getByRole("textbox", { name: "설명" }),
-        "테스트 설명",
-      );
-
-      expect(screen.getByRole("button", { name: "저장" })).toBeEnabled();
     });
   });
 

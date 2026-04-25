@@ -29,7 +29,9 @@ describe("AgentListSheet", () => {
     mockUpdateAgent.mockResolvedValue({
       id: "1",
       name: "에이전트A",
+      description: "",
       system_prompt: "프롬프트A",
+      tools: [],
     });
     mockDeleteAgent.mockResolvedValue(undefined);
     mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
@@ -55,8 +57,20 @@ describe("AgentListSheet", () => {
 
   test("버튼을 누르면 시트가 보이고, 에이전트 이름이 보이고 설명은 보이지 않는다.", async () => {
     mockGetAgents.mockResolvedValue([
-      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
-      { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
+      {
+        id: "1",
+        name: "에이전트A",
+        description: "",
+        system_prompt: "프롬프트A",
+        tools: [],
+      },
+      {
+        id: "2",
+        name: "에이전트B",
+        description: "",
+        system_prompt: "프롬프트B",
+        tools: [],
+      },
     ]);
 
     render(<AgentListSheet />);
@@ -83,7 +97,13 @@ describe("AgentListSheet", () => {
 
   test("각 에이전트 항목 오른쪽에 수정 버튼과 삭제 버튼이 보인다.", async () => {
     mockGetAgents.mockResolvedValue([
-      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
+      {
+        id: "1",
+        name: "에이전트A",
+        description: "",
+        system_prompt: "프롬프트A",
+        tools: [],
+      },
     ]);
 
     render(<AgentListSheet />);
@@ -117,7 +137,13 @@ describe("AgentListSheet", () => {
 
   test("삭제 확인 후 에이전트 목록이 갱신된다.", async () => {
     mockGetAgents.mockResolvedValue([
-      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
+      {
+        id: "1",
+        name: "에이전트A",
+        description: "",
+        system_prompt: "프롬프트A",
+        tools: [],
+      },
     ]);
 
     render(<AgentListSheet />);
@@ -138,7 +164,13 @@ describe("AgentListSheet", () => {
 
   test("수정 저장 후 에이전트 목록이 갱신된다.", async () => {
     mockGetAgents.mockResolvedValue([
-      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
+      {
+        id: "1",
+        name: "에이전트A",
+        description: "",
+        system_prompt: "프롬프트A",
+        tools: [],
+      },
     ]);
 
     render(<AgentListSheet />);

@@ -110,8 +110,20 @@ describe("MainWindow", () => {
 
   test("에이전트 아이콘을 클릭하면 에이전트 리스트 다이얼로그가 열린다", async () => {
     mockGetAgents.mockResolvedValue([
-      { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
-      { id: "2", name: "에이전트B", system_prompt: "프롬프트B" },
+      {
+        id: "1",
+        name: "에이전트A",
+        description: "",
+        system_prompt: "프롬프트A",
+        tools: [],
+      },
+      {
+        id: "2",
+        name: "에이전트B",
+        description: "",
+        system_prompt: "프롬프트B",
+        tools: [],
+      },
     ]);
 
     render(<MainWindow />);

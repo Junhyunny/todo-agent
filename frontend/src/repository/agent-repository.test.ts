@@ -34,11 +34,13 @@ describe("agent-repository", () => {
   });
 
   test("createAgent는 POST /agents를 호출하고 생성된 에이전트를 반환한다", async () => {
-    const request = { name: "새 에이전트", system_prompt: "너는 AI야" };
+    const request = { name: "새 에이전트", description: "", system_prompt: "너는 AI야", tools: [] };
     const created = {
       id: "1",
       name: "새 에이전트",
+      description: "",
       system_prompt: "너는 AI야",
+      tools: [],
     };
     mockCreateAgentApiAgentsPost.mockResolvedValue({ data: created });
 
@@ -49,11 +51,13 @@ describe("agent-repository", () => {
   });
 
   test("updateAgent PUT /agents를 호출하고 변경된 에이전트를 반환한다", async () => {
-    const request = { name: "새 에이전트", system_prompt: "너는 대단한 AI야" };
+    const request = { name: "새 에이전트", description: "", system_prompt: "너는 대단한 AI야", tools: [] };
     const created = {
       id: "1",
       name: "새 에이전트",
+      description: "",
       system_prompt: "너는 대단한 AI야",
+      tools: [],
     };
     mockUpdateAgentApiAgentsAgentIdPut.mockResolvedValue({ data: created });
 

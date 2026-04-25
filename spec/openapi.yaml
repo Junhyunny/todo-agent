@@ -213,13 +213,23 @@ components:
         name:
           type: string
           title: Name
+        description:
+          type: string
+          title: Description
         system_prompt:
           type: string
           title: System Prompt
+        tools:
+          items:
+            type: string
+          type: array
+          title: Tools
       type: object
       required:
       - name
+      - description
       - system_prompt
+      - tools
       title: AgentRequest
     AgentResponse:
       properties:
@@ -230,14 +240,24 @@ components:
         name:
           type: string
           title: Name
+        description:
+          type: string
+          title: Description
         system_prompt:
           type: string
           title: System Prompt
+        tools:
+          items:
+            type: string
+          type: array
+          title: Tools
       type: object
       required:
       - id
       - name
+      - description
       - system_prompt
+      - tools
       title: AgentResponse
     HTTPValidationError:
       properties:

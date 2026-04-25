@@ -29,22 +29,29 @@ export const AgentEditDialog = ({
   onSave: () => void;
 }) => {
   const [name, setName] = useState(agent.name);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(agent.description ?? "");
   const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
-  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [selectedTools, setSelectedTools] = useState<string[]>(
+    agent.tools ?? [],
+  );
   const [open, setOpen] = useState(false);
 
   const handleSave = async () => {
-    await updateAgent(agent.id, { name, system_prompt: systemPrompt });
+    await updateAgent(agent.id, {
+      name,
+      description,
+      system_prompt: systemPrompt,
+      tools: selectedTools,
+    });
     onSave();
   };
 
   useEffect(() => {
     if (open) {
       setName(agent.name);
-      setDescription("");
+      setDescription(agent.description ?? "");
       setSystemPrompt(agent.system_prompt);
-      setSelectedTools([]);
+      setSelectedTools(agent.tools ?? []);
     }
   }, [open, agent]);
 

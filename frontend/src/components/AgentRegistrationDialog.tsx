@@ -33,7 +33,12 @@ export const AgentRegistrationDialog = () => {
   const [isDuplicate, setIsDuplicate] = useState(false);
 
   const handleSave = async () => {
-    await createAgent({ name, system_prompt: systemPrompt });
+    await createAgent({
+      name,
+      description,
+      system_prompt: systemPrompt,
+      tools: selectedTools,
+    });
   };
 
   useEffect(() => {

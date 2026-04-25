@@ -13,7 +13,9 @@ vi.mock("../repository/agent-repository", () => ({
 const agent = {
   id: "1",
   name: "테스트 에이전트",
+  description: "",
   system_prompt: "테스트 프롬프트",
+  tools: [],
 };
 
 describe("AgentDeleteDialog", () => {

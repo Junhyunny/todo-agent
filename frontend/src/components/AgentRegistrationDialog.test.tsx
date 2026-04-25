@@ -240,7 +240,9 @@ describe("AgentRegistrationDialog", () => {
 
     expect(mockCreateAgent).toHaveBeenCalledWith({
       name: "테스트 에이전트",
+      description: "테스트 설명",
       system_prompt: "테스트 시스템 프롬프트",
+      tools: [],
     });
   });
 
