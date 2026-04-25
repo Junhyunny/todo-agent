@@ -35,6 +35,10 @@ start-claude:
 		'Bash(sudo *)' \
 		$(RESUME_OPT)
 
+.PHONY: typecheck-frontend
+typecheck-frontend:
+	cd frontend && npm run typecheck
+
 .PHONY: format-lint
 format-lint:
 	cd backend && make check

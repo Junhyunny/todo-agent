@@ -86,6 +86,20 @@ cd backend && make check
 make format-lint
 ```
 
+## TypeScript Build (Type Check)
+
+커밋 전 반드시 TypeScript 컴파일 에러가 없는지 확인한다.
+
+```bash
+# 프론트엔드 타입 검사
+make typecheck-frontend
+
+# 또는 직접 실행
+cd frontend && npm run typecheck
+```
+
+> `review-commit` 시 포맷·린트와 함께 반드시 실행한다.
+
 ## Test Run
 
 ```bash

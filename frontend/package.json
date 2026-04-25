@@ -11,6 +11,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "check": "biome check --write .",
+    "typecheck": "tsc",
     "test": "vitest --no-watch",
     "generate:api": "orval"
   },
