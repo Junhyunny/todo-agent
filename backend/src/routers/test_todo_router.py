@@ -104,3 +104,22 @@ async def test_GET_todos_todo_목록을_조회할_때_서비스를_호출한다(
   await mock_async_client.get("/api/todos")
 
   mock_todo_service.get_todos.assert_called_once()
+
+
+async def test_POST_todos_todo_id_reassign_서비스를_호출한다(mock_async_client, mock_todo_service: AsyncMock) -> None:
+  expected_id = uuid.uuid4()
+  mock_todo_service.reassign_todo.return_value = None
+
+  await mock_async_client.post(f"/api/todos/{expected_id}/reassign")
+
+  mock_todo_service.reassign_todo.assert_called_once()
+  _, kwargs = mock_todo_service.reassign_todo.call_args
+  assert kwargs["todo_id"] == expected_id
+
+
+async def test_POST_todos_todo_id_reassign_204를_반환한다(mock_async_client, mock_todo_service: AsyncMock) -> None:
+  mock_todo_service.reassign_todo.return_value = None
+
+  response = await mock_async_client.post(f"/api/todos/{uuid.uuid4()}/reassign")
+
+  assert response.status_code == 204

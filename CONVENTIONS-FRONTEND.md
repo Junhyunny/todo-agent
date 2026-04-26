@@ -12,7 +12,7 @@
 ## 테스트
 
 - 파일 위치: 컴포넌트 옆 co-located `*.test.tsx`
-- 구조: `describe(ComponentName)` + 내부 `test(...)`. 상태·기능 단위 구분이 필요하면 `describe("그룹명")`으로 중첩 그룹핑한다.
+- 구조: `describe(식별자명)` + 내부 `test(...)`. 컴포넌트는 PascalCase 컴포넌트명, 유틸리티·훅은 export된 식별자 그대로 사용 (예: `describe("sseHandler")`). 상태·기능 단위 구분이 필요하면 `describe("그룹명")`으로 중첩 그룹핑한다.
 - 쿼리: role 기반 (`getByRole`, `findByRole`)
 - 테스트명: 한국어 문장형
 - React import: 테스트 파일 최상단에 `// biome-ignore lint/correctness/noUnusedImports: need for proper rendering` 주석과 함께 추가 (`.test.tsx`만 해당)

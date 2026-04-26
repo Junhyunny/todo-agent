@@ -8,6 +8,7 @@ const {
   getTodosApiTodosGet,
   createTodoApiTodosPost,
   deleteTodoApiTodosTodoIdDelete,
+  reassignTodoApiTodosTodoIdReassignPost,
 } = getFastAPI();
 
 export const createTodo = async (
@@ -24,4 +25,8 @@ export const getTodos = async (): Promise<TodoResponse[]> => {
 
 export const deleteTodo = async (id: string): Promise<void> => {
   await deleteTodoApiTodosTodoIdDelete(id);
+};
+
+export const reassignTodo = async (todoId: string): Promise<void> => {
+  await reassignTodoApiTodosTodoIdReassignPost(todoId);
 };

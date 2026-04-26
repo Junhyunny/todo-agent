@@ -1,14 +1,22 @@
 import { describe, expect, test, vi } from "vitest";
-import { createTodo, deleteTodo, getTodos } from "./todo-repository";
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  reassignTodo,
+} from "./todo-repository";
 
 const mockGetTodosApiTodosGet = vi.hoisted(() => vi.fn());
 const mockCreateTodoApiTodosPost = vi.hoisted(() => vi.fn());
 const mockDeleteTodoApiTodosTodoIdDelete = vi.hoisted(() => vi.fn());
+const mockReassignTodoApiTodosTodoIdReassignPost = vi.hoisted(() => vi.fn());
 vi.mock("../api/generated/agents", () => ({
   getFastAPI: () => ({
     getTodosApiTodosGet: mockGetTodosApiTodosGet,
     createTodoApiTodosPost: mockCreateTodoApiTodosPost,
     deleteTodoApiTodosTodoIdDelete: mockDeleteTodoApiTodosTodoIdDelete,
+    reassignTodoApiTodosTodoIdReassignPost:
+      mockReassignTodoApiTodosTodoIdReassignPost,
   }),
 }));
 
@@ -48,6 +56,16 @@ describe("todo-repository", () => {
     await deleteTodo("todo-id-1");
 
     expect(mockDeleteTodoApiTodosTodoIdDelete).toHaveBeenCalledWith(
+      "todo-id-1",
+    );
+  });
+
+  test("reassignTodo는 POST /todos/{id}/reassign을 호출한다", async () => {
+    mockReassignTodoApiTodosTodoIdReassignPost.mockResolvedValue({});
+
+    await reassignTodo("todo-id-1");
+
+    expect(mockReassignTodoApiTodosTodoIdReassignPost).toHaveBeenCalledWith(
       "todo-id-1",
     );
   });

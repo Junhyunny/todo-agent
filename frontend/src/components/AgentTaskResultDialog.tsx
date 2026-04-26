@@ -1,4 +1,3 @@
-import { TodoStatusSection } from "@/components/TodoStatusSection.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -8,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
+import { TodoStatusItem } from "./TodoStatusItem.tsx";
 
 type Props = {
   status: string;
@@ -26,7 +26,7 @@ export const AgentTaskResultDialog = ({ status, result }: Props) => {
           />
         }
       >
-        <TodoStatusSection status={status} message="작업 완료" />
+        <TodoStatusItem status={status} message="작업 완료" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

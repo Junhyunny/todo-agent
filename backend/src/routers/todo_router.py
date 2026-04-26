@@ -22,3 +22,8 @@ async def get_todos(todo_service: TodoService = Depends(TodoService)) -> list[To
 @router.delete("/api/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(todo_id: str, todo_service: TodoService = Depends(TodoService)) -> None:
   await todo_service.delete_todo(todo_id=UUID(todo_id))
+
+
+@router.post("/api/todos/{todo_id}/reassign", status_code=status.HTTP_204_NO_CONTENT)
+async def reassign_todo(todo_id: str, todo_service: TodoService = Depends(TodoService)) -> None:
+  await todo_service.reassign_todo(todo_id=UUID(todo_id))

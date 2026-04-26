@@ -60,6 +60,17 @@ POST /api/todos → TodoService → TodoRepository.create() → AssignmentPublis
 GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream until "completed"|"failed"
 ```
 
+TODO 재할당 흐름:
+
+```
+POST /api/todos/{todo_id}/reassign
+  → TodoService.reassign_todo()
+  → TodoRepository.reset_to_pending()  (status=PENDING, assigned_agent_name=None, result=None)
+  → AssignmentPublisher.publish() → 즉시 응답
+
+이후 흐름은 TODO 등록과 동일 (AssignmentListener → OrchestrationService → SSE)
+```
+
 ### DB 마이그레이션 워크플로우
 
 `entities/` 엔티티에 변경이 있을 때 반드시 수행한다.

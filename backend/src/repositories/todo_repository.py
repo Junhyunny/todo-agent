@@ -59,6 +59,15 @@ class TodoRepository:
     model.result = result
     await self.session.commit()
 
+  async def reset_to_pending(self, todo_id: UUID) -> None:
+    model = await self.find_by_id(todo_id)
+    if not model:
+      raise RuntimeError("not found")
+    model.status = TodoStatus.PENDING
+    model.assigned_agent_name = None
+    model.result = None
+    await self.session.commit()
+
   async def fail_todo(self, todo_id: UUID, reason: str | None = None) -> None:
     model = await self.find_by_id(todo_id)
     if not model:

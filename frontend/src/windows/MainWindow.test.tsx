@@ -18,10 +18,12 @@ vi.mock("../repository/agent-repository", () => ({
 const mockGetTodos = vi.hoisted(() => vi.fn());
 const mockCreateTodo = vi.hoisted(() => vi.fn());
 const mockDeleteTodo = vi.hoisted(() => vi.fn());
+const mockReassignTodo = vi.hoisted(() => vi.fn());
 vi.mock("../repository/todo-repository", () => ({
   getTodos: mockGetTodos,
   createTodo: mockCreateTodo,
   deleteTodo: mockDeleteTodo,
+  reassignTodo: mockReassignTodo,
 }));
 
 const mockGetTools = vi.hoisted(() => vi.fn());
@@ -59,6 +61,8 @@ describe("MainWindow", () => {
     mockCreateTodo.mockResolvedValue({});
     mockDeleteTodo.mockClear();
     mockDeleteTodo.mockResolvedValue(undefined);
+    mockReassignTodo.mockClear();
+    mockReassignTodo.mockResolvedValue(undefined);
     mockGetTools.mockClear();
     mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
   });
@@ -276,6 +280,85 @@ describe("MainWindow", () => {
     await userEvent.click(screen.getByRole("button", { name: "삭제" }));
 
     expect(mockDeleteTodo).toHaveBeenCalledWith("1");
+  });
+
+  test("재할당 확인 버튼을 클릭하면 reassignTodo가 todo id와 함께 호출된다", async () => {
+    mockGetTodos.mockResolvedValue([
+      { id: "1", title: "할 일 A", content: "내용 A", status: "failed" },
+    ]);
+    render(<MainWindow />);
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("할 일 A");
+
+    await userEvent.click(
+      within(todoList).getByRole("button", { name: "todo-1" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "확인" }),
+    );
+
+    await waitFor(() => {
+      expect(mockReassignTodo).toHaveBeenCalledWith("1");
+    });
+  });
+
+  test("재할당 후 getTodos를 다시 호출하여 목록을 갱신한다", async () => {
+    mockGetTodos
+      .mockResolvedValueOnce([
+        { id: "1", title: "할 일 A", content: "내용 A", status: "failed" },
+      ])
+      .mockResolvedValueOnce([
+        { id: "1", title: "할 일 A", content: "내용 A", status: "pending" },
+      ]);
+    render(<MainWindow />);
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("할 일 A");
+
+    await userEvent.click(
+      within(todoList).getByRole("button", { name: "todo-1" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "확인" }),
+    );
+
+    await waitFor(() => {
+      expect(mockGetTodos).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  test("재할당 후 EventSource를 생성한다", async () => {
+    const mockSseHandler = vi
+      .spyOn(sseHandler, "sseHandler")
+      .mockImplementation((_url: string, _callback) => ({}) as EventSource);
+    mockGetTodos.mockResolvedValue([
+      { id: "1", title: "할 일 A", content: "내용 A", status: "failed" },
+    ]);
+    render(<MainWindow />);
+    const todoList = screen.getByRole("region", { name: "TODO 목록" });
+    await within(todoList).findByText("할 일 A");
+
+    await userEvent.click(
+      within(todoList).getByRole("button", { name: "todo-1" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "확인" }),
+    );
+
+    await waitFor(() => {
+      expect(mockSseHandler).toHaveBeenCalledWith(
+        "http://127.0.0.1:8000/api/todos/1/events",
+        expect.any(Function),
+      );
+    });
   });
 
   test("삭제 후 getTodos를 다시 호출하여 목록을 갱신한다", async () => {

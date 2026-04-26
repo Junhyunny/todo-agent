@@ -4,7 +4,11 @@ import { AgentListSheet } from "@/components/AgentListSheet.tsx";
 import { AgentRegistrationDialog } from "@/components/AgentRegistrationDialog.tsx";
 import { TodoRegistrationDialog } from "@/components/TodoRegistrationDialog.tsx";
 import { TodoStatusSheet } from "@/components/TodoStatusSheet.tsx";
-import { deleteTodo, getTodos } from "@/repository/todo-repository.ts";
+import {
+  deleteTodo,
+  getTodos,
+  reassignTodo,
+} from "@/repository/todo-repository.ts";
 import { TodoStatus } from "@/types/enums.ts";
 import { sseHandler } from "@/utils/sse-handler.ts";
 
@@ -34,6 +38,22 @@ export const MainWindow = () => {
     void fetchTodos();
   }, [fetchTodos]);
 
+  const assignOnMessage = useCallback(
+    (todoId: string) =>
+      sseHandler(
+        `${__API_BASE_URL__}/api/todos/${todoId}/events`,
+        async (e: MessageEvent) => {
+          const data = JSON.parse(e.data) as { type: string };
+          if (isRefetch(data.type)) {
+            await fetchTodos();
+            return isSyncFinished(data.type);
+          }
+          return false;
+        },
+      ),
+    [fetchTodos],
+  );
+
   const handleTodoDelete = useCallback(
     async (todoId: string) => {
       await deleteTodo(todoId);
@@ -42,17 +62,23 @@ export const MainWindow = () => {
     [fetchTodos],
   );
 
-  const handleTodoSave = (todoId: string) => {
-    void fetchTodos();
-    sseHandler(`${__API_BASE_URL__}/api/todos/${todoId}/events`, async (e) => {
-      const data = JSON.parse(e.data) as { type: string };
-      if (isRefetch(data.type)) {
-        await fetchTodos();
-        return isSyncFinished(data.type);
-      }
-      return false;
-    });
-  };
+  const handleReassign = useCallback(
+    (todoId: string) => {
+      reassignTodo(todoId).then(() => {
+        void fetchTodos();
+        assignOnMessage(todoId);
+      });
+    },
+    [fetchTodos, assignOnMessage],
+  );
+
+  const handleTodoSave = useCallback(
+    (todoId: string) => {
+      void fetchTodos();
+      assignOnMessage(todoId);
+    },
+    [fetchTodos, assignOnMessage],
+  );
 
   return (
     <div className="flex flex-col h-screen">
@@ -67,6 +93,7 @@ export const MainWindow = () => {
             key={todo.id}
             todo={todo}
             onDelete={handleTodoDelete}
+            onReassign={handleReassign}
           />
         ))}
       </section>

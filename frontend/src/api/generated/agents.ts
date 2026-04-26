@@ -4,9 +4,12 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
-
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import axios from "axios";
+import axios from 'axios';
+import type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse
+} from 'axios';
 
 export interface AgentRequest {
   name: string;
@@ -57,131 +60,146 @@ export interface ToolResponse {
 }
 
 export type ExistsAgentApiAgentsExistsGetParams = {
-  name: string;
+name: string;
 };
 
 export const getFastAPI = (axiosInstance: AxiosInstance = axios) => {
-  /**
-   * @summary Get Agents
-   */
-  const getAgentsApiAgentsGet = (
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<AgentResponse[]>> => {
-    return axiosInstance.get(`/api/agents`, options);
-  };
+/**
+ * @summary Get Agents
+ */
+const getAgentsApiAgentsGet = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AgentResponse[]>> => {
+    return axiosInstance.get(
+      `/api/agents`,options
+    );
+  }
 
-  /**
-   * @summary Create Agent
-   */
-  const createAgentApiAgentsPost = (
-    agentRequest: AgentRequest,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.post(`/api/agents`, agentRequest, options);
-  };
+/**
+ * @summary Create Agent
+ */
+const createAgentApiAgentsPost = (
+    agentRequest: AgentRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AgentResponse>> => {
+    return axiosInstance.post(
+      `/api/agents`,
+      agentRequest,options
+    );
+  }
 
-  /**
-   * @summary Exists Agent
-   */
-  const existsAgentApiAgentsExistsGet = (
-    params: ExistsAgentApiAgentsExistsGetParams,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<boolean>> => {
-    return axiosInstance.get(`/api/agents/exists`, {
-      ...options,
-      params: { ...params, ...options?.params },
-    });
-  };
+/**
+ * @summary Exists Agent
+ */
+const existsAgentApiAgentsExistsGet = (
+    params: ExistsAgentApiAgentsExistsGetParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<boolean>> => {
+    return axiosInstance.get(
+      `/api/agents/exists`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
 
-  /**
-   * @summary Update Agent
-   */
-  const updateAgentApiAgentsAgentIdPut = (
+/**
+ * @summary Update Agent
+ */
+const updateAgentApiAgentsAgentIdPut = (
     agentId: string,
-    agentRequest: AgentRequest,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<AgentResponse>> => {
-    return axiosInstance.put(`/api/agents/${agentId}`, agentRequest, options);
-  };
+    agentRequest: AgentRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AgentResponse>> => {
+    return axiosInstance.put(
+      `/api/agents/${agentId}`,
+      agentRequest,options
+    );
+  }
 
-  /**
-   * @summary Delete Agent
-   */
-  const deleteAgentApiAgentsAgentIdDelete = (
-    agentId: string,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.delete(`/api/agents/${agentId}`, options);
-  };
+/**
+ * @summary Delete Agent
+ */
+const deleteAgentApiAgentsAgentIdDelete = (
+    agentId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axiosInstance.delete(
+      `/api/agents/${agentId}`,options
+    );
+  }
 
-  /**
-   * @summary Get Todos
-   */
-  const getTodosApiTodosGet = (
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<TodoResponse[]>> => {
-    return axiosInstance.get(`/api/todos`, options);
-  };
+/**
+ * @summary Get Todos
+ */
+const getTodosApiTodosGet = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TodoResponse[]>> => {
+    return axiosInstance.get(
+      `/api/todos`,options
+    );
+  }
 
-  /**
-   * @summary Create Todo
-   */
-  const createTodoApiTodosPost = (
-    postTodoRequest: PostTodoRequest,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<TodoResponse>> => {
-    return axiosInstance.post(`/api/todos`, postTodoRequest, options);
-  };
+/**
+ * @summary Create Todo
+ */
+const createTodoApiTodosPost = (
+    postTodoRequest: PostTodoRequest, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TodoResponse>> => {
+    return axiosInstance.post(
+      `/api/todos`,
+      postTodoRequest,options
+    );
+  }
 
-  /**
-   * @summary Delete Todo
-   */
-  const deleteTodoApiTodosTodoIdDelete = (
-    todoId: string,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<void>> => {
-    return axiosInstance.delete(`/api/todos/${todoId}`, options);
-  };
+/**
+ * @summary Delete Todo
+ */
+const deleteTodoApiTodosTodoIdDelete = (
+    todoId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axiosInstance.delete(
+      `/api/todos/${todoId}`,options
+    );
+  }
 
-  /**
-   * @summary Todo Events
-   */
-  const todoEventsApiTodosTodoIdEventsGet = (
-    todoId: string,
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<unknown>> => {
-    return axiosInstance.get(`/api/todos/${todoId}/events`, options);
-  };
+/**
+ * @summary Reassign Todo
+ */
+const reassignTodoApiTodosTodoIdReassignPost = (
+    todoId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<void>> => {
+    return axiosInstance.post(
+      `/api/todos/${todoId}/reassign`,undefined,options
+    );
+  }
 
-  /**
-   * @summary Get Tools
-   */
-  const getToolsApiToolsGet = (
-    options?: AxiosRequestConfig,
-  ): Promise<AxiosResponse<ToolResponse[]>> => {
-    return axiosInstance.get(`/api/tools`, options);
-  };
+/**
+ * @summary Todo Events
+ */
+const todoEventsApiTodosTodoIdEventsGet = (
+    todoId: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<unknown>> => {
+    return axiosInstance.get(
+      `/api/todos/${todoId}/events`,options
+    );
+  }
 
-  return {
-    getAgentsApiAgentsGet,
-    createAgentApiAgentsPost,
-    existsAgentApiAgentsExistsGet,
-    updateAgentApiAgentsAgentIdPut,
-    deleteAgentApiAgentsAgentIdDelete,
-    getTodosApiTodosGet,
-    createTodoApiTodosPost,
-    deleteTodoApiTodosTodoIdDelete,
-    todoEventsApiTodosTodoIdEventsGet,
-    getToolsApiToolsGet,
-  };
-};
-export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>;
-export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>;
-export type ExistsAgentApiAgentsExistsGetResult = AxiosResponse<boolean>;
-export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>;
-export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>;
-export type GetTodosApiTodosGetResult = AxiosResponse<TodoResponse[]>;
-export type CreateTodoApiTodosPostResult = AxiosResponse<TodoResponse>;
-export type DeleteTodoApiTodosTodoIdDeleteResult = AxiosResponse<void>;
-export type TodoEventsApiTodosTodoIdEventsGetResult = AxiosResponse<unknown>;
-export type GetToolsApiToolsGetResult = AxiosResponse<ToolResponse[]>;
+/**
+ * @summary Get Tools
+ */
+const getToolsApiToolsGet = (
+     options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<ToolResponse[]>> => {
+    return axiosInstance.get(
+      `/api/tools`,options
+    );
+  }
+
+return {getAgentsApiAgentsGet,createAgentApiAgentsPost,existsAgentApiAgentsExistsGet,updateAgentApiAgentsAgentIdPut,deleteAgentApiAgentsAgentIdDelete,getTodosApiTodosGet,createTodoApiTodosPost,deleteTodoApiTodosTodoIdDelete,reassignTodoApiTodosTodoIdReassignPost,todoEventsApiTodosTodoIdEventsGet,getToolsApiToolsGet}};
+export type GetAgentsApiAgentsGetResult = AxiosResponse<AgentResponse[]>
+export type CreateAgentApiAgentsPostResult = AxiosResponse<AgentResponse>
+export type ExistsAgentApiAgentsExistsGetResult = AxiosResponse<boolean>
+export type UpdateAgentApiAgentsAgentIdPutResult = AxiosResponse<AgentResponse>
+export type DeleteAgentApiAgentsAgentIdDeleteResult = AxiosResponse<void>
+export type GetTodosApiTodosGetResult = AxiosResponse<TodoResponse[]>
+export type CreateTodoApiTodosPostResult = AxiosResponse<TodoResponse>
+export type DeleteTodoApiTodosTodoIdDeleteResult = AxiosResponse<void>
+export type ReassignTodoApiTodosTodoIdReassignPostResult = AxiosResponse<void>
+export type TodoEventsApiTodosTodoIdEventsGetResult = AxiosResponse<unknown>
+export type GetToolsApiToolsGetResult = AxiosResponse<ToolResponse[]>

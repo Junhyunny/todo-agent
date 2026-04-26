@@ -39,25 +39,49 @@ const mockFailedTodoWithReason = {
 describe("TodoStatusSheet", () => {
   describe("시트가 열리기 전 버튼 상태", () => {
     test("에이전트가 할당된 TODO 항목에는 spinner 아이콘이 보인다", () => {
-      render(<TodoStatusSheet todo={mockAssignedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockAssignedTodo}
+        />,
+      );
 
       expect(screen.getByLabelText("에이전트 작업 중")).toBeInTheDocument();
     });
 
     test("작업이 완료된 TODO 항목에는 초록 체크박스 아이콘이 보인다", () => {
-      render(<TodoStatusSheet todo={mockCompletedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockCompletedTodo}
+        />,
+      );
 
       expect(screen.getByLabelText("작업 완료")).toBeInTheDocument();
     });
 
     test("할당 실패 TODO에는 X 아이콘이 보인다", () => {
-      render(<TodoStatusSheet todo={mockFailedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockFailedTodo}
+        />,
+      );
 
       expect(screen.getByLabelText("에이전트 할당 실패")).toBeInTheDocument();
     });
 
     test("할당 성공 TODO에는 X 아이콘이 보이지 않는다", () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       expect(
         screen.queryByLabelText("에이전트 할당 실패"),
@@ -67,7 +91,13 @@ describe("TodoStatusSheet", () => {
 
   describe("시트가 열린 후", () => {
     test("TODO 항목을 탭하면 상태 시트가 열린다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -77,7 +107,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("시트가 열리면 '해야할 일' 타이틀이 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -89,7 +125,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("시트가 열리면 제목 필드가 비활성화 상태로 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -99,7 +141,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("시트가 열리면 내용 필드가 비활성화 상태로 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -109,7 +157,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("에이전트가 할당되지 않은 경우 할당 대기 아이콘과 메시지가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -123,7 +177,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("에이전트가 작업 중인 경우 spinner 아이콘과 작업 중 메시지가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockAssignedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockAssignedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockAssignedTodo.id}` }),
@@ -139,7 +199,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("작업이 완료된 경우 완료 아이콘과 메시지가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockCompletedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockCompletedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
@@ -153,7 +219,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("작업 완료 영역을 탭하면 작업 결과 다이얼로그가 열린다", async () => {
-      render(<TodoStatusSheet todo={mockCompletedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockCompletedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
@@ -168,7 +240,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("작업 결과 다이얼로그에 작업 결과 내용이 보인다", async () => {
-      render(<TodoStatusSheet todo={mockCompletedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockCompletedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
@@ -181,7 +259,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("작업 결과 다이얼로그에 닫기 버튼이 있다", async () => {
-      render(<TodoStatusSheet todo={mockCompletedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockCompletedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockCompletedTodo.id}` }),
@@ -194,7 +278,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("할당 실패 영역을 탭하면 에이전트 재할당 다이얼로그가 열린다", async () => {
-      render(<TodoStatusSheet todo={mockFailedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockFailedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
@@ -208,8 +298,39 @@ describe("TodoStatusSheet", () => {
       ).toBeInTheDocument();
     });
 
+    test("에이전트 재할당 다이얼로그에서 확인 버튼을 클릭하면 onReassign 콜백이 todo id와 함께 호출된다", async () => {
+      const onReassign = vi.fn();
+      render(
+        <TodoStatusSheet
+          onReassign={onReassign}
+          todo={mockFailedTodo}
+          onDelete={vi.fn()}
+        />,
+      );
+
+      await userEvent.click(
+        screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "에이전트 재할당" }),
+      );
+      await userEvent.click(
+        within(screen.getByRole("dialog")).getByRole("button", {
+          name: "확인",
+        }),
+      );
+
+      expect(onReassign).toHaveBeenCalledWith(mockFailedTodo.id);
+    });
+
     test("에이전트 재할당 다이얼로그에 할당 실패 이유가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockFailedTodoWithReason} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockFailedTodoWithReason}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", {
@@ -226,7 +347,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("할당 실패 상태에서 실패 아이콘과 메시지가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockFailedTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockFailedTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockFailedTodo.id}` }),
@@ -242,7 +369,13 @@ describe("TodoStatusSheet", () => {
 
   describe("삭제", () => {
     test("시트가 열리면 삭제 버튼이 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -252,7 +385,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("삭제 버튼을 탭하면 삭제 확인 다이얼로그가 열린다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -265,7 +404,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("삭제 확인 다이얼로그에 삭제 확인 메시지가 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -278,7 +423,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("삭제 확인 다이얼로그에 타이틀과 취소·삭제 버튼이 보인다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -294,7 +445,13 @@ describe("TodoStatusSheet", () => {
 
     test("삭제 버튼을 탭하면 onDelete 콜백이 todo id와 함께 호출된다", async () => {
       const onDelete = vi.fn();
-      render(<TodoStatusSheet todo={mockTodo} onDelete={onDelete} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={onDelete}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),
@@ -306,7 +463,13 @@ describe("TodoStatusSheet", () => {
     });
 
     test("삭제 확인 버튼을 탭하면 시트가 닫힌다", async () => {
-      render(<TodoStatusSheet todo={mockTodo} />);
+      render(
+        <TodoStatusSheet
+          onReassign={vi.fn()}
+          onDelete={vi.fn()}
+          todo={mockTodo}
+        />,
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: `todo-${mockTodo.id}` }),

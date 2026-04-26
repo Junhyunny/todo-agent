@@ -77,6 +77,26 @@ async def test_delete_todo_레포지토리_delete_함수를_호출한다(mock_to
   assert kwargs["todo_id"] == expected_id
 
 
+async def test_reassign_todo_레포지토리_reset_to_pending_함수를_호출한다(mock_todo_repository: AsyncMock, mock_publisher: AsyncMock) -> None:
+  expected_id = uuid.uuid4()
+  sut = TodoService(todo_repository=mock_todo_repository, publisher=mock_publisher)
+
+  await sut.reassign_todo(todo_id=expected_id)
+
+  mock_todo_repository.reset_to_pending.assert_called_once()
+  _, kwargs = mock_todo_repository.reset_to_pending.call_args
+  assert kwargs["todo_id"] == expected_id
+
+
+async def test_reassign_todo_퍼블리셔_publish_함수를_호출한다(mock_todo_repository: AsyncMock, mock_publisher: AsyncMock) -> None:
+  expected_id = uuid.uuid4()
+  sut = TodoService(todo_repository=mock_todo_repository, publisher=mock_publisher)
+
+  await sut.reassign_todo(todo_id=expected_id)
+
+  mock_publisher.publish.assert_called_once_with(str(expected_id))
+
+
 async def test_get_todos_todo_목록을_반환한다(mock_todo_repository: AsyncMock, mock_publisher: AsyncMock):
   id_1 = uuid.uuid4()
   id_2 = uuid.uuid4()

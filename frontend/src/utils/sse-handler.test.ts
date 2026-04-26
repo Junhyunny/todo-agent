@@ -15,7 +15,7 @@ class MockEventSource {
   }
 }
 
-describe("SSEHandler", () => {
+describe("sseHandler", () => {
   beforeEach(() => {
     vi.stubGlobal("EventSource", MockEventSource);
   });

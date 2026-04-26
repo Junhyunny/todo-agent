@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { AgentReassignDialog } from "./AgentReassignDialog.tsx";
 
 const failureReason = "적합한 에이전트를 찾지 못했습니다";
@@ -78,6 +78,43 @@ describe("AgentReassignDialog", () => {
     expect(
       within(screen.getByRole("dialog")).getByRole("button", { name: "Close" }),
     ).toBeInTheDocument();
+  });
+
+  test("확인 버튼을 클릭하면 에이전트 재할당 다이얼로그가 닫힌다", async () => {
+    render(
+      <AgentReassignDialog
+        failureReason={failureReason}
+        onReassign={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "확인" }),
+    );
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("확인 버튼을 클릭하면 onReassign 콜백을 호출한다", async () => {
+    const onReassign = vi.fn();
+    render(
+      <AgentReassignDialog
+        failureReason={failureReason}
+        onReassign={onReassign}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "에이전트 재할당" }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "확인" }),
+    );
+
+    expect(onReassign).toHaveBeenCalledTimes(1);
   });
 
   test("X 버튼을 클릭하면 에이전트 재할당 다이얼로그가 닫힌다", async () => {

@@ -73,7 +73,7 @@ windows/ → components/ → repository/ → api/generated/
 
 | 금지 | 이유 | 대안 |
 |------|------|------|
-| `src/api/generated/` 직접 수정 | orval 자동생성 | `spec/openapi.yaml` 수정 후 `npm run generate:api` |
+| `src/api/generated/` 직접 수정 | orval 자동생성. biome 검사 제외(`biome.json files.includes`) | `spec/openapi.yaml` 수정 후 `npm run generate:api` |
 | `src/components/ui/` 직접 수정 | shadcn/ui 관리 | `npx shadcn@latest add <name>` |
 | renderer에서 Electron 모듈 직접 import | Electron 경계 위반 | preload API 경유 |
 

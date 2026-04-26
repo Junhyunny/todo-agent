@@ -1,4 +1,3 @@
-import { TodoStatusSection } from "@/components/TodoStatusSection.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
   Dialog,
@@ -9,12 +8,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.tsx";
 import { TodoStatus } from "@/types/enums.ts";
+import { TodoStatusItem } from "./TodoStatusItem.tsx";
 
 type Props = {
   failureReason?: string | null;
+  onReassign?: () => void;
 };
 
-export const AgentReassignDialog = ({ failureReason }: Props) => {
+export const AgentReassignDialog = ({ failureReason, onReassign }: Props) => {
   return (
     <Dialog>
       <DialogTrigger
@@ -26,7 +27,7 @@ export const AgentReassignDialog = ({ failureReason }: Props) => {
           />
         }
       >
-        <TodoStatusSection
+        <TodoStatusItem
           status={TodoStatus.FAILED}
           message="에이전트 할당 실패"
         />
@@ -37,7 +38,9 @@ export const AgentReassignDialog = ({ failureReason }: Props) => {
         </DialogHeader>
         {failureReason && <p>{failureReason}</p>}
         <p>재할당 하시겠습니까?</p>
-        <DialogClose render={<Button />}>확인</DialogClose>
+        <DialogClose render={<Button />} onClick={onReassign}>
+          확인
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

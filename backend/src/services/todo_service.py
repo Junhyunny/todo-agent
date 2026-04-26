@@ -31,6 +31,10 @@ class TodoService:
       result=result.result,
     )
 
+  async def reassign_todo(self, todo_id: UUID) -> None:
+    await self.todo_repository.reset_to_pending(todo_id=todo_id)
+    await self.publisher.publish(str(todo_id))
+
   async def delete_todo(self, todo_id: UUID) -> None:
     await self.todo_repository.delete(todo_id=todo_id)
 

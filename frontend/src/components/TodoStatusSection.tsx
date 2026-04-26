@@ -1,38 +1,55 @@
-import { Circle, CircleCheck, CircleX, LoaderCircle } from "lucide-react";
+import { useMemo } from "react";
+import type { TodoResponse } from "@/api/generated/agents.ts";
+import { AgentReassignDialog } from "@/components/AgentReassignDialog.tsx";
+import { AgentTaskResultDialog } from "@/components/AgentTaskResultDialog.tsx";
+import { TodoStatusItem } from "@/components/TodoStatusItem.tsx";
 import { TodoStatus } from "@/types/enums.ts";
 
 type Props = {
-  status: string;
-  message?: string;
+  todo: TodoResponse;
+  onReassign: (todoId: string) => void;
 };
 
-export const TodoStatusSection = ({ status, message }: Props) => {
-  return (
-    <>
-      {status === TodoStatus.COMPLETED ? (
-        <>
-          <CircleCheck aria-label="작업 완료" className="text-green-500" />
-          {message && <span>{message}</span>}
-        </>
-      ) : status === TodoStatus.FAILED ? (
-        <>
-          <CircleX aria-label="에이전트 할당 실패" className="text-red-500" />
-          {message && <span>{message}</span>}
-        </>
-      ) : status === TodoStatus.ASSIGNED ? (
-        <>
-          <LoaderCircle
-            aria-label="에이전트 작업 중"
-            className="animate-spin text-blue-500"
+const statusMessage = (todo: TodoResponse) => {
+  switch (todo.status) {
+    case TodoStatus.FAILED:
+      return "에이전트 할당 실패";
+    case TodoStatus.ASSIGNED:
+      return `${todo.assigned_agent_name} 에이전트 작업 중`;
+    default:
+      return "에이전트 할당 대기";
+  }
+};
+
+export const TodoStatusSection = ({ todo, onReassign }: Props) => {
+  const Component = useMemo(() => {
+    switch (todo.status) {
+      case TodoStatus.COMPLETED:
+        return (
+          <AgentTaskResultDialog status={todo.status} result={todo.result} />
+        );
+      case TodoStatus.FAILED:
+        return (
+          <AgentReassignDialog
+            failureReason={todo.result}
+            onReassign={() => onReassign(todo.id)}
           />
-          {message && <span>{message}</span>}
-        </>
-      ) : (
-        <>
-          <Circle aria-label="에이전트 할당 대기" className="text-gray-400" />
-          {message && <span>{message}</span>}
-        </>
-      )}
-    </>
+        );
+      default:
+        return (
+          <div className="flex items-center gap-2">
+            <TodoStatusItem
+              status={todo.status}
+              message={statusMessage(todo)}
+            />
+          </div>
+        );
+    }
+  }, [todo, onReassign]);
+
+  return (
+    <div role="note" aria-label="status-section">
+      {Component}
+    </div>
   );
 };
