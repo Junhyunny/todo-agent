@@ -1,39 +1,30 @@
-RESUME_OPT = $(if $(RESUME),--resume=$(RESUME),)
-
 .PHONY: start-copilot
 start-copilot:
-	copilot \
-  		--allow-tool='shell(git:*)' \
-  		--allow-tool='write' \
-		--allow-tool='tracker-boot-server(tb_get_story)' \
-		--allow-tool='tracker-boot-server(tb_get_story_tasks)' \
-		--allow-tool='tracker-boot-server(tb_get_story_comments)' \
-		--allow-tool='tracker-boot-server(tb_batch_create_tasks)' \
-		--allow-tool='tracker-boot-server(tb_update_story_status)' \
-		--allow-tool='tracker-boot-server(tb_update_task)' \
-		--deny-tool='shell(git push)' \
-  		--deny-tool='shell(sudo)'
-		$(RESUME_OPT)
+	sbx run copilot-todo-agent
 
+.PHONY: stop-copilot
+start-copilot:
+	sbx stop copilot-todo-agent
+
+.PHONY: start-claude
 start-claude:
-	claude \
-  		--allowedTools 'Bash(git *)' \
-  		'Bash(find *)' \
-  		'Bash(grep *)' \
-  		'Read' \
-  		'Write(./*)' \
-  		'Update' \
-		'mcp__tracker-boot-server__tb_get_projects:' \
-		'mcp__tracker-boot-server__tb_get_story' \
-		'mcp__tracker-boot-server__tb_get_story_tasks' \
-		'mcp__tracker-boot-server__tb_get_story_comments' \
-		'mcp__tracker-boot-server__tb_batch_create_tasks' \
-		'mcp__tracker-boot-server__tb_update_story_status' \
-		'mcp__tracker-boot-server__tb_update_task' \
-		--disallowedTools 'Bash(git push *)' \
-		'Read(.env*)' \
-		'Bash(sudo *)' \
-		$(RESUME_OPT)
+	sbx run claude-todo-agent
+
+.PHONY: stop-claude
+stop-claude:
+	sbx stop claude-todo-agent
+
+.PHONY: start-codex
+start-codex:
+	sbx run codex-todo-agent
+
+.PHONY: stop-codex
+start-codex:
+	sbx stop codex-todo-agent
+
+.PHONY: add-allowed-network-policy
+add-allowed-network-policy:
+	sbx policy allow network d5l0dvt14r5h8.cloudfront.net
 
 .PHONY: typecheck-frontend
 typecheck-frontend:
