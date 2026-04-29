@@ -11,7 +11,7 @@ from repositories.agent_repository import AgentRepository
 async def test_create_에이전트_정보를_저장할_수_있다(setup_test_db: AsyncSession):
   tool_id = str(uuid.uuid4())
   session = setup_test_db
-  session.add(ToolEntity(id=tool_id, name="테스트 도구"))
+  session.add(ToolEntity(id=tool_id, name="테스트 도구", code="TEST_TOOL"))
   await session.commit()
   repository = AgentRepository(session=setup_test_db)
 
@@ -39,7 +39,7 @@ async def test_get_all_에이전트_리스트를_조회할_수_있다(setup_test
   expected_id_1 = str(uuid.uuid4())
   expected_id_2 = str(uuid.uuid4())
   tool_id = str(uuid.uuid4())
-  session.add(ToolEntity(id=tool_id, name="테스트 도구"))
+  session.add(ToolEntity(id=tool_id, name="테스트 도구", code="TEST_TOOL"))
   session.add(AgentToolEntity(agent_id=expected_id_1, tool_id=tool_id))
   session.add(AgentEntity(id=expected_id_1, name="에이전트 1", description="설명 1", system_prompt="프롬프트 1"))
   session.add(AgentEntity(id=expected_id_2, name="에이전트 2", description="설명 2", system_prompt="프롬프트 2"))
@@ -56,6 +56,7 @@ async def test_get_all_에이전트_리스트를_조회할_수_있다(setup_test
   assert len(result[0].tools) == 1
   assert result[0].tools[0].agent_id == expected_id_1
   assert result[0].tools[0].tool_id == tool_id
+  assert result[0].tools[0].tool.code == "TEST_TOOL"
   assert result[1].id == expected_id_2
   assert result[1].name == "에이전트 2"
   assert result[1].description == "설명 2"
@@ -91,10 +92,9 @@ async def test_update_에이전트_도구를_교체할_수_있다(setup_test_db:
   old_tool_id = str(uuid.uuid4())
   new_tool_id = str(uuid.uuid4())
   session = setup_test_db
-  from entities import ToolEntity
 
-  session.add(ToolEntity(id=old_tool_id, name="기존 도구"))
-  session.add(ToolEntity(id=new_tool_id, name="새 도구"))
+  session.add(ToolEntity(id=old_tool_id, name="기존 도구", code="OLD_TOOL"))
+  session.add(ToolEntity(id=new_tool_id, name="새 도구", code="NEW_TOOL"))
   session.add(AgentEntity(id=str(agent_id), name="에이전트", description="설명", system_prompt="프롬프트"))
   session.add(AgentToolEntity(agent_id=str(agent_id), tool_id=old_tool_id))
   await session.commit()
@@ -141,9 +141,8 @@ async def test_delete_에이전트_삭제시_도구_매핑도_삭제된다(setup
   agent_id = uuid.uuid4()
   tool_id = str(uuid.uuid4())
   session = setup_test_db
-  from entities import ToolEntity
 
-  session.add(ToolEntity(id=tool_id, name="테스트 도구"))
+  session.add(ToolEntity(id=tool_id, name="테스트 도구", code="TEST_TOOL"))
   session.add(AgentEntity(id=str(agent_id), name="에이전트", description="설명", system_prompt="프롬프트"))
   session.add(AgentToolEntity(agent_id=str(agent_id), tool_id=tool_id))
   await session.commit()

@@ -49,7 +49,7 @@ class OrchestrationService:
           await self.__fail_assignment(todo_id, reason=reason)
           return None
 
-        await todo_repo.assign_agent(UUID(todo_id), agent_name=selected.name)
+        await todo_repo.assign_agent(todo_id=UUID(todo_id), agent_name=selected.name)
         return selected
     except Exception as e:
       await self.__fail_assignment(todo_id, reason=str(e))
@@ -63,5 +63,6 @@ class OrchestrationService:
       if todo is None:
         raise RuntimeError(f"todo {todo_id} not found")
       user_message = f"{todo.title}\n{todo.content}"
-      result = await self.task_agent.ainvoke(system_prompt=agent.system_prompt, user_message=user_message)
+      tool_codes = [agent_tool.tool.code for agent_tool in agent.tools]
+      result = await self.task_agent.ainvoke(system_prompt=agent.system_prompt, user_message=user_message, tool_codes=tool_codes)
       await todo_repo.complete_todo(UUID(todo_id), result=result)

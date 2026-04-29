@@ -1,5 +1,5 @@
 import uuid
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from repositories.database import Base
 
 
-class TodoStatus(str, Enum):
+class TodoStatus(StrEnum):
   PENDING = "pending"
   ASSIGNED = "assigned"
   COMPLETED = "completed"

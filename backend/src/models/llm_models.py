@@ -12,3 +12,7 @@ class OrchestrationAgentMessage(BaseModel):
   result: Optional[TargetAgent] = None
   is_applicable: bool
   reason: str
+
+
+class TaskAgentResult(BaseModel):
+  content: str

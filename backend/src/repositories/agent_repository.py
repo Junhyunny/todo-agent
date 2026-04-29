@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 
 from entities import AgentEntity, AgentToolEntity
 from repositories.database import get_session
@@ -24,7 +25,7 @@ class AgentRepository:
     return new_model
 
   async def get_all(self) -> Sequence[AgentEntity]:
-    query = select(AgentEntity)
+    query = select(AgentEntity).options(selectinload(AgentEntity.tools).selectinload(AgentToolEntity.tool))
     result = await self.session.execute(query)
     castle_lit = result.scalars().all()
     return castle_lit
