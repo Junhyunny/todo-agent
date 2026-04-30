@@ -8,6 +8,7 @@ from httpx import ASGITransport, AsyncClient
 from routers.agent_router import router
 from schemas.agent_api_schema import AgentResponse
 from services.agent_service import AgentService
+from services.dependencies import get_agent_service
 
 
 @pytest.fixture
@@ -19,14 +20,12 @@ def app():
 
 @pytest.fixture
 def mock_agent_service():
-  return AsyncMock(
-    spec=AgentService,
-  )
+  return AsyncMock(spec=AgentService)
 
 
 @pytest.fixture
 async def mock_async_client(app, mock_agent_service):
-  app.dependency_overrides[AgentService] = lambda: mock_agent_service
+  app.dependency_overrides[get_agent_service] = lambda: mock_agent_service
   async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
     yield client
   app.dependency_overrides.clear()

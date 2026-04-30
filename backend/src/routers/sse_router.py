@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
 from channels.channel_names import TODO_STATUS_CHANNEL
-from sse.manager import SSEManager, get_sse_manager
+from sse.dependencies import get_sse_manager
+from sse.manager import SSEManager
 
 router = APIRouter()
 

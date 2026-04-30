@@ -3,7 +3,7 @@ start-copilot:
 	sbx run copilot-todo-agent
 
 .PHONY: stop-copilot
-start-copilot:
+stop-copilot:
 	sbx stop copilot-todo-agent
 
 .PHONY: start-claude
@@ -19,7 +19,7 @@ start-codex:
 	sbx run codex-todo-agent
 
 .PHONY: stop-codex
-start-codex:
+stop-codex:
 	sbx stop codex-todo-agent
 
 .PHONY: add-allowed-network-policy

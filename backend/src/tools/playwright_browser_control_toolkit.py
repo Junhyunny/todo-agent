@@ -10,7 +10,7 @@ class PlaywrightBrowserControlToolProvider:
 
   async def get_tools(self) -> list[BaseTool]:
     self._playwright = await async_playwright().start()
-    self._browser = await self._playwright.chromium.launch(headless=True)
+    self._browser = await self._playwright.chromium.launch(headless=False)
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=self._browser)
     return toolkit.get_tools()
 

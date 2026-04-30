@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
@@ -346,7 +346,7 @@ describe("AgentRegistrationDialog", () => {
         '[data-slot="combobox-chips"]',
       );
       expect(chipsContainer).toBeInTheDocument();
-      fireEvent.mouseDown(chipsContainer as Element);
+      await userEvent.click(chipsContainer as Element);
 
       expect(
         await screen.findByRole("option", { name: "웹 검색(web search)" }),

@@ -21,10 +21,3 @@ class SSEManager:
   async def publish(self, channel_name: str, data: dict[str, Any]) -> None:
     if channel_name in self._subscribers:
       await self._subscribers[channel_name].put(data)
-
-
-sse_manager = SSEManager()
-
-
-def get_sse_manager() -> SSEManager:
-  return sse_manager

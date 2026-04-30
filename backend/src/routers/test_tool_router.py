@@ -7,6 +7,7 @@ from httpx import ASGITransport, AsyncClient
 
 from routers.tool_router import router
 from schemas.tool_api_schema import ToolResponse
+from services.dependencies import get_tool_service
 from services.tool_service import ToolService
 
 
@@ -24,7 +25,7 @@ def mock_tool_service():
 
 @pytest.fixture
 async def mock_async_client(app, mock_tool_service):
-  app.dependency_overrides[ToolService] = lambda: mock_tool_service
+  app.dependency_overrides[get_tool_service] = lambda: mock_tool_service
   async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
     yield client
   app.dependency_overrides.clear()

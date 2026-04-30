@@ -1,11 +1,8 @@
 import uuid
-from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends
-
 from entities.todo_entities import TodoEntity
-from pubs.assignment_publisher import AssignmentPublisher, get_assignment_publisher
+from pubs.assignment_publisher import AssignmentPublisher
 from repositories.todo_repository import TodoRepository
 from schemas.todo_api_schema import PostTodoRequest, TodoResponse
 
@@ -13,8 +10,8 @@ from schemas.todo_api_schema import PostTodoRequest, TodoResponse
 class TodoService:
   def __init__(
     self,
-    todo_repository: Annotated[TodoRepository, Depends(TodoRepository)],
-    publisher: Annotated[AssignmentPublisher, Depends(get_assignment_publisher)],
+    todo_repository: TodoRepository,
+    publisher: AssignmentPublisher,
   ) -> None:
     self.todo_repository = todo_repository
     self.publisher = publisher

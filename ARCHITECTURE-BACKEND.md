@@ -7,29 +7,36 @@
 - 수정 금지 파일/폴더는 [수정 금지]로 명시한다.
 -->
 
-## Backend (`backend/src/`)
+## Backend (`backend/`)
 
-FastAPI 백엔드. Renderer → Backend 통신은 HTTP(Axios). 프론트엔드 구성은 ARCHITECTURE-FRONTEND.md 참조.
+FastAPI 백엔드 영역이다. 전체 프로세스 구성과 Frontend → Backend 계약은 `ARCHITECTURE.md`를 따른다. 앱 lifespan에서 TODO assignment listener를 백그라운드 태스크로 시작한다.
 
 ### 디렉터리 구조
 
 ```
-backend/src/
-  app.py              # FastAPI 앱 진입점, 라우터 등록, lifespan (백그라운드 리스너)
-  conftest.py         # 테스트 공통 픽스처 (in-memory SQLite)
-  export_spec.py      # OpenAPI spec 내보내기 스크립트
-  routers/            # HTTP 엔드포인트 핸들러
-  services/           # 비즈니스 로직 (orchestration_service 포함)
-  repositories/       # DB 접근 (AsyncSession)
-  entities/           # SQLAlchemy ORM 엔티티 ({Domain}Entity, 관계 매핑 엔티티 포함)
-  schemas/            # Pydantic API 스키마 ({Domain}Request / {Domain}Response)
-  models/             # LLM 관련 데이터 모델 (structured output 스키마)
-  agents/             # LangChain 에이전트 (OrchestrationAgent, LLM 팩토리)
-  channels/           # asyncio.Queue 싱글톤 + 채널 이름 함수
-  pubs/               # Queue Publisher (assignment_publisher)
-  listeners/          # Queue Listener (assignment_listener) — 백그라운드 태스크
-  sse/                # SSE pub/sub 매니저 (in-memory)
-backend/alembic/      # DB 마이그레이션 (versions/에 버전 파일 누적)
+backend/
+  Makefile            # run, test, check, migrate, generate-spec
+  pyproject.toml      # pytest, mypy, ruff 설정
+  requirements.txt    # Python dependency pin
+  alembic/
+    env.py            # Base.metadata 로드, async migration 실행
+    versions/         # DB 마이그레이션 파일
+  src/
+    app.py            # FastAPI 앱, CORS, 라우터 등록, lifespan listener
+    conftest.py       # 테스트 공통 픽스처
+    export_spec.py    # OpenAPI spec 내보내기
+    routers/          # HTTP/SSE 엔드포인트
+    services/         # 비즈니스 로직과 서비스 DI factory
+    repositories/     # SQLAlchemy repository, database, repository DI factory
+    entities/         # SQLAlchemy ORM 엔티티와 Alembic import entry
+    schemas/          # Pydantic API 스키마
+    agents/           # LangChain OrchestrationAgent, TaskAgent, LLM factory
+    models/           # LLM structured output, tool code 모델
+    tools/            # ToolFactory, ToolProvider, Playwright toolkit provider
+    channels/         # assignment queue singleton, channel name 함수
+    pubs/             # assignment queue publisher
+    listeners/        # assignment listener 백그라운드 루프
+    sse/              # in-memory SSE manager와 singleton dependency
 ```
 
 ### 데이터 흐름
@@ -38,10 +45,13 @@ backend/alembic/      # DB 마이그레이션 (versions/에 버전 파일 누적
 
 ```
 HTTP Request
-  → routers/{domain}_router.py
+  → routers/{agent,todo,tool}_router.py
+  → services.dependencies.get_{domain}_service()
   → services/{domain}_service.py
+  → repositories.dependencies.get_{domain}_repository()
   → repositories/{domain}_repository.py
-  → AsyncSession → SQLite (todo-agent.db)
+  → repositories.database.get_session()
+  → AsyncSession → DB (DATABASE_URL)
 ```
 
 TODO 등록 시 비동기 에이전트 할당·실행 흐름:
@@ -54,10 +64,12 @@ POST /api/todos → TodoService → TodoRepository.create() → AssignmentPublis
       → 실패 시: fail_assignment() → SSEManager.publish("failed")
   → SSEManager.publish("assigned")
   → OrchestrationService.execute_and_complete()
-      → TaskAgent.ainvoke() → TodoRepository.complete_todo()
+      → TaskAgent.ainvoke()
+      → ToolFactory.create_tools(tool_codes)
+      → TodoRepository.complete_todo()
   → SSEManager.publish("completed")
 
-GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream until "completed"|"failed"
+GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream; router loop breaks on "completed", frontend closes on "completed"|"failed"
 ```
 
 TODO 재할당 흐름:
@@ -69,6 +81,17 @@ POST /api/todos/{todo_id}/reassign
   → AssignmentPublisher.publish() → 즉시 응답
 
 이후 흐름은 TODO 등록과 동일 (AssignmentListener → OrchestrationService → SSE)
+```
+
+LLM·툴 실행 흐름:
+
+```
+OrchestrationService
+  → OrchestrationAgent.ainvoke() (structured output으로 agent 선택)
+  → TaskAgent.ainvoke()
+  → ToolFactory.create_tools()
+  → ToolProvider.get_tools()
+  → LangChain agent
 ```
 
 ### DB 마이그레이션 워크플로우
@@ -87,20 +110,28 @@ POST /api/todos/{todo_id}/reassign
 ### 레이어 아키텍처
 
 ```
-Router → Service → Repository → AsyncSession (SQLite)
-                 ↘ Publisher → Queue → Listener → OrchestrationService → Repository (async_session_factory)
-                                                                       ↘ OrchestrationAgent (LLM 선택)
-                                                                       ↘ TaskAgent (LLM 실행)
-                                              ↘ SSEManager → SSE Router
+Router → Service → Repository → AsyncSession → DB
+       ↘ SSEManager → StreamingResponse
+Service → AssignmentPublisher → Queue → AssignmentListener → OrchestrationService → UnitOfWork → Repository
+                                                              ↘ OrchestrationAgent → LLM
+                                                              ↘ TaskAgent → ToolFactory → ToolProvider
 ```
 
-- **Router/Service/Repository:** `Depends()`로 DI 연결. Service는 AssignmentPublisher도 주입받아 큐 적재
-- **entities/:** SQLAlchemy ORM 엔티티. 관계 테이블은 `{Domain}MappingEntity`로 별도 파일 정의. 신규 엔티티는 `entities/__init__.py`에 import 필수 (Alembic 감지)
+```
+dependencies.py modules → FastAPI Depends providers 또는 process singleton accessor
+```
+
+- **routers/:** 요청 파싱, status code, `Depends()` 연결만 담당
+- **services/:** 비즈니스 흐름. TODO Service는 AssignmentPublisher로 큐 적재
+- **repositories/:** AsyncSession 기반 DB 접근. 커밋은 repository 메서드 또는 UnitOfWork에서 수행
+- **entities/:** SQLAlchemy ORM 엔티티. 관계 테이블은 별도 엔티티 파일로 정의. 신규 엔티티는 `entities/__init__.py`에 import 필수 (Alembic 감지)
 - **schemas/:** `{Domain}Request` / `{Domain}Response` (Pydantic)
-- **agents/:** `OrchestrationAgent` — structured output으로 에이전트 선택. `TaskAgent` — `get_llm()` 직접 호출로 TODO 실행
+- **agents/:** `OrchestrationAgent`는 structured output으로 에이전트를 선택. `TaskAgent`는 선택된 툴과 함께 TODO 실행
+- **tools/:** tool code를 ToolProvider로 변환. Playwright provider는 브라우저 툴 생성·정리 담당
 - **channels/:** asyncio.Queue 싱글톤 + 채널 이름 함수 (`TODO_STATUS_CHANNEL`)
-- **listeners/:** `app.py` lifespan에서 시작하는 백그라운드 태스크. `OrchestrationService`에 위임 후 SSE 발행
-- **services/orchestration_service.py:** `async_session_factory`를 직접 호출해 per-operation 세션 관리
+- **listeners/:** `app.py` lifespan에서 시작하는 백그라운드 태스크. OrchestrationService 위임 후 SSE 발행
+- **sse/:** channel별 in-memory subscriber queue 관리
+- **dependencies.py:** 각 패키지의 DI provider. `channels/`와 `sse/`는 process singleton accessor
 
 ### 풀스택 변경 범위 점검
 
@@ -109,7 +140,7 @@ Router → Service → Repository → AsyncSession (SQLite)
 | 레이어 | 확인 항목 |
 |--------|-----------|
 | `schemas/` | `{Domain}Response`에 필드 선언 |
-| `routers/` | `response_model` 올바름 |
+| `routers/` | 응답 타입 선언 또는 `response_model` 올바름 |
 | `services/` | Response에 필드 매핑 |
 | `repositories/` | 필드 읽기·저장 |
 | `entities/` | 컬럼 존재 (없으면 마이그레이션) |
@@ -125,6 +156,8 @@ Router → Service → Repository → AsyncSession (SQLite)
 | 마이그레이션 없이 엔티티 변경 배포 | 테이블 부재로 런타임 오류 | 엔티티 변경 후 반드시 `cd backend && make migrate` 실행 |
 | `entities/`에 Pydantic 스키마 정의 | ORM·API 스키마 혼재 | Pydantic 스키마는 `schemas/`에 작성 |
 | `schemas/`에 SQLAlchemy 모델 정의 | ORM·API 스키마 혼재 | ORM 엔티티는 `entities/`에 작성 |
+| Router에서 repository 직접 생성 | DI·테스트 override 우회 | `services.dependencies` provider 추가 |
+| Background task에서 FastAPI request-scoped session 사용 | lifespan task는 request scope 밖에서 실행 | `UnitOfWork` 또는 명시적 `async_session_factory` 사용 |
 
 ---
 

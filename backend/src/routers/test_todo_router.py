@@ -7,6 +7,7 @@ from httpx import ASGITransport, AsyncClient
 
 from routers.todo_router import router
 from schemas.todo_api_schema import TodoResponse
+from services.dependencies import get_todo_service
 from services.todo_service import TodoService
 
 
@@ -24,7 +25,7 @@ def mock_todo_service():
 
 @pytest.fixture
 async def mock_async_client(app, mock_todo_service):
-  app.dependency_overrides[TodoService] = lambda: mock_todo_service
+  app.dependency_overrides[get_todo_service] = lambda: mock_todo_service
   async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
     yield client
   app.dependency_overrides.clear()

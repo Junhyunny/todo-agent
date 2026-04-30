@@ -3,9 +3,8 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from sqlalchemy.ext.asyncio import create_async_engine
-
 from alembic import context
+from sqlalchemy.ext.asyncio import create_async_engine
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 

@@ -1,7 +1,4 @@
-from typing import Annotated
 from uuid import UUID
-
-from fastapi import Depends
 
 from entities import AgentEntity
 from repositories.agent_repository import AgentRepository
@@ -9,7 +6,7 @@ from schemas.agent_api_schema import AgentRequest, AgentResponse
 
 
 class AgentService:
-  def __init__(self, agent_repository: Annotated[AgentRepository, Depends(AgentRepository)]):
+  def __init__(self, agent_repository: AgentRepository) -> None:
     self.agent_repository = agent_repository
 
   @staticmethod
@@ -45,5 +42,5 @@ class AgentService:
   async def exists_agent_by_name(self, name: str) -> bool:
     return await self.agent_repository.exists_by_name(name=name)
 
-  async def delete_agent(self, agent_id: UUID):
+  async def delete_agent(self, agent_id: UUID) -> None:
     await self.agent_repository.delete(agent_id=agent_id)

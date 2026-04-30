@@ -23,7 +23,7 @@ async def test_get_tools_PlayWrightBrowserToolkit_도구를_반환한다(
 
   assert result == [expected_tool]
   mock_async_playwright.return_value.start.assert_awaited_once_with()
-  playwright.chromium.launch.assert_awaited_once_with(headless=True)
+  playwright.chromium.launch.assert_awaited_once_with(headless=False)
   mock_toolkit_cls.from_browser.assert_called_once_with(async_browser=browser)
   toolkit.get_tools.assert_called_once_with()
 

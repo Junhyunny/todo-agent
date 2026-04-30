@@ -1,14 +1,11 @@
-from typing import Annotated
 from uuid import UUID
-
-from fastapi import Depends
 
 from repositories.tool_repository import ToolRepository
 from schemas.tool_api_schema import ToolResponse
 
 
 class ToolService:
-  def __init__(self, tool_repository: Annotated[ToolRepository, Depends(ToolRepository)]):
+  def __init__(self, tool_repository: ToolRepository) -> None:
     self.tool_repository = tool_repository
 
   async def get_tools(self) -> list[ToolResponse]:

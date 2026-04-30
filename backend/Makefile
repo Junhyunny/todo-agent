@@ -1,8 +1,8 @@
 format:
-	ruff format .
+	.venv/bin/ruff format .
 
 check:
-	ruff check --fix .
+	.venv/bin/ruff check --fix .
 
 generate-spec:
 	cd src && PYTHONPATH=. ../.venv/bin/python export_spec.py

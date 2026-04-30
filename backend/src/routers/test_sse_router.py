@@ -9,7 +9,8 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from routers.sse_router import router
-from sse.manager import SSEManager, get_sse_manager
+from sse.dependencies import get_sse_manager
+from sse.manager import SSEManager
 
 
 @pytest.fixture

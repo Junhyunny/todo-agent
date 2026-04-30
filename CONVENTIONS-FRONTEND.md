@@ -160,10 +160,10 @@ useEffect(() => {
 
 **멀티셀렉트 콤보박스**: shadcn/ui `Combobox`의 `multiple` 모드 사용. 다이얼로그 폼에 인라인으로 작성하지 않고 별도 컴포넌트로 추출한다. `value`는 ID(UUID)를 사용하고 칩 표시는 `useMemo`로 만든 `Map<id, name>`으로 이름을 조회한다.
 
-`userEvent.click(combobox)`는 팝업을 열지 않는다. `@base-ui/react`의 `handleInputPress`가 input 클릭 시 조기 반환하기 때문이다. `[data-slot="combobox-chips"]` 컨테이너에 `fireEvent.mouseDown`을 사용한다.
+`userEvent.click(combobox)`는 팝업을 열지 않는다. `@base-ui/react`의 `handleInputPress`가 input 클릭 시 조기 반환하기 때문이다. `[data-slot="combobox-chips"]` 컨테이너를 찾아 클릭한다.
 ```tsx
 const chipsContainer = screen.getByRole("combobox").closest('[data-slot="combobox-chips"]');
-fireEvent.mouseDown(chipsContainer as Element);
+await userEvent.click(chipsContainer as Element);
 expect(await screen.findByRole("option", { name: "웹 서치(web search)" })).toBeInTheDocument();
 ```
 
