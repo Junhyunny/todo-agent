@@ -1,3 +1,4 @@
 .idea
 .env
 .tdd-sessions/
+.DS_Store
