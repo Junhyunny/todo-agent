@@ -1,17 +1,19 @@
+VENV ?= .venv
+
 format:
-	.venv/bin/ruff format .
+	$(VENV)/bin/ruff format .
 
 check:
-	.venv/bin/ruff check --fix .
+	$(VENV)/bin/ruff check --fix .
 
 generate-spec:
-	cd src && PYTHONPATH=. ../.venv/bin/python export_spec.py
+	cd src && PYTHONPATH=. ../$(VENV)/bin/python export_spec.py
 
 migrate:
-	.venv/bin/alembic upgrade head
+	$(VENV)/bin/alembic upgrade head
 
 test:
-	.venv/bin/pytest -v
+	$(VENV)/bin/pytest -v
 
 run:
 	PYTHONPATH=src uvicorn app:app --host 127.0.0.1 --port 8000

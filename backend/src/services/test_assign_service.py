@@ -6,14 +6,14 @@ from uuid import UUID
 import pytest
 
 from agents.orchestration_agent import OrchestrationAgent
-from agents.task_agent import TaskAgent
-from entities import AgentEntity, AgentToolEntity, TodoEntity, ToolEntity
+from channels.channel_names import TODO_STATUS_CHANNEL
+from entities import AgentEntity, TodoEntity
 from models.llm_models import TargetAgent
-from models.tool_codes import ToolCode
 from repositories.agent_repository import AgentRepository
 from repositories.todo_repository import TodoRepository
 from repositories.unit_of_work import AbstractUnitOfWork
-from services.orchestration_service import OrchestrationService
+from services.assign_service import AssignService
+from sse.manager import SSEManager
 
 
 @pytest.fixture
@@ -32,8 +32,8 @@ def mock_orchestration_agent() -> AsyncMock:
 
 
 @pytest.fixture
-def mock_task_agent() -> AsyncMock:
-  return AsyncMock(spec=TaskAgent)
+def mock_sse_manager() -> AsyncMock:
+  return AsyncMock(spec=SSEManager)
 
 
 @pytest.fixture
@@ -54,35 +54,30 @@ todo_id = str(uuid.uuid4())
 todo = TodoEntity(id=todo_id, title="제목", content="내용", status="pending")
 agent = AgentEntity(id="1", name="더하기 에이전트", description="더하기 설명", system_prompt="숫자 더하기 담당")
 agent.tools = []
-web_browser_tool = ToolEntity(id="d4f3b2a1-1234-5678-abcd-ef0123456789", name="웹 검색(web search)", code=ToolCode.WEB_BROWSER_CONTROL)
-agent_with_browser_tool = AgentEntity(id="2", name="웹 검색 에이전트", description="웹 검색 설명", system_prompt="웹 검색 담당")
-agent_with_browser_tool.tools = [
-  AgentToolEntity(agent_id="2", tool_id=web_browser_tool.id, tool=web_browser_tool),
-]
 
 
 def create_sut(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
-) -> OrchestrationService:
-  return OrchestrationService(
+  mock_sse_manager: AsyncMock,
+) -> AssignService:
+  return AssignService(
     orchestration_agent=mock_orchestration_agent,
-    task_agent=mock_task_agent,
     unit_of_work_factory=mock_unit_of_work_factory,
+    sse_manager=mock_sse_manager,
   )
 
 
 async def test_select_and_assign_OrchestrationAgent_ainvoke_함수를_호출한다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = [agent]
   mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="더하기 에이전트", system_prompt="숫자 더하기 담당"), "이유")
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
   await sut.select_and_assign(todo_id)
 
@@ -93,14 +88,14 @@ async def test_select_and_assign_OrchestrationAgent_ainvoke_함수를_호출한�
 
 async def test_select_and_assign_에이전트를_할당하고_AgentEntity를_반환한다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = [agent]
   mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="더하기 에이전트", system_prompt="숫자 더하기 담당"), "이유")
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
   result = await sut.select_and_assign(todo_id)
 
@@ -114,154 +109,175 @@ async def test_select_and_assign_에이전트를_할당하고_AgentEntity를_반
   mock_unit_of_work.commit.assert_awaited_once_with()
 
 
-async def test_select_and_assign_에이전트가_없으면_None을_반환한다(
+async def test_select_and_assign_성공시_assigned_SSE를_발행한다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = todo
+  mock_unit_of_work.agents.get_all.return_value = [agent]
+  mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="더하기 에이전트", system_prompt="숫자 더하기 담당"), "이유")
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  await sut.select_and_assign(todo_id)
+
+  mock_sse_manager.publish.assert_awaited_once_with(TODO_STATUS_CHANNEL(todo_id), {"type": "assigned"})
+
+
+async def test_select_and_assign_todo가_없으면_예외를_발생시킨다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = None
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+
+async def test_select_and_assign_todo가_없으면_fail_todo를_호출한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = None
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+  mock_unit_of_work.todos.fail_todo.assert_awaited_once()
+
+
+async def test_select_and_assign_todo가_없으면_failed_SSE를_발행한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = None
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+  mock_sse_manager.publish.assert_awaited_once_with(TODO_STATUS_CHANNEL(todo_id), {"type": "failed"})
+
+
+async def test_select_and_assign_에이전트가_없으면_예외를_발생시킨다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = []
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
-
-  result = await sut.select_and_assign(todo_id)
-
-  assert result is None
-  mock_orchestration_agent.ainvoke.assert_not_called()
-
-
-async def test_select_and_assign_todo가_없으면_None을_반환한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_unit_of_work_factory: MagicMock,
-  mock_unit_of_work: AsyncMock,
-) -> None:
-  mock_unit_of_work.todos.find_by_id.return_value = None
-  mock_unit_of_work.agents.get_all.return_value = [agent]
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
-
-  result = await sut.select_and_assign(todo_id)
-
-  assert result is None
-  mock_orchestration_agent.ainvoke.assert_not_called()
-  mock_unit_of_work.todos.fail_todo.assert_not_called()
-  mock_unit_of_work.commit.assert_not_called()
-
-
-async def test_execute_and_complete_TaskAgent_ainvoke를_호출한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_unit_of_work_factory: MagicMock,
-  mock_unit_of_work: AsyncMock,
-) -> None:
-  mock_unit_of_work.todos.find_by_id.return_value = todo
-  mock_task_agent.ainvoke.return_value = "처리 완료"
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
-
-  await sut.execute_and_complete(todo_id, agent)
-
-  mock_task_agent.ainvoke.assert_awaited_once_with(
-    system_prompt="숫자 더하기 담당",
-    user_message=f"{todo.title}\n{todo.content}",
-    tool_codes=[],
-  )
-
-
-async def test_execute_and_complete_에이전트의_도구_코드를_TaskAgent에_전달한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_unit_of_work_factory: MagicMock,
-  mock_unit_of_work: AsyncMock,
-) -> None:
-  mock_unit_of_work.todos.find_by_id.return_value = todo
-  mock_task_agent.ainvoke.return_value = "처리 완료"
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
-
-  await sut.execute_and_complete(todo_id, agent_with_browser_tool)
-
-  mock_task_agent.ainvoke.assert_awaited_once_with(
-    system_prompt="웹 검색 담당",
-    user_message=f"{todo.title}\n{todo.content}",
-    tool_codes=[ToolCode.WEB_BROWSER_CONTROL],
-  )
-
-
-async def test_execute_and_complete_작업_결과를_저장한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_unit_of_work_factory: MagicMock,
-  mock_unit_of_work: AsyncMock,
-) -> None:
-  mock_unit_of_work.todos.find_by_id.return_value = todo
-  mock_task_agent.ainvoke.return_value = "처리 완료"
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
-
-  await sut.execute_and_complete(todo_id, agent)
-
-  mock_unit_of_work.todos.complete_todo.assert_awaited_once_with(UUID(todo_id), result="처리 완료")
-  mock_unit_of_work.commit.assert_awaited_once_with()
-
-
-async def test_execute_and_complete_todo가_없으면_예외가_발생한다(
-  mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
-  mock_unit_of_work_factory: MagicMock,
-  mock_unit_of_work: AsyncMock,
-) -> None:
-  mock_unit_of_work.todos.find_by_id.return_value = None
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
   with pytest.raises(RuntimeError):
-    await sut.execute_and_complete(todo_id, agent)
+    await sut.select_and_assign(todo_id)
 
-  mock_unit_of_work.commit.assert_not_called()
+  mock_orchestration_agent.ainvoke.assert_not_called()
 
 
 async def test_select_and_assign_에이전트가_없으면_실패_이유와_함께_fail_todo를_호출한다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = []
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
-  await sut.select_and_assign(todo_id)
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
 
   mock_unit_of_work.todos.fail_todo.assert_awaited_once_with(uuid.UUID(todo_id), reason="할당 가능한 에이전트가 없습니다")
   mock_unit_of_work.commit.assert_awaited_once_with()
 
 
-async def test_select_and_assign_오케스트레이션_결과가_None이면_LLM_이유와_함께_fail_todo를_호출한다(
+async def test_select_and_assign_에이전트가_없으면_failed_SSE를_발행한다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = todo
+  mock_unit_of_work.agents.get_all.return_value = []
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+  mock_sse_manager.publish.assert_awaited_once_with(TODO_STATUS_CHANNEL(todo_id), {"type": "failed"})
+
+
+async def test_select_and_assign_오케스트레이션_결과가_None이면_예외를_발생시킨다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = [agent]
   mock_orchestration_agent.ainvoke.return_value = (None, "처리 불가능한 요청")
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
-  await sut.select_and_assign(todo_id)
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+
+async def test_select_and_assign_오케스트레이션_결과가_None이면_LLM_이유와_함께_fail_todo를_호출한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = todo
+  mock_unit_of_work.agents.get_all.return_value = [agent]
+  mock_orchestration_agent.ainvoke.return_value = (None, "처리 불가능한 요청")
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
 
   mock_unit_of_work.todos.fail_todo.assert_awaited_once_with(uuid.UUID(todo_id), reason="처리 불가능한 요청")
   mock_unit_of_work.commit.assert_awaited_once_with()
 
 
-async def test_select_and_assign_선택된_에이전트가_없으면_LLM_이유와_함께_fail_todo를_호출한다(
+async def test_select_and_assign_선택된_에이전트가_없으면_예외를_발생시킨다(
   mock_orchestration_agent: AsyncMock,
-  mock_task_agent: AsyncMock,
   mock_unit_of_work_factory: MagicMock,
   mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
 ) -> None:
   mock_unit_of_work.todos.find_by_id.return_value = todo
   mock_unit_of_work.agents.get_all.return_value = [agent]
   mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="없는에이전트", system_prompt="없음"), "이유")
-  sut = create_sut(mock_orchestration_agent, mock_task_agent, mock_unit_of_work_factory)
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
 
-  await sut.select_and_assign(todo_id)
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
+
+
+async def test_select_and_assign_선택된_에이전트가_없으면_LLM_이유와_함께_fail_todo를_호출한다(
+  mock_orchestration_agent: AsyncMock,
+  mock_unit_of_work_factory: MagicMock,
+  mock_unit_of_work: AsyncMock,
+  mock_sse_manager: AsyncMock,
+) -> None:
+  mock_unit_of_work.todos.find_by_id.return_value = todo
+  mock_unit_of_work.agents.get_all.return_value = [agent]
+  mock_orchestration_agent.ainvoke.return_value = (TargetAgent(name="없는에이전트", system_prompt="없음"), "이유")
+  sut = create_sut(mock_orchestration_agent, mock_unit_of_work_factory, mock_sse_manager)
+
+  with pytest.raises(RuntimeError):
+    await sut.select_and_assign(todo_id)
 
   mock_unit_of_work.todos.fail_todo.assert_awaited_once_with(uuid.UUID(todo_id), reason="이유")
   mock_unit_of_work.commit.assert_awaited_once_with()

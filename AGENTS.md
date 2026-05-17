@@ -42,19 +42,50 @@ AI 에이전트를 등록·관리하고 태스크를 실행하는 Electron 데�
 
 ---
 
+## 샌드박스 환경 (AI 에이전트 전용)
+
+로컬 `.venv` 는 사람이 관리한다. AI 에이전트는 **반드시 `.venv-sbx`** 를 사용한다.
+
+```bash
+# 샌드박스 venv 초기화 (처음 한 번만, 또는 requirements.txt 변경 시)
+cd backend
+python3 -m venv .venv-sbx
+.venv-sbx/bin/pip install -r requirements.txt
+```
+
+모든 `make` 명령어는 `VENV=.venv-sbx` 를 붙여서 실행한다:
+
+```bash
+# 루트에서
+VENV=.venv-sbx make test-all
+VENV=.venv-sbx make format-lint
+
+# 백엔드 디렉터리에서
+cd backend && make test VENV=.venv-sbx
+cd backend && make check VENV=.venv-sbx
+```
+
+특정 파일만 테스트할 때도 동일하게 `.venv-sbx` 를 사용한다:
+
+```bash
+cd backend && .venv-sbx/bin/pytest <파일> -v
+```
+
+---
+
 ## Commands
 
 ```bash
 # 포맷 · 린트
-make format-lint
+VENV=.venv-sbx make format-lint
 
 # 타입 체크 (커밋 전 필수)
 make typecheck-frontend
 
 # 테스트
-make test-all
+VENV=.venv-sbx make test-all
 cd frontend && npm run test -- <파일 or -t "테스트명">
-cd backend && .venv/bin/pytest <파일> -v
+cd backend && .venv-sbx/bin/pytest <파일> -v
 ```
 
 ## Do Not Edit

@@ -26,18 +26,20 @@ stop-codex:
 add-allowed-network-policy:
 	sbx policy allow network d5l0dvt14r5h8.cloudfront.net
 
+VENV ?= .venv
+
 .PHONY: typecheck-frontend
 typecheck-frontend:
 	cd frontend && npm run typecheck
 
 .PHONY: format-lint
 format-lint:
-	cd backend && make check
+	cd backend && make check VENV=$(VENV)
 	cd frontend && npm run check
 
 .PHONY: test-all
 test-all:
-	cd backend && make test
+	cd backend && make test VENV=$(VENV)
 	cd frontend && npm run test
 
 .PHONY: start-frontend

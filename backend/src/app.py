@@ -11,8 +11,7 @@ from routers.agent_router import router as agent_router
 from routers.sse_router import router as sse_router
 from routers.todo_router import router as todo_router
 from routers.tool_router import router as tool_router
-from services.dependencies import create_orchestration_service
-from sse.dependencies import get_sse_manager
+from services.dependencies import create_assign_service, create_task_service
 
 
 @asynccontextmanager
@@ -20,8 +19,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
   listener = asyncio.create_task(
     run_assignment_listener(
       assign_que=get_assignment_queue(),
-      orchestration_service=create_orchestration_service(),
-      sse_manager=get_sse_manager(),
+      assign_service=create_assign_service(),
+      task_service=create_task_service(),
     )
   )
   yield
