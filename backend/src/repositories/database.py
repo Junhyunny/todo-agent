@@ -6,7 +6,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+  raise RuntimeError("DATABASE_URL environment variable is not set. Check your .env file.")
 
 engine = create_async_engine(DATABASE_URL)
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
