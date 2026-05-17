@@ -20,7 +20,6 @@ class TodoRepository:
       status=model.status,
     )
     self.session.add(new_model)
-    await self.session.commit()
     return new_model
 
   async def get_all(self) -> Sequence[TodoEntity]:
@@ -38,7 +37,6 @@ class TodoRepository:
       raise RuntimeError("not found")
     model.assigned_agent_name = agent_name
     model.status = TodoStatus.ASSIGNED
-    await self.session.commit()
     return model
 
   async def delete(self, todo_id: UUID) -> None:
@@ -46,7 +44,6 @@ class TodoRepository:
     if not todo:
       raise RuntimeError("not found")
     await self.session.delete(todo)
-    await self.session.commit()
 
   async def complete_todo(self, todo_id: UUID, result: str) -> None:
     model = await self.find_by_id(todo_id)
@@ -54,7 +51,6 @@ class TodoRepository:
       raise RuntimeError("not found")
     model.status = TodoStatus.COMPLETED
     model.result = result
-    await self.session.commit()
 
   async def reset_to_pending(self, todo_id: UUID) -> None:
     model = await self.find_by_id(todo_id)
@@ -63,7 +59,6 @@ class TodoRepository:
     model.status = TodoStatus.PENDING
     model.assigned_agent_name = None
     model.result = None
-    await self.session.commit()
 
   async def fail_todo(self, todo_id: UUID, reason: str | None = None) -> None:
     model = await self.find_by_id(todo_id)
@@ -71,4 +66,3 @@ class TodoRepository:
       raise RuntimeError("not found")
     model.status = TodoStatus.FAILED
     model.result = reason
-    await self.session.commit()

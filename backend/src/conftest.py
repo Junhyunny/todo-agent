@@ -1,11 +1,13 @@
+import os
 from typing import AsyncGenerator
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from repositories.database import Base
-
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+os.environ.setdefault("DATABASE_URL", TEST_DATABASE_URL)
+
+from repositories.database import Base  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

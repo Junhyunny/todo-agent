@@ -27,7 +27,7 @@ backend/
     export_spec.py    # OpenAPI spec 내보내기
     routers/          # HTTP/SSE 엔드포인트
     services/         # 비즈니스 로직과 서비스 DI factory
-    repositories/     # SQLAlchemy repository, database, repository DI factory
+    repositories/     # SQLAlchemy repository, UnitOfWork, database, DI factory
     entities/         # SQLAlchemy ORM 엔티티와 Alembic import entry
     schemas/          # Pydantic API 스키마
     agents/           # LangChain OrchestrationAgent, TaskAgent, LLM factory
@@ -48,16 +48,16 @@ HTTP Request
   → routers/{agent,todo,tool}_router.py
   → services.dependencies.get_{domain}_service()
   → services/{domain}_service.py
-  → repositories.dependencies.get_{domain}_repository()
+  → repositories.dependencies.get_unit_of_work()
+  → SQLAlchemyUnitOfWork.__aenter__()
   → repositories/{domain}_repository.py
-  → repositories.database.get_session()
   → AsyncSession → DB (DATABASE_URL)
 ```
 
 TODO 등록 시 비동기 에이전트 할당·실행 흐름:
 
 ```
-POST /api/todos → TodoService → TodoRepository.create() → AssignmentPublisher.publish() → 즉시 응답
+POST /api/todos → TodoService → UnitOfWork.todos.create() → UnitOfWork.commit() → AssignmentPublisher.publish() → 즉시 응답
 
 [백그라운드: AssignmentListener]
   → OrchestrationService.select_and_assign()
@@ -66,7 +66,7 @@ POST /api/todos → TodoService → TodoRepository.create() → AssignmentPublis
   → OrchestrationService.execute_and_complete()
       → TaskAgent.ainvoke()
       → ToolFactory.create_tools(tool_codes)
-      → TodoRepository.complete_todo()
+      → UnitOfWork.todos.complete_todo() → UnitOfWork.commit()
   → SSEManager.publish("completed")
 
 GET /api/todos/{todo_id}/events (SSE) → SSEManager.subscribe() → stream; router loop breaks on "completed", frontend closes on "completed"|"failed"
@@ -77,7 +77,7 @@ TODO 재할당 흐름:
 ```
 POST /api/todos/{todo_id}/reassign
   → TodoService.reassign_todo()
-  → TodoRepository.reset_to_pending()  (status=PENDING, assigned_agent_name=None, result=None)
+  → UnitOfWork.todos.reset_to_pending() → UnitOfWork.commit()  (status=PENDING, assigned_agent_name=None, result=None)
   → AssignmentPublisher.publish() → 즉시 응답
 
 이후 흐름은 TODO 등록과 동일 (AssignmentListener → OrchestrationService → SSE)
@@ -110,7 +110,7 @@ OrchestrationService
 ### 레이어 아키텍처
 
 ```
-Router → Service → Repository → AsyncSession → DB
+Router → Service → UnitOfWork → Repository → AsyncSession → DB
        ↘ SSEManager → StreamingResponse
 Service → AssignmentPublisher → Queue → AssignmentListener → OrchestrationService → UnitOfWork → Repository
                                                               ↘ OrchestrationAgent → LLM
@@ -122,8 +122,9 @@ dependencies.py modules → FastAPI Depends providers 또는 process singleton a
 ```
 
 - **routers/:** 요청 파싱, status code, `Depends()` 연결만 담당
-- **services/:** 비즈니스 흐름. TODO Service는 AssignmentPublisher로 큐 적재
-- **repositories/:** AsyncSession 기반 DB 접근. 커밋은 repository 메서드 또는 UnitOfWork에서 수행
+- **services/:** 비즈니스 흐름과 트랜잭션 경계. 쓰기 작업은 UnitOfWork를 명시적으로 commit하고, TODO Service는 commit 이후 AssignmentPublisher로 큐 적재
+- **repositories/:** AsyncSession 기반 DB 접근. repository 메서드는 commit/rollback을 수행하지 않는다
+- **repositories/unit_of_work.py:** SQLAlchemy 세션 생명주기와 트랜잭션 경계. 진입 시 repository를 만들고, 명시적 commit이 없거나 예외가 있으면 rollback한 뒤 session을 닫는다
 - **entities/:** SQLAlchemy ORM 엔티티. 관계 테이블은 별도 엔티티 파일로 정의. 신규 엔티티는 `entities/__init__.py`에 import 필수 (Alembic 감지)
 - **schemas/:** `{Domain}Request` / `{Domain}Response` (Pydantic)
 - **agents/:** `OrchestrationAgent`는 structured output으로 에이전트를 선택. `TaskAgent`는 선택된 툴과 함께 TODO 실행
@@ -157,7 +158,7 @@ dependencies.py modules → FastAPI Depends providers 또는 process singleton a
 | `entities/`에 Pydantic 스키마 정의 | ORM·API 스키마 혼재 | Pydantic 스키마는 `schemas/`에 작성 |
 | `schemas/`에 SQLAlchemy 모델 정의 | ORM·API 스키마 혼재 | ORM 엔티티는 `entities/`에 작성 |
 | Router에서 repository 직접 생성 | DI·테스트 override 우회 | `services.dependencies` provider 추가 |
-| Background task에서 FastAPI request-scoped session 사용 | lifespan task는 request scope 밖에서 실행 | `UnitOfWork` 또는 명시적 `async_session_factory` 사용 |
+| Background task에서 FastAPI request-scoped session 또는 공유 UnitOfWork 인스턴스 사용 | lifespan task는 request scope 밖에서 실행되고 여러 작업을 순차 처리 | `UnitOfWorkFactory`로 작업마다 새 UnitOfWork 생성 |
 
 ---
 

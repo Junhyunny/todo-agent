@@ -1,13 +1,14 @@
 from uuid import UUID
 
-from repositories.tool_repository import ToolRepository
+from repositories.unit_of_work import AbstractUnitOfWork
 from schemas.tool_api_schema import ToolResponse
 
 
 class ToolService:
-  def __init__(self, tool_repository: ToolRepository) -> None:
-    self.tool_repository = tool_repository
+  def __init__(self, unit_of_work: AbstractUnitOfWork) -> None:
+    self.unit_of_work = unit_of_work
 
   async def get_tools(self) -> list[ToolResponse]:
-    tool_list = await self.tool_repository.get_all()
-    return [ToolResponse(id=UUID(tool.id), name=tool.name) for tool in tool_list]
+    async with self.unit_of_work as uow:
+      tool_list = await uow.tools.get_all()
+      return [ToolResponse(id=UUID(tool.id), name=tool.name) for tool in tool_list]

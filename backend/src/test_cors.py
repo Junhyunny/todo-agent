@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from httpx import ASGITransport, AsyncClient
 
 from routers.todo_router import router as todo_router
+from services.dependencies import get_todo_service
 from services.todo_service import TodoService
 
 
@@ -21,7 +22,7 @@ def cors_app():
   mock_service = AsyncMock(spec=TodoService)
   mock_service.get_todos.return_value = []
   app.include_router(todo_router)
-  app.dependency_overrides[TodoService] = lambda: mock_service
+  app.dependency_overrides[get_todo_service] = lambda: mock_service
   return app
 
 

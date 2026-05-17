@@ -16,9 +16,10 @@
 | 레이어 | 파일 위치 | mock 대상 | DB |
 |--------|-----------|-----------|-----|
 | Router | `src/routers/test_*.py` | Service (`AsyncMock(spec=Service)`) | 없음 |
-| Service | `src/services/test_*.py` | Repository, Agent (`AsyncMock(spec=...)`) | 없음 |
+| Service | `src/services/test_*.py` | UnitOfWork, Agent, Publisher (`AsyncMock(spec=...)`) | 없음 |
 | Agent | `src/agents/test_*.py` | LangChain `create_agent` (`@patch`), LLM/ToolFactory 생성자 주입 | 없음 |
 | Repository | `src/repositories/test_*.py` | 없음 | in-memory SQLite |
+| UnitOfWork | `src/repositories/test_unit_of_work.py` | `AsyncSession`, session factory | 없음 |
 | Publisher | `src/pubs/test_*.py` | asyncio.Queue (실제 Queue 사용) | 없음 |
 | Listener | `src/listeners/test_*.py` | OrchestrationService, SSEManager (`AsyncMock`) + 실제 asyncio.Queue | 없음 |
 | SSEManager | `src/sse/test_*.py` | 없음 (순수 단위 테스트) | 없음 |
@@ -38,8 +39,9 @@
 
 **Service 테스트**
 - 네이밍: `test_메서드명_한국어설명` (예: `test_create_agent_레포지토리_create_함수를_호출한다`)
-- 테스트 쌍으로 작성: "레포지토리 호출 검증" + "반환값 검증"
+- 테스트 쌍으로 작성: "UnitOfWork의 레포지토리 호출 검증" + "반환값 검증"
 - 반환값 검증 테스트는 반환 객체의 **모든 공개 필드**를 assert한다. 일부만 검증하면 새 필드 누락을 감지하지 못한다.
+- UnitOfWork mock은 `__aenter__.return_value`를 자기 자신으로 설정하고, 필요한 레포지토리 속성(`todos`, `agents`, `tools`)에 `AsyncMock(spec=Repository)`를 연결한다.
 - Repository mock 반환값은 반드시 ORM `Entity` 객체로 설정한다. Pydantic `Response`를 반환하면 Service 내부 UUID 변환이 실패한다.
 - ORM `relationship`이 있는 Entity를 mock으로 반환할 때는 `make_*_entity()` factory helper로 관계 필드를 직접 초기화한다. SQLAlchemy lazy loading은 mock 환경에서 동작하지 않는다.
 ```python
@@ -48,21 +50,31 @@ def make_agent_entity(index: Number, agent_id: uuid.UUID, tool_ids: list[str] | 
     entity.tools = [AgentToolEntity(agent_id=str(agent_id), tool_id=tid) for tid in (tool_ids or [])]
     return entity
 ```
-- `OrchestrationService`처럼 내부 `UnitOfWork`가 `async_session_factory()`를 호출하는 경우, session factory와 Repository 클래스를 패치하고 생성자에는 Agent mock을 직접 주입한다.
+- `OrchestrationService`는 오래 살아 있는 listener에서 사용되므로 UnitOfWork 인스턴스가 아니라 factory를 생성자로 주입한다.
 ```python
-with (
-    patch("services.orchestration_service.async_session_factory", return_value=mock_session),
-    patch("services.orchestration_service.TodoRepository", return_value=mock_todo_repo),
-    patch("services.orchestration_service.AgentRepository", return_value=mock_agent_repo),
-):
-    sut = OrchestrationService(orchestration_agent=mock_orchestration_agent, task_agent=mock_task_agent)
-    result = await sut.select_and_assign(todo_id)
+mock_uow = AsyncMock(spec=AbstractUnitOfWork)
+mock_uow.todos = mock_todo_repo
+mock_uow.agents = mock_agent_repo
+mock_uow.__aenter__.return_value = mock_uow
+
+sut = OrchestrationService(
+    orchestration_agent=mock_orchestration_agent,
+    task_agent=mock_task_agent,
+    unit_of_work_factory=MagicMock(return_value=mock_uow),
+)
+result = await sut.select_and_assign(todo_id)
 ```
 
 **Repository 테스트**
 - 네이밍: `test_메서드명_한국어설명` (예: `test_create_에이전트_정보를_저장할_수_있다`)
 - `setup_test_db: AsyncSession` 픽스처로 세션 수령 (conftest `autouse=True`, in-memory SQLite)
 - True/False 등 결과 분기가 있는 경우 `@pytest.mark.parametrize` 사용
+- repository 테스트에서 저장 결과 확인이 필요하면 테스트 내부에서만 `session.commit()`을 호출한다. production repository 메서드는 commit/rollback을 호출하지 않는다.
+
+**UnitOfWork 테스트**
+- `SQLAlchemyUnitOfWork`는 실제 DB 없이 session factory와 `AsyncSession` mock으로 검증한다.
+- 컨텍스트 진입 시 `todos`, `agents`, `tools`가 같은 session으로 생성되는지 검증한다.
+- 명시적 `commit()`이 있으면 session commit과 close를, commit 없이 종료되거나 예외가 있으면 rollback과 close를 검증한다.
 
 **Agent 테스트**
 - `create_agent` 기반 에이전트: `@patch("agents.*.create_agent")`로 교체, `ainvoke` 반환값을 `{"structured_response": ...}` 형태로 설정
@@ -85,6 +97,8 @@ with (
 - 비동기 제너레이터 함수는 `AsyncGenerator[YieldType, None]` 반환 타입을 명시한다.
 - import: `src/` 루트 기준 전체 모듈 경로 사용 (예: `from repositories.database import Base`)
 - FastAPI DI provider는 각 패키지의 `dependencies.py`에 둔다. Router는 provider 함수만 `Depends()`로 받고, Service/Repository/Agent 생성자는 plain dependency 객체를 받는다.
+- 쓰기 트랜잭션은 Service 계층에서 `async with unit_of_work as uow:`로 열고, 성공 시 `await uow.commit()`을 명시한다. Repository는 `commit()`/`rollback()`을 호출하지 않는다.
+- 장기 실행 서비스나 listener에서 DB 작업이 필요하면 UnitOfWork 인스턴스가 아니라 `UnitOfWorkFactory`를 주입해 작업마다 새 UnitOfWork를 생성한다.
 - process singleton은 구현 클래스 파일이 아니라 `dependencies.py`에서 보관한다. 예: `sse.dependencies.get_sse_manager`, `channels.dependencies.get_assignment_queue`
 - SSE 채널 이름은 반드시 `channels/channel_names.py`의 함수로 생성한다. 문자열 리터럴 직접 사용 금지.
 - Service Entity→Response 변환이 여러 메서드에서 반복될 경우 `@staticmethod _to_response(entity)` 헬퍼로 추출한다.

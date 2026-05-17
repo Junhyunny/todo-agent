@@ -18,7 +18,6 @@ class AgentRepository:
     new_model = AgentEntity(id=new_id, name=model.name, description=model.description, system_prompt=model.system_prompt)
     new_model.tools = [AgentToolEntity(agent_id=new_id, tool_id=tid) for tid in tool_ids]
     self.session.add(new_model)
-    await self.session.commit()
     return new_model
 
   async def get_all(self) -> Sequence[AgentEntity]:
@@ -36,7 +35,6 @@ class AgentRepository:
       existing_model.description = model.description
       existing_model.system_prompt = model.system_prompt
       existing_model.tools = [AgentToolEntity(agent_id=str(agent_id), tool_id=tid) for tid in tool_ids]
-      await self.session.commit()
       return existing_model
     raise RuntimeError("not found")
 
@@ -51,4 +49,3 @@ class AgentRepository:
     entity = result.scalar_one_or_none()
     if entity:
       await self.session.delete(entity)
-      await self.session.commit()
