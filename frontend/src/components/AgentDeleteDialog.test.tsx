@@ -3,12 +3,10 @@ import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as agentRepository from "@/repository/agent-repository.ts";
 import { AgentDeleteDialog } from "./AgentDeleteDialog.tsx";
 
-const mockDeleteAgent = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({
-  deleteAgent: mockDeleteAgent,
-}));
+const mockDeleteAgent = vi.spyOn(agentRepository, "deleteAgent");
 
 const agent = {
   id: "1",
@@ -68,7 +66,7 @@ describe("AgentDeleteDialog", () => {
     );
 
     expect(mockDeleteAgent).toHaveBeenCalledWith("1");
-    expect(mockOnDelete).toHaveBeenCalledTimes(1);
+    expect(mockOnDelete).toHaveBeenCalledWith();
   });
 
   test("삭제 성공 후 다이얼로그가 닫힌다", async () => {

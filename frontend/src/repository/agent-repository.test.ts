@@ -1,25 +1,37 @@
-import { describe, expect, test, vi } from "vitest";
-import {
-  createAgent,
-  deleteAgent,
-  getAgents,
-  updateAgent,
-} from "./agent-repository";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+import * as generatedAgents from "../api/generated/agents";
 
-const mockGetAgentsApiAgentsGet = vi.hoisted(() => vi.fn());
-const mockCreateAgentApiAgentsPost = vi.hoisted(() => vi.fn());
-const mockUpdateAgentApiAgentsAgentIdPut = vi.hoisted(() => vi.fn());
-const mockDeleteAgentApiAgentsAgentIdDelete = vi.hoisted(() => vi.fn());
-vi.mock("../api/generated/agents", () => ({
-  getFastAPI: () => ({
-    getAgentsApiAgentsGet: mockGetAgentsApiAgentsGet,
-    createAgentApiAgentsPost: mockCreateAgentApiAgentsPost,
-    updateAgentApiAgentsAgentIdPut: mockUpdateAgentApiAgentsAgentIdPut,
-    deleteAgentApiAgentsAgentIdDelete: mockDeleteAgentApiAgentsAgentIdDelete,
-  }),
-}));
+const mockGetAgentsApiAgentsGet = vi.fn();
+const mockCreateAgentApiAgentsPost = vi.fn();
+const mockExistsAgentApiAgentsExistsGet = vi.fn();
+const mockUpdateAgentApiAgentsAgentIdPut = vi.fn();
+const mockDeleteAgentApiAgentsAgentIdDelete = vi.fn();
+const actualFastAPI = generatedAgents.getFastAPI();
+
+vi.spyOn(generatedAgents, "getFastAPI").mockReturnValue({
+  ...actualFastAPI,
+  getAgentsApiAgentsGet: mockGetAgentsApiAgentsGet,
+  createAgentApiAgentsPost: mockCreateAgentApiAgentsPost,
+  existsAgentApiAgentsExistsGet: mockExistsAgentApiAgentsExistsGet,
+  updateAgentApiAgentsAgentIdPut: mockUpdateAgentApiAgentsAgentIdPut,
+  deleteAgentApiAgentsAgentIdDelete: mockDeleteAgentApiAgentsAgentIdDelete,
+});
+
+let repository: typeof import("./agent-repository");
 
 describe("agent-repository", () => {
+  beforeAll(async () => {
+    repository = await import("./agent-repository.js");
+  });
+
+  beforeEach(() => {
+    mockGetAgentsApiAgentsGet.mockReset();
+    mockCreateAgentApiAgentsPost.mockReset();
+    mockExistsAgentApiAgentsExistsGet.mockReset();
+    mockUpdateAgentApiAgentsAgentIdPut.mockReset();
+    mockDeleteAgentApiAgentsAgentIdDelete.mockReset();
+  });
+
   test("getAgents는 GET /agents를 호출하고 에이전트 목록을 반환한다", async () => {
     const agents = [
       { id: "1", name: "에이전트A", system_prompt: "프롬프트A" },
@@ -27,7 +39,7 @@ describe("agent-repository", () => {
     ];
     mockGetAgentsApiAgentsGet.mockResolvedValue({ data: agents });
 
-    const result = await getAgents();
+    const result = await repository.getAgents();
 
     expect(result).toEqual(agents);
     expect(mockGetAgentsApiAgentsGet).toHaveBeenCalledTimes(1);
@@ -49,7 +61,7 @@ describe("agent-repository", () => {
     };
     mockCreateAgentApiAgentsPost.mockResolvedValue({ data: created });
 
-    const result = await createAgent(request);
+    const result = await repository.createAgent(request);
 
     expect(result).toEqual(created);
     expect(mockCreateAgentApiAgentsPost).toHaveBeenCalledWith(request);
@@ -71,7 +83,7 @@ describe("agent-repository", () => {
     };
     mockUpdateAgentApiAgentsAgentIdPut.mockResolvedValue({ data: created });
 
-    const result = await updateAgent("1", request);
+    const result = await repository.updateAgent("1", request);
 
     expect(result).toEqual(created);
     expect(mockUpdateAgentApiAgentsAgentIdPut).toHaveBeenCalledWith(
@@ -83,7 +95,7 @@ describe("agent-repository", () => {
   test("deleteAgent는 DELETE /agents/{id}를 호출한다", async () => {
     mockDeleteAgentApiAgentsAgentIdDelete.mockResolvedValue({});
 
-    await deleteAgent("1");
+    await repository.deleteAgent("1");
 
     expect(mockDeleteAgentApiAgentsAgentIdDelete).toHaveBeenCalledWith("1");
   });

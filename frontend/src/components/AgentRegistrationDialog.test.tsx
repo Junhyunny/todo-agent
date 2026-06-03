@@ -3,20 +3,14 @@ import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as agentRepository from "@/repository/agent-repository.ts";
+import * as toolRepository from "@/repository/tool-repository.ts";
 import { withTooltipProvider } from "@/tests/withProviders.tsx";
 import { AgentRegistrationDialog } from "./AgentRegistrationDialog.tsx";
 
-const mockCreateAgent = vi.hoisted(() => vi.fn());
-const mockExistsAgentByName = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({
-  createAgent: mockCreateAgent,
-  existsAgentByName: mockExistsAgentByName,
-}));
-
-const mockGetTools = vi.hoisted(() => vi.fn());
-vi.mock("../repository/tool-repository", () => ({
-  getTools: mockGetTools,
-}));
+const mockCreateAgent = vi.spyOn(agentRepository, "createAgent");
+const mockExistsAgentByName = vi.spyOn(agentRepository, "existsAgentByName");
+const mockGetTools = vi.spyOn(toolRepository, "getTools");
 
 const renderWithTooltip = () =>
   render(withTooltipProvider(<AgentRegistrationDialog />));
@@ -24,7 +18,13 @@ const renderWithTooltip = () =>
 describe("AgentRegistrationDialog", () => {
   beforeEach(() => {
     mockCreateAgent.mockClear();
-    mockCreateAgent.mockResolvedValue({});
+    mockCreateAgent.mockResolvedValue({
+      id: "1",
+      name: "테스트 에이전트",
+      description: "테스트 설명",
+      system_prompt: "테스트 시스템 프롬프트",
+      tools: [],
+    });
     mockExistsAgentByName.mockClear();
     mockExistsAgentByName.mockResolvedValue(false);
     mockGetTools.mockClear();

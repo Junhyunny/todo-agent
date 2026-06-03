@@ -38,7 +38,7 @@ frontend/
     windows/                # 페이지 단위 윈도우 컴포넌트
     components/             # 기능 UI 컴포넌트와 co-located 테스트
     components/ui/          # shadcn/ui 관리 컴포넌트  [수정 금지]
-    repository/             # generated 클라이언트 named export 래퍼
+    repository/             # generated 클라이언트 named export 래퍼와 co-located 테스트
     api/generated/          # Orval 자동생성 Axios 클라이언트  [수정 금지]
     types/                  # 공유 enum 정의
     utils/                  # 브라우저 유틸리티 (SSE 핸들러)
@@ -104,7 +104,7 @@ App(HashRouter) → windows/ → components/ → repository/ → api/generated/
 
 - **windows/:** 페이지 단위 최상위 컴포넌트. 라우터에서 직접 렌더링
 - **components/:** Dialog, Sheet, ComboBox 등 기능 UI. API 호출은 repository 경유
-- **repository/:** generated 클라이언트를 래핑하고 `response.data`를 반환. 클래스 금지, named export만 사용
+- **repository/:** generated 클라이언트를 래핑하고 `response.data`를 반환. 클래스 금지, named export만 사용. 테스트는 `getFastAPI()` 의존성을 spy한 뒤 모듈을 import해 검증
 - **api/generated/:** Orval이 `spec/openapi.yaml`로부터 자동 생성. 직접 수정 금지
 - **utils/:** 브라우저 API 기반 유틸리티. `sse-handler.ts`가 EventSource 생명주기 관리
 

@@ -1,14 +1,25 @@
-import { describe, expect, test, vi } from "vitest";
-import { getTools } from "./tool-repository";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+import * as generatedAgents from "../api/generated/agents";
 
-const mockGetToolsApiToolsGet = vi.hoisted(() => vi.fn());
-vi.mock("../api/generated/agents", () => ({
-  getFastAPI: () => ({
-    getToolsApiToolsGet: mockGetToolsApiToolsGet,
-  }),
-}));
+const mockGetToolsApiToolsGet = vi.fn();
+const actualFastAPI = generatedAgents.getFastAPI();
+
+vi.spyOn(generatedAgents, "getFastAPI").mockReturnValue({
+  ...actualFastAPI,
+  getToolsApiToolsGet: mockGetToolsApiToolsGet,
+});
+
+let repository: typeof import("./tool-repository");
 
 describe("tool-repository", () => {
+  beforeAll(async () => {
+    repository = await import("./tool-repository.js");
+  });
+
+  beforeEach(() => {
+    mockGetToolsApiToolsGet.mockReset();
+  });
+
   test("getTools는 GET /tools를 호출하고 툴 목록을 반환한다", async () => {
     const tools = [
       { id: "1", name: "웹 검색(web search)" },
@@ -16,7 +27,7 @@ describe("tool-repository", () => {
     ];
     mockGetToolsApiToolsGet.mockResolvedValue({ data: tools });
 
-    const result = await getTools();
+    const result = await repository.getTools();
 
     expect(result).toEqual(tools);
     expect(mockGetToolsApiToolsGet).toHaveBeenCalledTimes(1);

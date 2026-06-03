@@ -1,26 +1,35 @@
-import { describe, expect, test, vi } from "vitest";
-import {
-  createTodo,
-  deleteTodo,
-  getTodos,
-  reassignTodo,
-} from "./todo-repository";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+import * as generatedAgents from "../api/generated/agents";
 
-const mockGetTodosApiTodosGet = vi.hoisted(() => vi.fn());
-const mockCreateTodoApiTodosPost = vi.hoisted(() => vi.fn());
-const mockDeleteTodoApiTodosTodoIdDelete = vi.hoisted(() => vi.fn());
-const mockReassignTodoApiTodosTodoIdReassignPost = vi.hoisted(() => vi.fn());
-vi.mock("../api/generated/agents", () => ({
-  getFastAPI: () => ({
-    getTodosApiTodosGet: mockGetTodosApiTodosGet,
-    createTodoApiTodosPost: mockCreateTodoApiTodosPost,
-    deleteTodoApiTodosTodoIdDelete: mockDeleteTodoApiTodosTodoIdDelete,
-    reassignTodoApiTodosTodoIdReassignPost:
-      mockReassignTodoApiTodosTodoIdReassignPost,
-  }),
-}));
+const mockGetTodosApiTodosGet = vi.fn();
+const mockCreateTodoApiTodosPost = vi.fn();
+const mockDeleteTodoApiTodosTodoIdDelete = vi.fn();
+const mockReassignTodoApiTodosTodoIdReassignPost = vi.fn();
+const actualFastAPI = generatedAgents.getFastAPI();
+
+vi.spyOn(generatedAgents, "getFastAPI").mockReturnValue({
+  ...actualFastAPI,
+  getTodosApiTodosGet: mockGetTodosApiTodosGet,
+  createTodoApiTodosPost: mockCreateTodoApiTodosPost,
+  deleteTodoApiTodosTodoIdDelete: mockDeleteTodoApiTodosTodoIdDelete,
+  reassignTodoApiTodosTodoIdReassignPost:
+    mockReassignTodoApiTodosTodoIdReassignPost,
+});
+
+let repository: typeof import("./todo-repository");
 
 describe("todo-repository", () => {
+  beforeAll(async () => {
+    repository = await import("./todo-repository.js");
+  });
+
+  beforeEach(() => {
+    mockGetTodosApiTodosGet.mockReset();
+    mockCreateTodoApiTodosPost.mockReset();
+    mockDeleteTodoApiTodosTodoIdDelete.mockReset();
+    mockReassignTodoApiTodosTodoIdReassignPost.mockReset();
+  });
+
   test("getTodos는 GET /todos를 호출하고 TODO 목록을 반환한다", async () => {
     const todos = [
       { id: "1", title: "할 일 A", content: "내용 A", status: "pending" },
@@ -28,7 +37,7 @@ describe("todo-repository", () => {
     ];
     mockGetTodosApiTodosGet.mockResolvedValue({ data: todos });
 
-    const result = await getTodos();
+    const result = await repository.getTodos();
 
     expect(result).toEqual(todos);
     expect(mockGetTodosApiTodosGet).toHaveBeenCalledTimes(1);
@@ -44,7 +53,7 @@ describe("todo-repository", () => {
     };
     mockCreateTodoApiTodosPost.mockResolvedValue({ data: created });
 
-    const result = await createTodo(request);
+    const result = await repository.createTodo(request);
 
     expect(result).toEqual(created);
     expect(mockCreateTodoApiTodosPost).toHaveBeenCalledWith(request);
@@ -53,7 +62,7 @@ describe("todo-repository", () => {
   test("deleteTodo는 DELETE /todos/{id}를 호출한다", async () => {
     mockDeleteTodoApiTodosTodoIdDelete.mockResolvedValue({});
 
-    await deleteTodo("todo-id-1");
+    await repository.deleteTodo("todo-id-1");
 
     expect(mockDeleteTodoApiTodosTodoIdDelete).toHaveBeenCalledWith(
       "todo-id-1",
@@ -63,7 +72,7 @@ describe("todo-repository", () => {
   test("reassignTodo는 POST /todos/{id}/reassign을 호출한다", async () => {
     mockReassignTodoApiTodosTodoIdReassignPost.mockResolvedValue({});
 
-    await reassignTodo("todo-id-1");
+    await repository.reassignTodo("todo-id-1");
 
     expect(mockReassignTodoApiTodosTodoIdReassignPost).toHaveBeenCalledWith(
       "todo-id-1",

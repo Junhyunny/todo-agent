@@ -3,12 +3,10 @@ import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { describe, expect, test, vi } from "vitest";
+import * as todoRepository from "@/repository/todo-repository.ts";
 import { TodoRegistrationDialog } from "./TodoRegistrationDialog.tsx";
 
-const mockCreateTodo = vi.hoisted(() => vi.fn());
-vi.mock("../repository/todo-repository", () => ({
-  createTodo: mockCreateTodo,
-}));
+const mockCreateTodo = vi.spyOn(todoRepository, "createTodo");
 
 describe("TodoRegistrationDialog", () => {
   test("TODO 등록 버튼이 보인다", () => {
@@ -165,7 +163,7 @@ describe("TodoRegistrationDialog", () => {
     );
     await userEvent.click(within(dialog).getByRole("button", { name: "저장" }));
 
-    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith("1");
   });
 
   test("저장 버튼 클릭 시 onSave 콜백을 todo id와 함께 호출한다", async () => {

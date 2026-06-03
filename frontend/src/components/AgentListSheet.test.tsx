@@ -3,21 +3,14 @@ import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as agentRepository from "@/repository/agent-repository.ts";
+import * as toolRepository from "@/repository/tool-repository.ts";
 import { AgentListSheet } from "./AgentListSheet.tsx";
 
-const mockGetAgents = vi.hoisted(() => vi.fn());
-const mockUpdateAgent = vi.hoisted(() => vi.fn());
-const mockDeleteAgent = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({
-  getAgents: mockGetAgents,
-  updateAgent: mockUpdateAgent,
-  deleteAgent: mockDeleteAgent,
-}));
-
-const mockGetTools = vi.hoisted(() => vi.fn());
-vi.mock("../repository/tool-repository", () => ({
-  getTools: mockGetTools,
-}));
+const mockGetAgents = vi.spyOn(agentRepository, "getAgents");
+const mockUpdateAgent = vi.spyOn(agentRepository, "updateAgent");
+const mockDeleteAgent = vi.spyOn(agentRepository, "deleteAgent");
+const mockGetTools = vi.spyOn(toolRepository, "getTools");
 
 describe("AgentListSheet", () => {
   beforeEach(() => {

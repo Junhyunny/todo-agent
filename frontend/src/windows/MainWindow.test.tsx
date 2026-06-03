@@ -3,33 +3,20 @@ import userEvent from "@testing-library/user-event";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as agentRepository from "@/repository/agent-repository.ts";
+import * as todoRepository from "@/repository/todo-repository.ts";
+import * as toolRepository from "@/repository/tool-repository.ts";
 import * as sseHandler from "../utils/sse-handler.ts";
 import { MainWindow } from "./MainWindow.tsx";
 
-const mockGetAgents = vi.hoisted(() => vi.fn());
-const mockCreateAgent = vi.hoisted(() => vi.fn());
-const mockExistsAgentByName = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({
-  getAgents: mockGetAgents,
-  createAgent: mockCreateAgent,
-  existsAgentByName: mockExistsAgentByName,
-}));
-
-const mockGetTodos = vi.hoisted(() => vi.fn());
-const mockCreateTodo = vi.hoisted(() => vi.fn());
-const mockDeleteTodo = vi.hoisted(() => vi.fn());
-const mockReassignTodo = vi.hoisted(() => vi.fn());
-vi.mock("../repository/todo-repository", () => ({
-  getTodos: mockGetTodos,
-  createTodo: mockCreateTodo,
-  deleteTodo: mockDeleteTodo,
-  reassignTodo: mockReassignTodo,
-}));
-
-const mockGetTools = vi.hoisted(() => vi.fn());
-vi.mock("../repository/tool-repository", () => ({
-  getTools: mockGetTools,
-}));
+const mockGetAgents = vi.spyOn(agentRepository, "getAgents");
+const mockCreateAgent = vi.spyOn(agentRepository, "createAgent");
+const mockExistsAgentByName = vi.spyOn(agentRepository, "existsAgentByName");
+const mockGetTodos = vi.spyOn(todoRepository, "getTodos");
+const mockCreateTodo = vi.spyOn(todoRepository, "createTodo");
+const mockDeleteTodo = vi.spyOn(todoRepository, "deleteTodo");
+const mockReassignTodo = vi.spyOn(todoRepository, "reassignTodo");
+const mockGetTools = vi.spyOn(toolRepository, "getTools");
 
 let capturedEventSources: MockEventSource[] = [];
 
@@ -52,13 +39,24 @@ describe("MainWindow", () => {
     mockGetAgents.mockClear();
     mockGetAgents.mockResolvedValue([]);
     mockCreateAgent.mockClear();
-    mockCreateAgent.mockResolvedValue({});
+    mockCreateAgent.mockResolvedValue({
+      id: "1",
+      name: "테스트 에이전트",
+      description: "테스트 설명",
+      system_prompt: "테스트 시스템 프롬프트",
+      tools: [],
+    });
     mockExistsAgentByName.mockClear();
     mockExistsAgentByName.mockResolvedValue(false);
     mockGetTodos.mockClear();
     mockGetTodos.mockResolvedValue([]);
     mockCreateTodo.mockClear();
-    mockCreateTodo.mockResolvedValue({});
+    mockCreateTodo.mockResolvedValue({
+      id: "1",
+      title: "새 할 일",
+      content: "내용",
+      status: "pending",
+    });
     mockDeleteTodo.mockClear();
     mockDeleteTodo.mockResolvedValue(undefined);
     mockReassignTodo.mockClear();

@@ -11,7 +11,7 @@
 
 ## 테스트
 
-- 파일 위치: 컴포넌트 옆 co-located `*.test.tsx`
+- 파일 위치: UI 테스트는 컴포넌트/윈도우 옆 co-located `*.test.tsx`, repository 테스트는 `src/repository/*.test.ts`
 - 구조: `describe(식별자명)` + 내부 `test(...)`. 컴포넌트는 PascalCase 컴포넌트명, 유틸리티·훅은 export된 식별자 그대로 사용 (예: `describe("sseHandler")`). 상태·기능 단위 구분이 필요하면 `describe("그룹명")`으로 중첩 그룹핑한다.
 - 쿼리: role 기반 (`getByRole`, `findByRole`)
 - 테스트명: 한국어 문장형
@@ -27,14 +27,19 @@ global.ResizeObserver = class ResizeObserver {
 };
 ```
 
-**Mock — `vi.hoisted` 패턴**
-`vi.mock`은 호이스팅되므로 블록 바깥 변수를 참조할 수 없다. 반드시 `vi.hoisted`로 감싼다.
+**Mock — `vi.spyOn` 패턴**
+프론트엔드 테스트는 모듈 전체 mock보다 namespace import + `vi.spyOn`을 우선한다. 각 테스트에서 `mockReset()`/`mockResolvedValue()`로 상태를 초기화한다.
 ```ts
-const mockCreateAgent = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({ createAgent: mockCreateAgent }));
+import * as agentRepository from "@/repository/agent-repository.ts";
 
-beforeEach(() => { mockCreateAgent.mockClear(); });
+const mockCreateAgent = vi.spyOn(agentRepository, "createAgent");
+
+beforeEach(() => {
+  mockCreateAgent.mockReset();
+  mockCreateAgent.mockResolvedValue({ id: "1" } as AgentResponse);
+});
 ```
+모듈 import 시점에 의존성을 캡처하는 repository 테스트는 `vi.spyOn(..., "getFastAPI")`를 먼저 설정한 뒤 `await import("./module.js")`로 테스트 대상을 불러온다. spy 반환값은 필요한 함수만 덮어쓰고 나머지는 `...actualFastAPI`로 유지한다.
 
 **Assertion — 리스트 항목 스코핑**
 같은 role이 여러 개일 때 `within()`으로 스코핑한다. 비동기 진입은 `findBy*`, 이후 동기 검증은 `getBy*`.
@@ -125,7 +130,7 @@ export const createAgent = async (request: PostAgentRequest): Promise<AgentRespo
 };
 ```
 
-`getFastAPI()` mock에는 테스트 대상 함수와 무관하게 모듈에서 destructuring하는 **전체** 함수를 포함한다. 누락 시 다른 테스트/import에서 오류가 발생한다.
+`getFastAPI()`를 spy할 때는 `const actualFastAPI = generatedAgents.getFastAPI()`로 기존 반환값을 보존한 뒤, 테스트 대상 함수만 교체한다. 모듈 레벨 destructuring으로 로드되는 다른 함수까지 함께 유지되지 않으면 import 단계에서 오류가 발생한다.
 
 ---
 

@@ -3,18 +3,13 @@ import userEvent from "@testing-library/user-event/dist/cjs/index.js";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import * as agentRepository from "@/repository/agent-repository.ts";
+import * as toolRepository from "@/repository/tool-repository.ts";
 import { withTooltipProvider } from "@/tests/withProviders.tsx";
 import { AgentEditDialog } from "./AgentEditDialog.tsx";
 
-const mockUpdateAgent = vi.hoisted(() => vi.fn());
-vi.mock("../repository/agent-repository", () => ({
-  updateAgent: mockUpdateAgent,
-}));
-
-const mockGetTools = vi.hoisted(() => vi.fn());
-vi.mock("../repository/tool-repository", () => ({
-  getTools: mockGetTools,
-}));
+const mockUpdateAgent = vi.spyOn(agentRepository, "updateAgent");
+const mockGetTools = vi.spyOn(toolRepository, "getTools");
 
 const agent = {
   id: "1",
@@ -37,7 +32,7 @@ describe("AgentEditDialog", () => {
       name: "테스트 에이전트",
       description: "테스트 설명",
       system_prompt: "테스트 프롬프트",
-      tools: [{ id: "1", name: "웹 검색(web search)" }],
+      tools: ["1"],
     });
     mockGetTools.mockClear();
     mockGetTools.mockResolvedValue([{ id: "1", name: "웹 검색(web search)" }]);
@@ -146,7 +141,7 @@ describe("AgentEditDialog", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "저장" }));
 
-    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSave).toHaveBeenCalledWith();
   });
 
   test("저장 버튼을 클릭하면 다이얼로그가 닫힌다.", async () => {
