@@ -113,6 +113,14 @@ await waitFor(() => {
 
 ---
 
+## 레이아웃 / 스타일
+
+- **페이지 셸**: 최상위는 `flex flex-col h-screen` + `bg-muted/30`. 상단 액션 영역은 `border-b bg-background`의 툴바, 본문 목록은 `flex-1 overflow-y-auto p-4`로 스크롤한다.
+- **목록 항목 카드**: 인터랙티브 리스트 항목(`<section aria-label="{domain}-{id}">`)은 `flex items-center justify-between gap-3 rounded-lg border bg-card shadow-sm`로 카드 행을 만든다. 클릭 가능한 항목은 `cursor-pointer transition-colors hover:bg-accent`를 더하고, 제목은 `truncate font-medium`, 우측 액션 그룹은 `flex-none`으로 둔다.
+- **긴 텍스트**: 작업 결과·실패 사유처럼 길이가 가변적인 텍스트는 `whitespace-pre-wrap break-words` + `max-h-* overflow-y-auto`로 감싸 다이얼로그를 넘치지 않게 한다.
+
+---
+
 ## Repository 패턴
 
 API 호출은 `frontend/src/repository/`에 `{domain}-repository.ts` 파일로 분리한다.
@@ -162,6 +170,8 @@ useEffect(() => {
 ```
 
 **폼 라벨**: `Label` + `htmlFor`/`id` 조합으로 접근성 보장. `aria-label` 직접 사용 금지.
+
+**폼 필드 그룹**: 라벨과 입력 요소(도움말 툴팁·검증 메시지 포함)는 `<div className="grid gap-2">`로 한 묶음으로 만든다. `DialogContent`의 `grid gap-6`이 그룹 간 간격을, 그룹 내 `gap-2`가 라벨–필드 간격을 담당한다.
 
 **멀티셀렉트 콤보박스**: shadcn/ui `Combobox`의 `multiple` 모드 사용. 다이얼로그 폼에 인라인으로 작성하지 않고 별도 컴포넌트로 추출한다. `value`는 ID(UUID)를 사용하고 칩 표시는 `useMemo`로 만든 `Map<id, name>`으로 이름을 조회한다.
 
