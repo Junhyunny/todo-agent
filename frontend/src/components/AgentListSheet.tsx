@@ -31,7 +31,7 @@ export const AgentListSheet = () => {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <Button aria-label="agent" variant="ghost" size="icon">
+          <Button aria-label="agent" variant="outline" size="icon">
             <Bot role="img" aria-label="agent-icon" />
           </Button>
         }

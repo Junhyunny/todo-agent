@@ -59,7 +59,7 @@ export const AgentEditDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button aria-label="수정" variant="ghost" size="icon">
+          <Button aria-label="수정" variant="outline" size="icon">
             <Pencil />
           </Button>
         }

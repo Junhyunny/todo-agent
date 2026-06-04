@@ -18,7 +18,7 @@ export const TodoDeleteDialog = ({ message, onConfirm }: Props) => {
   return (
     <Dialog>
       <DialogTrigger
-        render={<Button variant="ghost" size="icon" aria-label="삭제" />}
+        render={<Button variant="outline" size="icon" aria-label="삭제" />}
       >
         <Trash2 />
       </DialogTrigger>

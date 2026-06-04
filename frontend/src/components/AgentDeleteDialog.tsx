@@ -29,7 +29,7 @@ export const AgentDeleteDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button aria-label="삭제" variant="ghost" size="icon">
+          <Button aria-label="삭제" variant="outline" size="icon">
             <Trash2 />
           </Button>
         }
