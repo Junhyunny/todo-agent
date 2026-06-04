@@ -1,5 +1,5 @@
 import { CircleHelp, Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { AgentResponse } from "@/api/generated/agents.ts";
 import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -19,7 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
-import { updateAgent } from "@/repository/agent-repository.ts";
+import { useAgentForm } from "@/hooks/useAgentForm.ts";
 
 export const AgentEditDialog = ({
   agent,
@@ -28,32 +28,18 @@ export const AgentEditDialog = ({
   agent: AgentResponse;
   onSave: () => void;
 }) => {
-  const [name, setName] = useState(agent.name);
-  const [description, setDescription] = useState(agent.description ?? "");
-  const [systemPrompt, setSystemPrompt] = useState(agent.system_prompt);
-  const [selectedTools, setSelectedTools] = useState<string[]>(
-    agent.tools ?? [],
-  );
   const [open, setOpen] = useState(false);
-
-  const handleSave = async () => {
-    await updateAgent(agent.id, {
-      name,
-      description,
-      system_prompt: systemPrompt,
-      tools: selectedTools,
-    });
-    onSave();
-  };
-
-  useEffect(() => {
-    if (open) {
-      setName(agent.name);
-      setDescription(agent.description ?? "");
-      setSystemPrompt(agent.system_prompt);
-      setSelectedTools(agent.tools ?? []);
-    }
-  }, [open, agent]);
+  const {
+    name,
+    description,
+    systemPrompt,
+    selectedTools,
+    setDescription,
+    setSystemPrompt,
+    setSelectedTools,
+    isComplete,
+    submit,
+  } = useAgentForm({ open, agent, onSaved: onSave });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -121,8 +107,8 @@ export const AgentEditDialog = ({
           />
         </div>
         <DialogClose
-          render={<Button disabled={!name || !description || !systemPrompt} />}
-          onClick={() => void handleSave()}
+          render={<Button disabled={!isComplete} />}
+          onClick={() => void submit()}
         >
           저장
         </DialogClose>

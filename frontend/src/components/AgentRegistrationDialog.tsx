@@ -1,6 +1,6 @@
 import { CircleHelp, UserPlus } from "lucide-react";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -19,34 +19,24 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
+import { useAgentForm } from "@/hooks/useAgentForm.ts";
 import { useDuplicateAgentName } from "@/hooks/useDuplicateAgentName.ts";
-import { createAgent } from "@/repository/agent-repository.ts";
 
 export const AgentRegistrationDialog = () => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [systemPrompt, setSystemPrompt] = useState("");
-  const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const {
+    name,
+    description,
+    systemPrompt,
+    selectedTools,
+    setName,
+    setDescription,
+    setSystemPrompt,
+    setSelectedTools,
+    isComplete,
+    submit,
+  } = useAgentForm({ open });
   const isDuplicate = useDuplicateAgentName(name);
-
-  const handleSave = async () => {
-    await createAgent({
-      name,
-      description,
-      system_prompt: systemPrompt,
-      tools: selectedTools,
-    });
-  };
-
-  useEffect(() => {
-    if (open) {
-      setName("");
-      setDescription("");
-      setSystemPrompt("");
-      setSelectedTools([]);
-    }
-  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -124,12 +114,8 @@ export const AgentRegistrationDialog = () => {
           />
         </div>
         <DialogClose
-          render={
-            <Button
-              disabled={!name || !description || !systemPrompt || isDuplicate}
-            />
-          }
-          onClick={() => void handleSave()}
+          render={<Button disabled={!isComplete || isDuplicate} />}
+          onClick={() => void submit()}
         >
           저장
         </DialogClose>
