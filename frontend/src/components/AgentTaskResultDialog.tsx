@@ -32,7 +32,9 @@ export const AgentTaskResultDialog = ({ status, result }: Props) => {
         <DialogHeader>
           <DialogTitle>작업 결과</DialogTitle>
         </DialogHeader>
-        <p>{result}</p>
+        <p className="max-h-80 overflow-y-auto whitespace-pre-wrap break-words text-sm text-muted-foreground">
+          {result}
+        </p>
         <DialogClose render={<Button variant="outline" />}>닫기</DialogClose>
       </DialogContent>
     </Dialog>

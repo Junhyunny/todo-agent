@@ -40,15 +40,15 @@ export const AgentListSheet = () => {
         <SheetHeader>
           <SheetTitle>에이전트 목록</SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4">
           {agents.map((agent) => (
             <section
               key={agent.id}
               aria-label={`agent-${agent.id}`}
-              className="flex items-center justify-between"
+              className="flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-2 shadow-sm"
             >
-              <h2>{agent.name}</h2>
-              <div className="flex gap-2">
+              <h2 className="truncate font-medium">{agent.name}</h2>
+              <div className="flex flex-none gap-1">
                 <AgentEditDialog agent={agent} onSave={fetchAgents} />
                 <AgentDeleteDialog agent={agent} onDelete={fetchAgents} />
               </div>

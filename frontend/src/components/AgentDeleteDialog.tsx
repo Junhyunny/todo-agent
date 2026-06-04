@@ -35,10 +35,12 @@ export const AgentDeleteDialog = ({
         }
       />
       <DialogContent>
-        <p>삭제하겠습니까?</p>
-        <Button variant="destructive" onClick={handleDelete}>
-          삭제
-        </Button>
+        <p className="text-sm text-muted-foreground">삭제하겠습니까?</p>
+        <div className="flex justify-end">
+          <Button variant="destructive" onClick={handleDelete}>
+            삭제
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

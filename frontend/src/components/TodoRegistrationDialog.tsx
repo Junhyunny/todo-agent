@@ -58,6 +58,7 @@ export const TodoRegistrationDialog = ({ onSave }: Props) => {
           aria-label="내용"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          className="min-h-32"
         />
         <Button disabled={!title || !content} onClick={handleSave}>
           저장

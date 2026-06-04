@@ -81,13 +81,19 @@ export const MainWindow = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen">
-      <section aria-label="버튼 영역" className="flex-none">
+    <div className="flex h-screen flex-col bg-muted/30">
+      <section
+        aria-label="버튼 영역"
+        className="flex flex-none items-center justify-end gap-2 border-b bg-background px-4 py-3 shadow-sm"
+      >
         <AgentRegistrationDialog />
         <AgentListSheet />
         <TodoRegistrationDialog onSave={handleTodoSave} />
       </section>
-      <section aria-label="TODO 목록" className="flex-1 overflow-y-auto">
+      <section
+        aria-label="TODO 목록"
+        className="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
+      >
         {todos.map((todo) => (
           <TodoStatusSheet
             key={todo.id}

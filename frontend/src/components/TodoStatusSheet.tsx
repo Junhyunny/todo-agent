@@ -26,27 +26,39 @@ export const TodoStatusSheet = ({ todo, onDelete, onReassign }: Props) => {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         nativeButton={false}
-        render={<section aria-label={`todo-${todo.id}`} />}
+        render={
+          <section
+            aria-label={`todo-${todo.id}`}
+            className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-card-foreground shadow-sm transition-colors hover:bg-accent"
+          />
+        }
       >
-        <span>{todo.title}</span>
+        <span className="truncate font-medium">{todo.title}</span>
         <TodoStatusItem status={todo.status} />
       </SheetTrigger>
       <SheetContent>
         <SheetHeader className="flex flex-row items-center justify-between">
           <SheetTitle>해야할 일</SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col gap-4 p-4">
+        <div className="flex flex-col gap-4 px-4">
           <Input aria-label="제목" disabled value={todo.title} />
-          <Textarea aria-label="내용" disabled value={todo.content} />
+          <Textarea
+            aria-label="내용"
+            disabled
+            value={todo.content}
+            className="min-h-32"
+          />
           <TodoStatusSection todo={todo} onReassign={onReassign} />
         </div>
-        <TodoDeleteDialog
-          message={`${todo.title}을 삭제하시겠습니까?`}
-          onConfirm={() => {
-            setOpen(false);
-            onDelete(todo.id);
-          }}
-        />
+        <div className="mt-auto flex justify-end border-t p-4">
+          <TodoDeleteDialog
+            message={`${todo.title}을 삭제하시겠습니까?`}
+            onConfirm={() => {
+              setOpen(false);
+              onDelete(todo.id);
+            }}
+          />
+        </div>
       </SheetContent>
     </Sheet>
   );

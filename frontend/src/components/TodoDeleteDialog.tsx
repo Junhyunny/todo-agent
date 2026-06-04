@@ -26,7 +26,7 @@ export const TodoDeleteDialog = ({ message, onConfirm }: Props) => {
         <DialogHeader>
           <DialogTitle>해야할 일 삭제</DialogTitle>
         </DialogHeader>
-        <p>{message}</p>
+        <p className="text-sm text-muted-foreground">{message}</p>
         <div className="flex justify-end gap-2">
           <DialogClose render={<Button variant="outline" />}>취소</DialogClose>
           <DialogClose render={<Button />} onClick={onConfirm}>

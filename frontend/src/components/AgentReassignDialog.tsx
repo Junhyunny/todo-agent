@@ -36,8 +36,12 @@ export const AgentReassignDialog = ({ failureReason, onReassign }: Props) => {
         <DialogHeader>
           <DialogTitle>에이전트 다시 할당</DialogTitle>
         </DialogHeader>
-        {failureReason && <p>{failureReason}</p>}
-        <p>재할당 하시겠습니까?</p>
+        {failureReason && (
+          <p className="max-h-60 overflow-y-auto whitespace-pre-wrap break-words text-sm text-destructive">
+            {failureReason}
+          </p>
+        )}
+        <p className="text-sm text-muted-foreground">재할당 하시겠습니까?</p>
         <DialogClose render={<Button />} onClick={onReassign}>
           확인
         </DialogClose>
