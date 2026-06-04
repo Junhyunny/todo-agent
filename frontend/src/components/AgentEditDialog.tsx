@@ -70,13 +70,7 @@ export const AgentEditDialog = ({
         </DialogHeader>
         <div className="grid gap-2">
           <Label htmlFor="agent-edit-name">에이전트 이름</Label>
-          <Input
-            type="text"
-            id="agent-edit-name"
-            value={name}
-            disabled
-            onChange={(e) => setName(e.target.value)}
-          />
+          <Input type="text" id="agent-edit-name" value={name} disabled />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center gap-1">

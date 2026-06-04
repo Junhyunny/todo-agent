@@ -19,10 +19,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip.tsx";
-import {
-  createAgent,
-  existsAgentByName,
-} from "@/repository/agent-repository.ts";
+import { useDuplicateAgentName } from "@/hooks/useDuplicateAgentName.ts";
+import { createAgent } from "@/repository/agent-repository.ts";
 
 export const AgentRegistrationDialog = () => {
   const [name, setName] = useState("");
@@ -30,7 +28,7 @@ export const AgentRegistrationDialog = () => {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
-  const [isDuplicate, setIsDuplicate] = useState(false);
+  const isDuplicate = useDuplicateAgentName(name);
 
   const handleSave = async () => {
     await createAgent({
@@ -42,20 +40,11 @@ export const AgentRegistrationDialog = () => {
   };
 
   useEffect(() => {
-    if (!name) {
-      setIsDuplicate(false);
-      return;
-    }
-    existsAgentByName(name).then(setIsDuplicate);
-  }, [name]);
-
-  useEffect(() => {
     if (open) {
       setName("");
       setDescription("");
       setSystemPrompt("");
       setSelectedTools([]);
-      setIsDuplicate(false);
     }
   }, [open]);
 
