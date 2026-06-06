@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/pre-commit-check.sh",
+            "command": "sh -c 'cd \"$(git rev-parse --show-toplevel)\" && exec bash .codex/hooks/pre-commit-check.sh'",
             "statusMessage": "Running pre-commit checks"
           }
         ]
