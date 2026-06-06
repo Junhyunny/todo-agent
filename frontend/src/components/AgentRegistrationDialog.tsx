@@ -1,6 +1,11 @@
-import { CircleHelp, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 // biome-ignore lint/correctness/noUnusedImports: need for proper rendering
 import React, { useState } from "react";
+import {
+  DESCRIPTION_TOOLTIP,
+  LabelWithTooltip,
+  SYSTEM_PROMPT_TOOLTIP,
+} from "@/components/LabelWithTooltip.tsx";
 import { ToolListComboBox } from "@/components/ToolListComboBox.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -14,11 +19,6 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip.tsx";
 import { useAgentForm } from "@/hooks/useAgentForm.ts";
 import { useDuplicateAgentName } from "@/hooks/useDuplicateAgentName.ts";
 
@@ -66,18 +66,12 @@ export const AgentRegistrationDialog = () => {
           )}
         </div>
         <div className="grid gap-2">
-          <div className="flex items-center gap-1">
-            <Label htmlFor="agent-describe">설명</Label>
-            <Tooltip>
-              <TooltipTrigger aria-label="설명 도움말" closeOnClick={false}>
-                <CircleHelp size={16} />
-              </TooltipTrigger>
-              <TooltipContent>
-                에이전트가 어떤 키워드에 실행되는지, 어떤 동작을 수행할지 간략히
-                적어주세요.
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <LabelWithTooltip
+            htmlFor="agent-describe"
+            label="설명"
+            tooltipLabel="설명 도움말"
+            tooltipContent={DESCRIPTION_TOOLTIP}
+          />
           <Textarea
             id="agent-describe"
             value={description}
@@ -85,20 +79,12 @@ export const AgentRegistrationDialog = () => {
           />
         </div>
         <div className="grid gap-2">
-          <div className="flex items-center gap-1">
-            <Label htmlFor="agent-system-prompt">시스템 프롬프트</Label>
-            <Tooltip>
-              <TooltipTrigger
-                aria-label="시스템 프롬프트 도움말"
-                closeOnClick={false}
-              >
-                <CircleHelp size={16} />
-              </TooltipTrigger>
-              <TooltipContent>
-                에이전트가 어떤 동작을 수행해야 할지 구체적으로 적어주세요.
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <LabelWithTooltip
+            htmlFor="agent-system-prompt"
+            label="시스템 프롬프트"
+            tooltipLabel="시스템 프롬프트 도움말"
+            tooltipContent={SYSTEM_PROMPT_TOOLTIP}
+          />
           <Textarea
             id="agent-system-prompt"
             value={systemPrompt}
