@@ -1,6 +1,13 @@
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
+[tool.coverage.run]
+source = ["src"]
+omit = ["src/export_spec.py", "src/conftest.py", "src/**/test_*.py"]
+
+[tool.coverage.report]
+show_missing = true
+
 [tool.mypy]
 python_version = "3.14"
 strict = true

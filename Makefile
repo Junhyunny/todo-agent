@@ -42,6 +42,11 @@ test-all:
 	cd backend && make test VENV=$(VENV)
 	cd frontend && npm run test
 
+.PHONY: coverage-all
+coverage-all:
+	cd backend && make test-coverage VENV=$(VENV)
+	cd frontend && npm run test:coverage
+
 .PHONY: start-frontend
 start-frontend:
 	cd frontend && npm run start

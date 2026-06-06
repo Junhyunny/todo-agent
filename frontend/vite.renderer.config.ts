@@ -26,6 +26,27 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       setupFiles: ["./vitest-setup.ts"],
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "json-summary"],
+        include: ["src/**/*.{ts,tsx}"],
+        exclude: [
+          "src/api/generated/**",
+          "src/components/ui/**",
+          "src/lib/**",
+          "src/**/*.test.{ts,tsx}",
+          "src/main.ts",
+          "src/preload.ts",
+          "src/renderer.ts",
+          "src/main.tsx",
+        ],
+        thresholds: {
+          lines: 80,
+          functions: 80,
+          branches: 80,
+          statements: 80,
+        },
+      },
     },
     server: {
       proxy: {

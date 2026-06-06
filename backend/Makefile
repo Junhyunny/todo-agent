@@ -15,5 +15,8 @@ migrate:
 test:
 	$(VENV)/bin/pytest -v
 
+test-coverage:
+	$(VENV)/bin/pytest --cov --cov-report=term-missing --cov-fail-under=80
+
 run:
 	PYTHONPATH=src uvicorn app:app --host 127.0.0.1 --port 8000
