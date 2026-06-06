@@ -183,3 +183,5 @@ expect(await screen.findByRole("option", { name: "웹 서치(web search)" })).to
 ```
 
 **툴팁**: `TooltipProvider`를 `App.tsx`에 전역 배치. 테스트에서는 `withTooltipProvider()`로 감싼다. `TooltipTrigger`에 `closeOnClick={false}` 필수 — 기본값이 `true`라 클릭 시 즉시 닫힌다.
+
+**LabelWithTooltip**: 여러 폼에서 반복되는 `Label + 도움말 Tooltip` 조합은 `components/LabelWithTooltip.tsx`의 `LabelWithTooltip` 컴포넌트를 사용한다. 도메인별 툴팁 텍스트 상수도 같은 파일에 함께 정의한다.
