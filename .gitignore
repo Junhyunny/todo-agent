@@ -1,4 +1,43 @@
-.idea
+# IDE
+.idea/
+.vscode/
+
+# Environment
 .env
-.tdd-sessions/
+
+# macOS
 .DS_Store
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.venv-sbx/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Node / Electron
+node_modules/
+coverage/
+out/
+.cache/
+*.tsbuildinfo
+.npm
+.eslintcache
+
+# Session / temp
+.tdd-sessions/
